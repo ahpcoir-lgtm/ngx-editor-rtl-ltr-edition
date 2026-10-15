@@ -5,7 +5,10 @@ import {
 import { CommonModule } from '@angular/common';
 import { NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor from '../../Editor';
+import { NgxEditorService } from '../../editor.service';
+import { normalizeDirection, resolveDirection } from '../../resolve-direction';
 import {
+  NgxEditorDirection,
   Toolbar,
   ToolbarDropdown,
   ToolbarItem,
@@ -162,6 +165,7 @@ const DEFAULT_COLOR_PRESETS = [
 })
 export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
   private menuService = inject(MenuService);
+  private ngxeService = inject(NgxEditorService);
   private el = inject(ElementRef<HTMLElement>);
 
   // the toolbar item that is reachable with Tab (roving tabindex)
@@ -173,6 +177,10 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
   readonly editor = input<Editor>(undefined);
   readonly customMenuRef = input<TemplateRef<unknown> | null>(null);
   readonly dropdownPlacement = input<'top' | 'bottom'>('bottom');
+  /** direction of the toolbar and its popups; else the editor's `dir` option, the global `dir` or the locale's direction */
+  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+    transform: normalizeDirection,
+  });
 
   toggleCommands: ToolbarItem[] = [
     'bold',
@@ -188,6 +196,11 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
     'align_center',
     'align_right',
     'align_justify',
+    'align_start',
+    'align_end',
+    'dir_ltr',
+    'dir_rtl',
+    'dir_auto',
     'superscript',
     'subscript',
   ];
@@ -213,6 +226,10 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
   iconContainerClass = ['NgxEditor__MenuItem', 'NgxEditor__MenuItem--IconContainer'];
   dropdownContainerClass = ['NgxEditor__Dropdown'];
   seperatorClass = ['NgxEditor__Seperator'];
+
+  get resolvedDir(): NgxEditorDirection | null {
+    return resolveDirection(this.dir(), this.editor(), this.ngxeService);
+  }
 
   get presets(): string[][] {
     const col = 8;
@@ -323,9 +340,16 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
     const before = enabled.filter((button) => buttons.indexOf(button) < index);
     const after = enabled.filter((button) => buttons.indexOf(button) > index);
 
+    const nextItem = after[0] ?? enabled[0];
+    const previousItem = before.at(-1) ?? enabled.at(-1);
+
+    // in a right to left toolbar the next item is on the left
+    const isArrow = e.key === 'ArrowRight' || e.key === 'ArrowLeft';
+    const rtl = isArrow && getComputedStyle(e.target as HTMLElement).direction === 'rtl';
+
     const next: Record<string, HTMLElement | undefined> = {
-      ArrowRight: after[0] ?? enabled[0],
-      ArrowLeft: before.at(-1) ?? enabled.at(-1),
+      ArrowRight: rtl ? previousItem : nextItem,
+      ArrowLeft: rtl ? nextItem : previousItem,
       Home: enabled[0],
       End: enabled.at(-1),
     };

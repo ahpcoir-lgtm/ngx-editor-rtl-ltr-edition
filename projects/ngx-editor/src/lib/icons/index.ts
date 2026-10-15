@@ -17,6 +17,11 @@ import alignLeft from './align_left';
 import alignCenter from './align_center';
 import alignRight from './align_right';
 import alignJustify from './align_justify';
+import alignStart from './align_start';
+import alignEnd from './align_end';
+import dirLtr from './dir_ltr';
+import dirRtl from './dir_rtl';
+import dirAuto from './dir_auto';
 import textColor from './text_color';
 import colorFill from './color_fill';
 import horizontalRule from './horizontal_rule';
@@ -50,6 +55,11 @@ export const icons: Record<string, string> = {
   align_center: alignCenter,
   align_right: alignRight,
   align_justify: alignJustify,
+  align_start: alignStart,
+  align_end: alignEnd,
+  dir_ltr: dirLtr,
+  dir_rtl: dirRtl,
+  dir_auto: dirAuto,
   text_color: textColor,
   color_fill: colorFill,
   horizontal_rule: horizontalRule,

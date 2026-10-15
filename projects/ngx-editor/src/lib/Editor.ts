@@ -10,6 +10,9 @@ import defautlSchema from './schema';
 import { parseContent } from './parsers';
 import getDefaultPlugins from './defaultPlugins';
 import { HTML } from './trustedTypesUtil';
+import type { TextDirectionValue } from './commands/TextDirection';
+import directionPlugin from './plugins/direction';
+import directionShortcuts from './plugins/direction-shortcuts';
 
 type JSONDoc = Record<string, unknown>;
 type Content = HTML | null | JSONDoc;
@@ -27,7 +30,13 @@ interface Options {
   handleScrollToSelection?: EditorProps['handleScrollToSelection'];
   linkValidationPattern?: string;
   parseOptions?:ParseOptions;
+  /** direction of the editor surface, below the `[dir]` input of the component and above the global config */
+  dir?: TextDirectionValue;
+  /** blocks without a direction of their own take the direction of their first strong character, also in the html output */
+  autoDirection?: boolean;
 }
+
+export type EditorOptions = Options;
 
 interface SetContentOptions {
   addToHistory?: boolean;
@@ -42,11 +51,14 @@ const formWrites = new WeakSet<JSONDoc>();
 interface EditorFeatures {
   linkOnPaste?: boolean;
   resizeImage?: boolean;
+  /** Ctrl + Right Shift / Ctrl + Left Shift make the selected blocks right to left / left to right */
+  directionShortcuts?: boolean;
 }
 
 const defaultFeatures = {
   linkOnPaste: true,
   resizeImage: true,
+  directionShortcuts: true,
 };
 
 const DEFAULT_OPTIONS: Options = {
@@ -99,6 +111,11 @@ class Editor {
     return { ...defaultFeatures, ...this.options.features };
   }
 
+  /** the options the editor was created with, merged with the defaults */
+  get config(): Readonly<Options> {
+    return this.options;
+  }
+
   private handleTransactions(tr: Transaction): void {
     const state = this.view.state.apply(tr);
     this.view.updateState(state);
@@ -138,6 +155,15 @@ class Editor {
       keyboardShortcuts,
       inputRules,
     });
+
+    defaultPlugins.push(directionPlugin({
+      dir: options.dir ?? null,
+      autoDirection: Boolean(options.autoDirection),
+    }));
+
+    if (keyboardShortcuts && this.features.directionShortcuts) {
+      defaultPlugins.push(directionShortcuts());
+    }
 
     this.view = new EditorView(null, {
       state: EditorState.create({

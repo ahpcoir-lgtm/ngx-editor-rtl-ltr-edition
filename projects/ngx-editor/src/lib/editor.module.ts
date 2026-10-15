@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { InjectionToken, ModuleWithProviders, NgModule } from '@angular/core';
+import { ModuleWithProviders, NgModule } from '@angular/core';
 
 import { defaults as defaultLocals } from './Locals';
 import { NgxEditorConfig } from './types';
@@ -8,12 +8,14 @@ import { NgxEditorServiceConfig } from './editor-config.service';
 import { NgxEditorComponent } from './editor.component';
 import { NgxEditorService, provideMyServiceOptions } from './editor.service';
 import { MenuModule } from './modules/menu/menu.module';
+import { NGX_EDITOR_CONFIG_TOKEN } from './provide-config';
 
 import { ImageViewComponent } from './components/image-view/image-view.component';
 import { NgxEditorFloatingMenuComponent } from './modules/menu/floating-menu/floating-menu.component';
 import { NgxEditorMenuComponent } from './modules/menu/menu.component';
 
-export const NGX_EDITOR_CONFIG_TOKEN = new InjectionToken<NgxEditorConfig>('NgxEditorConfig');
+// defined next to `provideNgxEditorConfig`, exported here as before
+export { NGX_EDITOR_CONFIG_TOKEN };
 
 const defaultConfig: NgxEditorConfig = {
   locals: defaultLocals,

@@ -9,6 +9,7 @@ import { NgxEditorService } from '../../../editor.service';
 import { SanitizeHtmlPipe } from '../../../pipes/sanitize/sanitize-html.pipe';
 import { TBItems } from '../../../types';
 import { ToggleCommands } from '../MenuCommands';
+import { isMirroredIcon } from '../mirrored-icons';
 
 @Component({
   selector: 'ngx-bubble',
@@ -57,6 +58,10 @@ export class BubbleComponent implements OnInit, OnDestroy {
 
   getIcon(name: TBItems): SafeHtml {
     return this.sanitizeHTML.transform(this.ngxeService.getIcon(name));
+  }
+
+  isMirrored(name: TBItems): boolean {
+    return isMirroredIcon(name);
   }
 
   getTitle(name: string): Observable<string> {

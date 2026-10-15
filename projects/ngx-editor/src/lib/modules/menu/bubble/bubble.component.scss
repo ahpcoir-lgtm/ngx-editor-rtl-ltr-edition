@@ -30,7 +30,7 @@
   }
 
   + .NgxBubbleMenu__Icon {
-    margin-left: 5px;
+    margin-inline-start: 5px;
   }
 
   &.NgxBubbleMenu__Icon--Active {
@@ -40,6 +40,7 @@
 }
 
 .NgxBubbleMenu__Seperator {
-  border-left: 1px solid var(--ngx-editor-bubble-seperator-color);
-  margin: 0 5px;
+  border-inline-start: 1px solid var(--ngx-editor-bubble-seperator-color);
+  margin-block: 0;
+  margin-inline: 5px;
 }

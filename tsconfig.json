@@ -28,6 +28,9 @@
       "ngx-editor-rtl-ltr-edition/helpers": [
         "./dist/ngx-editor-rtl-ltr-edition/helpers"
       ],
+      "ngx-editor-rtl-ltr-edition/locales": [
+        "./dist/ngx-editor-rtl-ltr-edition/locales"
+      ],
     },
     "skipLibCheck": true,
     "isolatedModules": true,

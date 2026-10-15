@@ -1,5 +1,6 @@
 import {
   Component,
+  HostBinding,
   ElementRef,
   forwardRef,
   Injector,
@@ -17,14 +18,18 @@ import {
   output,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { isNil, NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor, { isFormWrite, writeFormValue } from './Editor';
+import { NgxEditorService } from './editor.service';
 import { emptyDoc, toHTML } from './parsers';
 import * as plugins from './plugins';
+import { getEditorDirection, setEditorDirection } from './plugins/direction';
+import { normalizeDirection, resolveDirection } from './resolve-direction';
 import { HTML, isHtml } from './trustedTypesUtil';
+import { NgxEditorDirection } from './types';
 
 @Component({
   selector: 'ngx-editor',
@@ -45,11 +50,24 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
   private renderer = inject(Renderer2);
   private injector = inject(Injector);
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+  private ngxeService = inject(NgxEditorService);
 
   @ViewChild('ngxEditor', { static: true }) private ngxEditor: ElementRef;
 
   readonly editor = input<Editor>(undefined);
-  readonly placeholder = input('Type Here...');
+  // when not bound, the `placeholder` string of the locale is shown
+  readonly placeholder = input<string | undefined>(undefined);
+
+  // Direction of the editor surface; else the editor's `dir` option, the global `dir` or the locale's direction.
+  // `null` writes no `dir`. Accepts any string, like the native `dir` property this input replaced.
+  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+    transform: normalizeDirection,
+  });
+
+  // a bound `[dir]` also reaches the host, as the native property did, so projected menus and popups follow it
+  @HostBinding('attr.dir') get hostDir(): NgxEditorDirection | null {
+    return this.dir() ?? null;
+  }
 
   readonly outputFormat = input<'doc' | 'html'>(undefined);
   // inferred from the first html value when no format is given
@@ -59,6 +77,11 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
   readonly focusIn = output<void>();
 
   private unsubscribe = new Subject<void>();
+  // once [placeholder] is bound its value wins over the locale's, even when it is undefined (as upstream)
+  private placeholderBound = false;
+  private localePlaceholder = '';
+  private localePlaceholderSubscription: Subscription | null = null;
+  private pluginsRegistered = false;
   private initialValueSet = false;
   private onChange: (value: Record<string, unknown> | string) => void = () => { /** */ };
   private onTouched: () => void = () => { /** */ };
@@ -97,7 +120,8 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
     }
 
     if (this.format() === 'html') {
-      const html = toHTML(jsonDoc, this.editor().schema);
+      const editor = this.editor();
+      const html = toHTML(jsonDoc, editor.schema, { autoDirection: editor.config.autoDirection });
       this.onChange(html);
       return;
     }
@@ -110,13 +134,45 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
     dispatch(tr.setMeta(key, value));
   }
 
+  // writes the resolved direction on the editor surface
+  private updateDirection(): void {
+    const { state } = this.editor().view;
+    const dir = resolveDirection(this.dir(), this.editor(), this.ngxeService);
+    const current = getEditorDirection(state);
+
+    if (current && current.dir !== dir) {
+      this.editor().view.dispatch(setEditorDirection(state.tr, { dir }));
+    }
+  }
+
   private setPlaceholder(placeholder: string): void {
     this.setMeta('UPDATE_PLACEHOLDER', placeholder);
   }
 
+  private get placeholderText(): string {
+    return this.placeholderBound ? this.placeholder() ?? '' : this.localePlaceholder;
+  }
+
+  // the locale's string can be an observable (a `locals` override), so it is followed until [placeholder] is bound
+  private watchLocalePlaceholder(): void {
+    this.localePlaceholderSubscription = this.ngxeService.locals.get('placeholder').subscribe((text) => {
+      this.localePlaceholder = text;
+
+      // before the plugin is registered, `registerPlugins` reads the value
+      if (this.pluginsRegistered) {
+        this.setPlaceholder(text);
+      }
+    });
+  }
+
+  private stopWatchingLocalePlaceholder(): void {
+    this.localePlaceholderSubscription?.unsubscribe();
+    this.localePlaceholderSubscription = null;
+  }
+
   private registerPlugins(): void {
     this.editor().registerPlugin(plugins.editable());
-    this.editor().registerPlugin(plugins.placeholder(this.placeholder()));
+    this.editor().registerPlugin(plugins.placeholder(this.placeholderText));
 
     this.editor().registerPlugin(plugins.attributes({ class: 'NgxEditor__Content' }));
 
@@ -145,7 +201,13 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
       throw new NgxEditorError('Required editor instance for initializing editor component');
     }
 
+    if (!this.placeholderBound) {
+      this.watchLocalePlaceholder();
+    }
+
     this.registerPlugins();
+    this.pluginsRegistered = true;
+    this.updateDirection();
 
     this.renderer.appendChild(this.ngxEditor.nativeElement, editor.view.dom);
 
@@ -155,12 +217,23 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['placeholder'] && !changes['placeholder'].isFirstChange()) {
-      this.setPlaceholder(changes['placeholder'].currentValue);
+    if (changes['dir'] && this.pluginsRegistered) {
+      this.updateDirection();
+    }
+
+    if (changes['placeholder']) {
+      this.placeholderBound = true;
+      this.stopWatchingLocalePlaceholder();
+
+      // the value bound before init reaches the plugin when it is registered
+      if (this.pluginsRegistered) {
+        this.setPlaceholder(this.placeholderText);
+      }
     }
   }
 
   ngOnDestroy(): void {
+    this.stopWatchingLocalePlaceholder();
     this.unsubscribe.next();
     this.unsubscribe.complete();
   }

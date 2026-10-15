@@ -181,6 +181,95 @@ export default {
       attrs: {
         level: 2,
         align: null,
+        dir: 'rtl',
+      },
+      content: [
+        {
+          type: 'text',
+          text: 'متن دوزبانه',
+        },
+      ],
+    },
+    {
+      type: 'paragraph',
+      attrs: {
+        align: null,
+      },
+      content: [
+        {
+          type: 'text',
+          text: 'این پاراگراف فارسی است و واژه‌های ',
+        },
+        {
+          type: 'text',
+          marks: [
+            {
+              type: 'strong',
+            },
+          ],
+          text: 'English',
+        },
+        {
+          type: 'text',
+          text: ' و عددهایی مانند 2026 و 3.14 را در میان خود دارد. در حالت «Auto per paragraph» جهت آن از نخستین حرفش تعیین می‌شود.',
+        },
+      ],
+    },
+    {
+      type: 'bullet_list',
+      attrs: {
+        dir: 'rtl',
+      },
+      content: [
+        {
+          type: 'list_item',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'نوشتن متن فارسی با نیم‌فاصله',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'list_item',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'کلمه‌های English در میان جمله',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          type: 'list_item',
+          content: [
+            {
+              type: 'paragraph',
+              content: [
+                {
+                  type: 'text',
+                  text: 'عددها: 1، 2 و 3',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: 'heading',
+      attrs: {
+        level: 2,
+        align: null,
       },
       content: [
         {

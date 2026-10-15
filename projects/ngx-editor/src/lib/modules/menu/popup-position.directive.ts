@@ -57,10 +57,12 @@ export class PopupPositionDirective implements AfterViewInit, OnDestroy {
       ],
     });
 
+    // `right: auto`: a `right` from a stylesheet (e.g. an `inset-inline-start` in RTL) would win over `left`
     Object.assign(floating.style, {
       position: 'fixed',
       top: `${y}px`,
       left: `${x}px`,
+      right: 'auto',
       bottom: 'auto',
     });
 

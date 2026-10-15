@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
+import { NgxEditorLocale, getNgxEditorLocale } from 'ngx-editor-rtl-ltr-edition/locales';
 
-import { NgxEditorConfig } from './types';
+import { NgxEditorConfig, NgxEditorDirection } from './types';
 import Locals from './Locals';
 import { NgxEditorServiceConfig } from './editor-config.service';
 import Icon from './icons';
@@ -12,8 +13,19 @@ import { HTML } from './trustedTypesUtil';
 export class NgxEditorService {
   config = inject(NgxEditorServiceConfig, { optional: true });
 
+  /** the configured locale, `undefined` when none is configured or its code is not registered */
+  get locale(): NgxEditorLocale | undefined {
+    return getNgxEditorLocale(this.config?.locale);
+  }
+
+  // English defaults <- the configured locale <- the `locals` overrides
   get locals(): Locals {
-    return new Locals(this.config.locals);
+    return new Locals({ ...this.locale?.locals, ...this.config?.locals });
+  }
+
+  /** the configured direction, else the locale's; `null` leaves the direction to the page */
+  get dir(): NgxEditorDirection | null {
+    return this.config?.dir ?? this.locale?.dir ?? null;
   }
 
   getIcon(icon: string): HTML {
@@ -23,7 +35,9 @@ export class NgxEditorService {
 
 export const provideMyServiceOptions = (config?: NgxEditorConfig): NgxEditorServiceConfig => {
   return {
-    locals: config.locals ?? {},
-    icons: config.icons ?? {},
+    locals: config?.locals ?? {},
+    icons: config?.icons ?? {},
+    locale: config?.locale,
+    dir: config?.dir,
   };
 };

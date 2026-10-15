@@ -8,6 +8,7 @@ import { SanitizeHtmlPipe } from '../../../pipes/sanitize/sanitize-html.pipe';
 import { HTML } from '../../../trustedTypesUtil';
 import { TBItems, ToolbarItem } from '../../../types';
 import { MenuService } from '../menu.service';
+import { isMirroredIcon } from '../mirrored-icons';
 import { ToggleCommands } from '../MenuCommands';
 
 @Component({
@@ -27,6 +28,10 @@ export class ToggleCommandComponent implements OnInit, OnDestroy {
 
   get name(): TBItems {
     return this.toolbarItem() as TBItems;
+  }
+
+  get mirrored(): boolean {
+    return isMirroredIcon(this.name);
   }
 
   html: HTML;

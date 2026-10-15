@@ -1,7 +1,10 @@
-import { MarkType, NodeType, Schema } from 'prosemirror-model';
+import { Attrs, MarkType, Node as ProseMirrorNode, NodeType, ResolvedPos, Schema } from 'prosemirror-model';
 import { Command, Plugin } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
-import { toggleMark, baseKeymap, chainCommands, exitCode } from 'prosemirror-commands';
+import {
+  toggleMark, baseKeymap, chainCommands, exitCode,
+  newlineInCode, createParagraphNear, liftEmptyBlock, splitBlockAs,
+} from 'prosemirror-commands';
 import { splitListItem, liftListItem, sinkListItem } from 'prosemirror-schema-list';
 import { history, undo, redo } from 'prosemirror-history';
 import {
@@ -12,6 +15,7 @@ import { columnResizing, tableEditing, goToNextCell } from 'prosemirror-tables';
 import { markInputRule } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import taskList from './plugins/task-list';
+import DirectionTableView from './plugins/table-view';
 
 interface Options {
   history: boolean;
@@ -27,33 +31,63 @@ const isMacOs = typeof navigator !== 'undefined'
   ? (/Mac/).test(navigator.platform)
   : false;
 
-// Input rules ref: https://github.com/ProseMirror/prosemirror-example-setup/
-
-// : (NodeType) → InputRule
-// Given a blockquote node type, returns an input rule that turns `"> "`
-// at the start of a textblock into a blockquote.
-const blockQuoteRule = (nodeType: NodeType): InputRule => {
-  return wrappingInputRule(/^\s*>\s$/, nodeType);
+const getBlockDir = (node: ProseMirrorNode): string | null => {
+  const dir: unknown = node.attrs['dir'];
+  return typeof dir === 'string' && dir ? dir : null;
 };
 
-// : (NodeType) → InputRule
+// Input rules ref: https://github.com/ProseMirror/prosemirror-example-setup/
+
+// Like wrappingInputRule, but the new list or blockquote gets the `dir` of the block it wraps, so that the
+// markers or the border are on the side of its text. The getAttrs of wrappingInputRule only sees the match, so
+// a rule with the same pattern runs first, records the direction and returns null to pass the input on.
+const wrappingRuleKeepingDir = (
+  regexp: RegExp,
+  nodeType: NodeType,
+  getAttrs?: (match: RegExpMatchArray) => Attrs,
+  joinPredicate?: (match: RegExpMatchArray, node: ProseMirrorNode) => boolean,
+): InputRule[] => {
+  let dir: string | null = null;
+  const canHaveDir = Boolean(nodeType.spec.attrs && 'dir' in nodeType.spec.attrs);
+
+  const recordDir = new InputRule(regexp, (state, _match, start) => {
+    dir = canHaveDir ? getBlockDir(state.doc.resolve(start).parent) : null;
+    return null;
+  });
+
+  const wrap = wrappingInputRule(regexp, nodeType, (match) => {
+    const attrs = getAttrs ? getAttrs(match) : null;
+    return dir ? { ...attrs, dir } : attrs;
+  }, joinPredicate);
+
+  return [recordDir, wrap];
+};
+
+// : (NodeType) → InputRule[]
+// Given a blockquote node type, returns an input rule that turns `"> "`
+// at the start of a textblock into a blockquote.
+const blockQuoteRule = (nodeType: NodeType): InputRule[] => {
+  return wrappingRuleKeepingDir(/^\s*>\s$/, nodeType);
+};
+
+// : (NodeType) → InputRule[]
 // Given a list node type, returns an input rule that turns a number
 // followed by a dot at the start of a textblock into an ordered list.
-const orderedListRule = (nodeType: NodeType): InputRule => {
-  return wrappingInputRule(
+const orderedListRule = (nodeType: NodeType): InputRule[] => {
+  return wrappingRuleKeepingDir(
     /^(?<order>\d{1,9})\.\s$/,
     nodeType,
-    (match) => ({ order: Number(match.groups['order']) }),
-    (match, node) => node.childCount + node.attrs['order'] === Number(match.groups['order']),
+    (match) => ({ order: Number(match.groups?.['order']) }),
+    (match, node) => node.childCount + Number(node.attrs['order']) === Number(match.groups?.['order']),
   );
 };
 
-// : (NodeType) → InputRule
+// : (NodeType) → InputRule[]
 // Given a list node type, returns an input rule that turns a bullet
 // (dash, plush, or asterisk) at the start of a textblock into a
 // bullet list.
-const bulletListRule = (nodeType: NodeType): InputRule => {
-  return wrappingInputRule(/^\s*(?:[-+*])\s$/, nodeType);
+const bulletListRule = (nodeType: NodeType): InputRule[] => {
+  return wrappingRuleKeepingDir(/^\s*(?:[-+*])\s$/, nodeType);
 };
 
 // : (NodeType) → InputRule
@@ -98,9 +132,9 @@ const buildInputRules = (schema: Schema): Plugin => {
 
   rules.push(boldRule(schema.marks['strong']));
   rules.push(emRule(schema.marks['em']));
-  rules.push(blockQuoteRule(schema.nodes['blockquote']));
-  rules.push(orderedListRule(schema.nodes['ordered_list']));
-  rules.push(bulletListRule(schema.nodes['bullet_list']));
+  rules.push(...blockQuoteRule(schema.nodes['blockquote']));
+  rules.push(...orderedListRule(schema.nodes['ordered_list']));
+  rules.push(...bulletListRule(schema.nodes['bullet_list']));
   rules.push(codeBlockRule(schema.nodes['code_block']));
   rules.push(headingRule(schema.nodes['heading'], 6));
 
@@ -113,11 +147,38 @@ const forListItems = (schema: Schema, command: (itemType: NodeType) => Command):
   return chainCommands(...itemTypes.map(command));
 };
 
+// the first textblock type allowed at the position, like `defaultBlockAt` of prosemirror-commands
+const defaultTextblockAt = ($pos: ResolvedPos): NodeType | null => {
+  const match = $pos.node(-1).contentMatchAt($pos.indexAfter(-1));
+
+  for (let i = 0; i < match.edgeCount; i++) {
+    const { type } = match.edge(i);
+    if (type.isTextblock && !type.hasRequiredAttrs()) {
+      return type;
+    }
+  }
+
+  return null;
+};
+
+// like splitBlock, but the new block at the end of a block keeps its direction (split blocks keep it anyway)
+const splitBlockKeepingDir = splitBlockAs((node, atEnd, $from) => {
+  const dir = getBlockDir(node);
+  const type = atEnd && dir ? defaultTextblockAt($from) : null;
+
+  if (!type?.spec.attrs || !('dir' in type.spec.attrs)) {
+    return null;
+  }
+
+  return { type, attrs: { dir } };
+});
+
 // splitting inside the text of an item copies its attributes to the new item,
 // so uncheck the new item when splitting a checked task item
 const splitItem = (itemType: NodeType): Command => {
   return (state, dispatch) => {
     const { $from } = state.selection;
+    const dir = getBlockDir($from.parent);
 
     // an empty item is lifted out of the list instead of split
     const isSplit = $from.parent.content.size > 0;
@@ -135,6 +196,11 @@ const splitItem = (itemType: NodeType): Command => {
         const itemPos = $pos.before(depth);
         const newItemPos = atStart ? itemPos - tr.doc.resolve(itemPos).nodeBefore.nodeSize : itemPos;
         tr.setNodeAttribute(newItemPos, 'checked', false);
+      }
+
+      // at the end of the item, the new paragraph is created without the direction of the one it was split from
+      if (isSplit && dir && $pos.parent.attrs['dir'] === null) {
+        tr.setNodeAttribute($pos.before(), 'dir', dir);
       }
 
       dispatch(tr);
@@ -160,7 +226,10 @@ export const getKeyboardShortcuts = (schema: Schema, options: ShortcutOptions) =
       'Mod-`': toggleMark(schema.marks['code']),
     }),
     keymap({
-      'Enter': forListItems(schema, splitItem),
+      'Enter': chainCommands(
+        forListItems(schema, splitItem),
+        newlineInCode, createParagraphNear, liftEmptyBlock, splitBlockKeepingDir,
+      ),
       'Shift-Enter': chainCommands(exitCode, (state, dispatch) => {
         const { tr } = state;
         const br = schema.nodes['hard_break'];
@@ -206,7 +275,7 @@ const getDefaultPlugins = (schema: Schema, options: Options): Plugin[] => {
   }
   
   if (schema.nodes['table']) {
-    plugins.push(columnResizing(), tableEditing());
+    plugins.push(columnResizing({ View: DirectionTableView }), tableEditing());
   }
 
   if (schema.nodes['task_item']) {

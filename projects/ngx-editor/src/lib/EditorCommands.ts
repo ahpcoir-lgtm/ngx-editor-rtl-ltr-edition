@@ -15,6 +15,7 @@ import ImageCommand, { ImageAttrs } from './commands/Image';
 import TextColorCommand from './commands/TextColor';
 import TextAlignCommand, { Align } from './commands/TextAlign';
 import IndentCommand from './commands/Indent';
+import TextDirectionCommand, { setTextDirection, TextDirectionValue } from './commands/TextDirection';
 
 import { HTML, parseHTML } from './trustedTypesUtil';
 import { isString } from './stringUtil';
@@ -236,6 +237,19 @@ class EditorCommands {
 
   align(p: Align): this {
     const command = new TextAlignCommand(p);
+    command.toggle()(this.state, this.dispatch);
+    return this;
+  }
+
+  // sets the direction of the blocks in the selection, `null` removes it
+  setTextDirection(dir: TextDirectionValue | null): this {
+    setTextDirection(dir)(this.state, this.dispatch);
+    return this;
+  }
+
+  // sets the direction of the blocks in the selection, or removes it when it is already set
+  toggleTextDirection(dir: TextDirectionValue): this {
+    const command = new TextDirectionCommand(dir);
     command.toggle()(this.state, this.dispatch);
     return this;
   }

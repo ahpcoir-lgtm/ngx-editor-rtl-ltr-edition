@@ -2,7 +2,7 @@ import { DOMOutputSpec, Node as ProseMirrorNode, NodeSpec } from 'prosemirror-mo
 import { type MutableAttrs, tableNodes } from 'prosemirror-tables';
 import * as sl from 'prosemirror-schema-list';
 
-import { toStyleString } from 'ngx-editor-rtl-ltr-edition/utils';
+import { dirAttr, getAlign, getBlockStyle, getDir, getIndent, withDirection } from './block-attrs';
 
 const doc: NodeSpec = {
   content: 'block+',
@@ -25,34 +25,27 @@ const paragraph: NodeSpec = {
     indent: {
       default: null,
     },
+    dir: dirAttr,
   },
   parseDOM: [
     {
       tag: 'p',
       getAttrs(dom: HTMLElement) {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
         return {
-          align,
-          indent: parseInt(indent, 10) || null,
+          align: getAlign(dom),
+          indent: getIndent(dom),
+          dir: getDir(dom),
         };
       },
     },
   ],
   toDOM(node): DOMOutputSpec {
-    const { align, indent } = node.attrs;
-
-    const styles: Partial<CSSStyleDeclaration> = {
-      textAlign: align !== 'left' ? align : null,
-      marginLeft: indent !== null ? `${indent * 40}px` : null,
-    };
-    const style = toStyleString(styles) || null;
+    const { align, indent, dir } = node.attrs;
 
     const attrs = {
-      style,
+      style: getBlockStyle(align, indent),
       'data-indent': indent ?? null,
+      dir,
     };
 
     return ['p', attrs, 0];
@@ -68,30 +61,26 @@ const blockquote: NodeSpec = {
     indent: {
       default: null,
     },
+    dir: dirAttr,
   },
   parseDOM: [
     {
       tag: 'blockquote',
       getAttrs(dom: HTMLElement) {
-        const indent = dom.getAttribute('data-indent') || null;
         return {
-          indent: parseInt(indent, 10) || null,
+          indent: getIndent(dom),
+          dir: getDir(dom),
         };
       },
     },
   ],
   toDOM(node): DOMOutputSpec {
-    const { indent } = node.attrs;
-
-    const styles: Partial<CSSStyleDeclaration> = {
-      marginLeft: indent !== null ? `${indent * 40}px` : null,
-    };
-
-    const style = toStyleString(styles) || null;
+    const { indent, dir } = node.attrs;
 
     const attrs = {
-      style,
+      style: getBlockStyle(null, indent),
       'data-indent': indent ?? null,
+      dir,
     };
 
     return ['blockquote', attrs, 0];
@@ -107,6 +96,8 @@ const horizontalRule: NodeSpec = {
   },
 };
 
+const headingLevels = [1, 2, 3, 4, 5, 6];
+
 // :: NodeSpec A heading textblock, with a `level` attribute that
 // should hold the number 1 to 6. Parsed and serialized as `<h1>` to
 // `<h6>` elements.
@@ -121,108 +112,29 @@ const heading: NodeSpec = {
     indent: {
       default: null,
     },
+    dir: dirAttr,
   },
   content: 'inline*',
   group: 'block',
   defining: true,
-  parseDOM: [
-    {
-      tag: 'h1',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 1,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
+  parseDOM: headingLevels.map((level) => ({
+    tag: `h${level}`,
+    getAttrs(dom: HTMLElement): Record<string, string | number | null> {
+      return {
+        level,
+        align: getAlign(dom),
+        indent: getIndent(dom),
+        dir: getDir(dom),
+      };
     },
-    {
-      tag: 'h2',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 2,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
-    },
-    {
-      tag: 'h3',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 3,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
-    },
-    {
-      tag: 'h4',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 4,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
-    },
-    {
-      tag: 'h5',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 5,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
-    },
-    {
-      tag: 'h6',
-      getAttrs(dom: HTMLElement): Record<string, string | number | null> {
-        const { textAlign } = dom.style;
-        const align = dom.getAttribute('align') || textAlign || null;
-        const indent = dom.getAttribute('data-indent') || null;
-
-        return {
-          level: 6,
-          align,
-          indent: parseInt(indent, 10) || null,
-        };
-      },
-    },
-  ],
+  })),
   toDOM(node): DOMOutputSpec {
-    const { level, align, indent } = node.attrs;
-
-    const styles: Partial<CSSStyleDeclaration> = {
-      textAlign: align !== 'left' ? align : null,
-      marginLeft: indent !== null ? `${indent * 40}px` : null,
-    };
-    const style = toStyleString(styles) || null;
+    const { level, align, indent, dir } = node.attrs;
 
     const attrs = {
-      style,
+      style: getBlockStyle(align, indent),
       'data-indent': indent ?? null,
+      dir,
     };
 
     return [`h${level}`, attrs, 0];
@@ -238,14 +150,22 @@ const codeBlock: NodeSpec = {
   group: 'block',
   code: true,
   defining: true,
+  attrs: {
+    dir: dirAttr,
+  },
   parseDOM: [
     {
       tag: 'pre',
       preserveWhitespace: 'full',
+      getAttrs(dom: HTMLElement) {
+        return {
+          dir: getDir(dom),
+        };
+      },
     },
   ],
-  toDOM(): DOMOutputSpec {
-    return ['pre', ['code', 0]];
+  toDOM(node): DOMOutputSpec {
+    return ['pre', { dir: node.attrs['dir'] }, ['code', 0]];
   },
 };
 
@@ -322,36 +242,44 @@ const tableNodeSpecs = tableNodes({
   },
 });
 
-const listItem = {
+const listItem = withDirection({
   ...sl.listItem,
   content: 'paragraph block*',
-};
+});
 
-const orderedList = {
+const orderedList = withDirection({
   ...sl.orderedList,
   content: 'list_item+',
   group: 'block',
-};
+});
 
-const bulletList = {
+const bulletList = withDirection({
   ...sl.bulletList,
   content: 'list_item+',
   group: 'block',
-};
+});
 
 // :: NodeSpec A list of checkable items, represented in the DOM
 // as `<ul data-type="task_list">`.
 const taskList: NodeSpec = {
   content: 'task_item+',
   group: 'block',
+  attrs: {
+    dir: dirAttr,
+  },
   parseDOM: [
     {
       tag: 'ul[data-type="task_list"]',
       priority: 51, // before the bullet list
+      getAttrs(dom: HTMLElement) {
+        return {
+          dir: getDir(dom),
+        };
+      },
     },
   ],
-  toDOM(): DOMOutputSpec {
-    return ['ul', { 'data-type': 'task_list' }, 0];
+  toDOM(node): DOMOutputSpec {
+    return ['ul', { 'data-type': 'task_list', dir: node.attrs['dir'] }, 0];
   },
 };
 
@@ -364,6 +292,7 @@ const taskItem: NodeSpec = {
     checked: {
       default: false,
     },
+    dir: dirAttr,
   },
   parseDOM: [
     {
@@ -372,6 +301,7 @@ const taskItem: NodeSpec = {
       getAttrs(dom: HTMLElement) {
         return {
           checked: dom.getAttribute('data-checked') === 'true',
+          dir: getDir(dom),
         };
       },
     },
@@ -380,6 +310,7 @@ const taskItem: NodeSpec = {
     const attrs = {
       'data-type': 'task_item',
       'data-checked': String(node.attrs['checked']),
+      dir: node.attrs['dir'],
     };
 
     return ['li', attrs, 0];
@@ -397,6 +328,7 @@ const nodes = {
   code_block: codeBlock,
   image,
   ...tableNodeSpecs,
+  table: withDirection(tableNodeSpecs.table),
   list_item: listItem,
   ordered_list: orderedList,
   bullet_list: bulletList,

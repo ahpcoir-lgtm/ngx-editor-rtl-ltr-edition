@@ -2,6 +2,8 @@ import { Node as ProseMirrorNode } from 'prosemirror-model';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView, NodeView, ViewMutationRecord } from 'prosemirror-view';
 
+import { setOptionalAttribute } from './set-attribute';
+
 // renders a checkbox in front of the item content, the checkbox
 // is not part of the document and toggles the `checked` attribute
 class TaskItemView implements NodeView {
@@ -38,6 +40,7 @@ class TaskItemView implements NodeView {
     const checked = Boolean(this.node.attrs['checked']);
     this.dom.dataset['checked'] = String(checked);
     this.checkbox.checked = checked;
+    setOptionalAttribute(this.dom, 'dir', this.node.attrs['dir']);
   }
 
   // keep the focus and selection in the editor

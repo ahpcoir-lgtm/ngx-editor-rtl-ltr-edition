@@ -1,78 +1,14 @@
+import { isDevMode } from '@angular/core';
 import { Observable, isObservable, of } from 'rxjs';
+import { en } from 'ngx-editor-rtl-ltr-edition/locales';
 
-export const defaults: Record<string, string | Observable<string>> = {
-  // menu
-  bold: 'Bold',
-  italic: 'Italic',
-  code: 'Code',
-  underline: 'Underline',
-  strike: 'Strike',
-  blockquote: 'Blockquote',
-  bullet_list: 'Bullet List',
-  ordered_list: 'Ordered List',
-  task_list: 'Task List',
-  heading: 'Heading',
-  paragraph: 'Paragraph',
-  h1: 'Header 1',
-  h2: 'Header 2',
-  h3: 'Header 3',
-  h4: 'Header 4',
-  h5: 'Header 5',
-  h6: 'Header 6',
-  align_left: 'Left Align',
-  align_center: 'Center Align',
-  align_right: 'Right Align',
-  align_justify: 'Justify',
-  text_color: 'Text Color',
-  background_color: 'Background Color',
-  horizontal_rule: 'Horizontal rule',
-  format_clear: 'Clear Formatting',
-  insertLink: 'Insert Link',
-  removeLink: 'Remove Link',
-  insertImage: 'Insert Image',
-  insertTable: 'Insert Table',
-  indent: 'Increase Indent',
-  outdent: 'Decrease Indent',
-  superscript: 'Superscript',
-  subscript: 'Subscript',
-  undo: 'Undo',
-  redo: 'Redo',
-
-  // pupups, forms, others...
-  url: 'URL',
-  text: 'Text',
-  openInNewTab: 'Open in new tab',
-  insert: 'Insert',
-  altText: 'Alt Text',
-  title: 'Title',
-  remove: 'Remove',
-  enterValidUrl: 'Please enter a valid URL',
-  rows: 'Number of Rows',
-  rowsRequired: 'Rows field is required.',
-  rowsMin: 'Minimum number of rows must be 1.',
-  cols: 'Number of Columns',
-  colsRequired: 'Columns field is required.',
-  colsMin: 'Minimum number of columns must be 1.',
-  // Table actions
-  table:'Table',
-  addColumnBefore: 'Insert Column Before',
-  addColumnAfter: 'Insert Column After',
-  deleteColumn: 'Delete Column',
-  addRowBefore: 'Insert Row Before',
-  addRowAfter: 'Insert Row After',
-  deleteRow: 'Delete Row',
-  deleteTable: 'Delete Table',
-  mergeCells: 'Merge Cells',
-  splitCell: 'Split Cell',
-  toggleHeaderRow: 'Toggle Header Row',
-  toggleHeaderColumn: 'Toggle Header Column',
-  toggleHeaderCell: 'Toggle Header Cells',
-  setCellBackgroundGreen: 'Make Cell Green',
-  clearCellBackground: 'Clear Cell Background',
-  required: 'This is required',
-};
+// the English strings live in the `en` locale, so that there is one source for them
+export const defaults: Record<string, string | Observable<string>> = { ...en.locals };
 
 export type LocalsKeys = keyof typeof defaults;
+
+// keys already reported, so that change detection does not repeat the warning
+const reportedKeys = new Set<string>();
 
 class Locals {
   locals = defaults;
@@ -86,6 +22,15 @@ class Locals {
     if (value) {
       return isObservable(value) ? value : of(value);
     }
+
+    // a key without an English string shows an empty title and label in every language;
+    // no key at all (a menu item before its name input is set) is not reported
+    if (isDevMode() && typeof key === 'string' && key && !(key in this.locals) && !reportedKeys.has(key)) {
+      reportedKeys.add(key);
+      // eslint-disable-next-line no-console
+      console.warn(`ngx-editor: no string for the locale key "${key}"`);
+    }
+
     return of('');
   };
 }

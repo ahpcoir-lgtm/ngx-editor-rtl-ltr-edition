@@ -4,6 +4,7 @@ import { lift, wrapIn } from 'prosemirror-commands';
 
 import { isNodeActive } from 'ngx-editor-rtl-ltr-edition/helpers';
 
+import { getWrapAttrs } from './TextDirection';
 import { withTextSelection } from './textSelection';
 import { ToggleCommand } from './types';
 
@@ -21,7 +22,7 @@ class Blockqote implements ToggleCommand {
         return lift(withTextSelection(state), dispatch);
       }
 
-      return wrapIn(type)(state, dispatch);
+      return wrapIn(type, getWrapAttrs(state, type))(state, dispatch);
     };
   }
 

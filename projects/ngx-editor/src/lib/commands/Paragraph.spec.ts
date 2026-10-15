@@ -67,9 +67,9 @@ describe('Paragraph', () => {
 
     const { doc } = editor.view.state;
     expect(doc.child(0).type.name).toBe('paragraph');
-    expect(doc.child(0).attrs).toEqual({ align: 'center', indent: null });
+    expect(doc.child(0).attrs).toEqual({ align: 'center', indent: null, dir: null });
     expect(doc.child(1).type.name).toBe('paragraph');
-    expect(doc.child(1).attrs).toEqual({ align: 'right', indent: 2 });
+    expect(doc.child(1).attrs).toEqual({ align: 'right', indent: 2, dir: null });
   });
 
   it('should keep the attributes of a selected heading node', () => {

@@ -23,6 +23,11 @@ export const ToggleCommands: Record<string, ToggleCommand> = {
   align_center: Commands.ALIGN_CENTER,
   align_right: Commands.ALIGN_RIGHT,
   align_justify: Commands.ALIGN_JUSTIFY,
+  align_start: Commands.ALIGN_START,
+  align_end: Commands.ALIGN_END,
+  dir_ltr: Commands.DIR_LTR,
+  dir_rtl: Commands.DIR_RTL,
+  dir_auto: Commands.DIR_AUTO,
   superscript: Commands.SUPERSCRIPT,
   subscript: Commands.SUBSCRIPT,
 };

@@ -102,7 +102,8 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     content: attr(data-placeholder);
   }
 
-  &[data-align='right'] {
+  // an absolute placeholder stays at the start of the line, so an aligned one is placed in the flow
+  &[data-align]:not([data-align='start']):not([data-align='justify']) {
     &::before {
       position: relative;
     }
@@ -121,10 +122,21 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
   }
 
   blockquote {
-    padding-left: 16px;
-    border-left: $blockquote-border-width solid $blockquote-color;
-    margin-left: 0;
-    margin-right: 0;
+    padding-inline-start: 16px;
+    border-inline-start: $blockquote-border-width solid $blockquote-color;
+    margin-inline: 0;
+  }
+
+  // page styles like `ul { padding-left: 2rem }` would put the markers of right to left lists outside
+  ul,
+  ol {
+    padding-inline: var(--ngx-editor-list-indent, 40px) 0;
+  }
+
+  // code reads left to right, unless the block has a direction of its own
+  pre:not([dir]) {
+    direction: ltr;
+    text-align: left;
   }
 }
 
@@ -133,14 +145,14 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
   border-radius: $border-radius;
 
   .NgxEditor__MenuBar {
-    border-top-left-radius: $border-radius;
-    border-top-right-radius: $border-radius;
+    border-start-start-radius: $border-radius;
+    border-start-end-radius: $border-radius;
     border-bottom: 1px solid $editor-border-color;
   }
 
   .NgxEditor {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
+    border-start-start-radius: 0;
+    border-start-end-radius: 0;
     border: none;
   }
 }
@@ -185,7 +197,7 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     border-radius: $menu-item-border-radius;
 
     & + .NgxEditor__MenuItem--Icon {
-      margin-left: 2px;
+      margin-inline-start: 2px;
     }
 
     &:focus-visible {
@@ -236,18 +248,18 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     &::after {
       display: inline-block;
       content: '';
-      margin-left: 24px;
+      margin-inline-start: 24px;
       vertical-align: 4px;
       border-top: 4px solid;
-      border-right: 4px solid transparent;
+      border-inline: 4px solid transparent;
       border-bottom: 0;
-      border-left: 4px solid transparent;
     }
   }
 
+  // no horizontal inset: PopupPositionDirective writes `left`, and an `inset-inline-start` would resolve to
+  // `right` in RTL, over-constraining the fixed-width menu so that the browser drops `left`
   .NgxEditor__Dropdown--DropdownMenu {
     position: absolute;
-    left: 0;
     box-shadow: $popup-shadow;
     border-radius: $popup-border-radius;
     background-color: $popup-bg-color;
@@ -294,6 +306,8 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
 }
 
 .NgxEditor__MenuBar--Reverse {
+  // no horizontal inset: PopupPositionDirective writes `left`, and an `inset-inline-start` would resolve to
+  // `right` in RTL, over-constraining the fixed-width menu so that the browser drops `left`
   .NgxEditor__Dropdown--DropdownMenu {
     top: unset;
     bottom: calc(#{$menubar-height} + 2px);
@@ -347,8 +361,14 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
 }
 
 .NgxEditor__Seperator {
-  border-left: 1px solid $seperator-color;
-  margin: 0 $menu-item-spacing;
+  border-inline-start: 1px solid $seperator-color;
+  margin-block: 0;
+  margin-inline: $menu-item-spacing;
+}
+
+// icons drawn for a line that starts on the left
+.NgxEditor__MenuItem--Mirror:dir(rtl) svg {
+  transform: scaleX(-1);
 }
 
 .NgxEditor__HelpText {
@@ -362,7 +382,7 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
 .NgxEditor .ProseMirror {
   ul[data-type='task_list'] {
     list-style: none;
-    padding-left: 0;
+    padding-inline-start: 0;
   }
   li[data-type='task_item'] {
     display: flex;
@@ -372,6 +392,11 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     > label {
       flex: 0 0 auto;
       user-select: none;
+
+      // the default margins of a checkbox differ on its left and right
+      > input {
+        margin-inline: 0;
+      }
     }
 
     > div {
@@ -402,11 +427,12 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
   }
   th {
     font-weight: bold;
-    text-align: left;
+    text-align: start;
     background-color: var(--ngx-editor-table-header-bg-color);
   }
   .column-resize-handle {
     position: absolute;
+    // physical: prosemirror-tables finds the resized column from the mouse position on the screen
     right: -2px;
     top: 0;
     bottom: 0;
@@ -423,10 +449,7 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     z-index: 2;
     position: absolute;
     content: '';
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
+    inset: 0;
     background: var(--ngx-editor-table-selected-cell-bg-color);
     pointer-events: none;
   }

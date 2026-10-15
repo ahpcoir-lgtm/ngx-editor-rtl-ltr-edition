@@ -13,6 +13,7 @@ import FormatClear from './FormatClear';
 import Indent from './Indent';
 import History from './History';
 import Table from './table';
+import TextDirection from './TextDirection';
 
 
 export const STRONG = new Mark('strong');
@@ -37,6 +38,11 @@ export const ALIGN_LEFT = new TextAlign('left');
 export const ALIGN_CENTER = new TextAlign('center');
 export const ALIGN_RIGHT = new TextAlign('right');
 export const ALIGN_JUSTIFY = new TextAlign('justify');
+export const ALIGN_START = new TextAlign('start');
+export const ALIGN_END = new TextAlign('end');
+export const DIR_LTR = new TextDirection('ltr');
+export const DIR_RTL = new TextDirection('rtl');
+export const DIR_AUTO = new TextDirection('auto');
 export const LINK = new Link();
 export const IMAGE = new Image();
 export const TABLE = new Table();

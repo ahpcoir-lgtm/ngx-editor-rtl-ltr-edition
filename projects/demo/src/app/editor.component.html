@@ -17,6 +17,38 @@
 
     <div>
       <div class="options">
+        <fieldset class="option-group">
+          <legend>Direction</legend>
+          @for (option of directions; track option.value) {
+            <label>
+              <input
+                type="radio"
+                name="direction"
+                [value]="option.value"
+                [checked]="direction === option.value"
+                (change)="setDirection(option.value)"
+              />
+              {{ option.label }}
+            </label>
+          }
+        </fieldset>
+
+        <fieldset class="option-group">
+          <legend>Toolbar language</legend>
+          @for (option of locales; track option.value) {
+            <label [attr.lang]="option.value">
+              <input
+                type="radio"
+                name="locale"
+                [value]="option.value"
+                [checked]="locale === option.value"
+                (change)="setLocale(option.value)"
+              />
+              {{ option.label }}
+            </label>
+          }
+        </fieldset>
+
         <label>
           <input type="checkbox" [checked]="doc.disabled" (change)="toggleDisabled()" />
           Disabled
@@ -24,17 +56,20 @@
       </div>
 
       <form [formGroup]="form">
-        <div class="editor NgxEditor__Wrapper">
-          <ngx-editor-menu
-            [editor]="editor"
-            [toolbar]="toolbar"
-            [customMenuRef]="customMenu"
-            [disabled]="doc.disabled"
-          ></ngx-editor-menu>
-          <ngx-editor [editor]="editor" formControlName="editorContent">
-            <ngx-editor-floating-menu [editor]="editor"></ngx-editor-floating-menu>
-          </ngx-editor>
-        </div>
+        <!-- rendered again when the editor is created again (direction mode or locale changed) -->
+        @for (current of [editor]; track current) {
+          <div class="editor NgxEditor__Wrapper">
+            <ngx-editor-menu
+              [editor]="current"
+              [toolbar]="toolbar"
+              [customMenuRef]="customMenu"
+              [disabled]="doc.disabled"
+            ></ngx-editor-menu>
+            <ngx-editor [editor]="current" [dir]="editorDir" formControlName="editorContent">
+              <ngx-editor-floating-menu [editor]="current"></ngx-editor-floating-menu>
+            </ngx-editor>
+          </div>
+        }
       </form>
 
       <!-- <div class="editor">

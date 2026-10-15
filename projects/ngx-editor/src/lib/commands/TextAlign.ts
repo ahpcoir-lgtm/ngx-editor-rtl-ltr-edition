@@ -5,7 +5,8 @@ import { getSelectionNodes } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import { ToggleCommand } from './types';
 
-export type Align = 'left' | 'center' | 'right' | 'justify';
+// `start` and `end` follow the direction of the block, `left` and `right` do not
+export type Align = 'left' | 'center' | 'right' | 'justify' | 'start' | 'end';
 
 class TextAlign implements ToggleCommand {
   align: string;

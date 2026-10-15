@@ -4,6 +4,7 @@ import { liftListItem, wrapInList } from 'prosemirror-schema-list';
 
 import { isNodeActive } from 'ngx-editor-rtl-ltr-edition/helpers';
 
+import { getWrapAttrs } from './TextDirection';
 import { withTextSelection } from './textSelection';
 import { ToggleCommand } from './types';
 
@@ -32,7 +33,7 @@ class ListItem implements ToggleCommand {
         return liftListItem(schema.nodes['list_item'])(state, dispatch);
       }
 
-      return wrapInList(type)(state, dispatch);
+      return wrapInList(type, getWrapAttrs(state, type))(state, dispatch);
     };
   }
 

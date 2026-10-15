@@ -11,6 +11,7 @@
     "serve:ssr:demo": "node dist/demo/server/server.mjs",
     "ng": "ng",
     "lint": "ng lint",
+    "check:strict": "node ./scripts/check-strict.mjs",
     "format:md": "prettier **/*.md --write",
     "test:demo": "ng test demo --watch false",
     "test:lib": "ng test ngx-editor --watch false",

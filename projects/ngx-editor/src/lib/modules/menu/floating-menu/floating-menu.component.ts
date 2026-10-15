@@ -11,6 +11,10 @@ import { throttleTime } from 'rxjs/operators';
 
 import { NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor from '../../../Editor';
+import { NgxEditorComponent } from '../../../editor.component';
+import { NgxEditorService } from '../../../editor.service';
+import { normalizeDirection, resolveDirection } from '../../../resolve-direction';
+import { NgxEditorDirection } from '../../../types';
 import { BubbleComponent } from '../bubble/bubble.component';
 
 interface BubblePosition {
@@ -29,6 +33,9 @@ interface BubblePosition {
 export class NgxEditorFloatingMenuComponent implements OnInit, OnDestroy {
   el = inject<ElementRef<HTMLElement>>(ElementRef);
   private cdr = inject(ChangeDetectorRef);
+  private ngxeService = inject(NgxEditorService);
+  // the `<ngx-editor>` this menu is projected into, whose `[dir]` it follows when it has none of its own
+  private parentEditor = inject(NgxEditorComponent, { optional: true });
 
   @HostBinding('style') get display(): Partial<CSSStyleDeclaration> {
     return {
@@ -39,12 +46,21 @@ export class NgxEditorFloatingMenuComponent implements OnInit, OnDestroy {
     };
   }
 
+  @HostBinding('attr.dir') get hostDir(): NgxEditorDirection | null {
+    const dir = this.dir();
+    return resolveDirection(dir !== undefined ? dir : this.parentEditor?.dir(), this.editor(), this.ngxeService);
+  }
+
   private get view(): EditorView {
     return this.editor().view;
   }
 
   readonly editor = input<Editor>(undefined);
   readonly autoPlace = input(false);
+  /** direction of the bubble menu; else the editor's `dir` option, the global `dir` or the locale's direction */
+  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+    transform: normalizeDirection,
+  });
 
   private posLeft = 0;
   private posTop = 0;

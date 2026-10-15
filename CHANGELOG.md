@@ -13,6 +13,29 @@ All notable changes to this project will be documented in this file.
 > - Documentation
 > - Internal
 
+## Unreleased (ngx-editor-rtl-ltr-edition)
+
+#### Features
+
+- block direction: `dir` attribute (`ltr | rtl | auto`) on paragraphs, headings, blockquotes, code blocks, lists, list items, task lists, task items and tables; toolbar items `dir_ltr`, `dir_rtl`, `dir_auto`; Ctrl + Right Shift / Ctrl + Left Shift (`features.directionShortcuts`)
+- `[dir]` input on `<ngx-editor>`, `<ngx-editor-menu>` and `<ngx-editor-floating-menu>`, `Editor` options `dir` and `autoDirection`, `editor.config`. The inputs accept any string, like the native `dir` property (`ltr`/`rtl`/`auto` in any case; other strings count as not set); `null` writes no `dir`. `[dir]` on `<ngx-editor>` is still written on its host, and a projected floating menu follows it
+- a new list, task list or blockquote (toolbar or `- `, `1. `, `> `) takes the direction shared by the blocks it wraps
+- `toHTML(json, schema, { autoDirection: true })`
+- alignment `start` / `end` with the toolbar items `align_start` / `align_end`
+
+#### Internal
+
+- in development, `Locals.get` warns once about a key that has no English string
+
+#### Changes to the emitted HTML and JSON
+
+- blocks with a direction are written with `dir="…"`; documents without one are written as before
+- `text-align: left` is now written (it was dropped, so "left" did nothing in right to left text)
+- indentation is written as `margin-inline-start: Npx` instead of `margin-left: Npx`; `data-indent` is unchanged and old content is still read from it
+- the JSON of the nodes listed above has a new attribute `dir` (`null` when not set); JSON without it is still read
+- wrapping blocks that share a direction in a list or blockquote writes that `dir` on the new `ul`/`ol`/`blockquote`; blocks without a direction are wrapped as before
+- with `autoDirection`, the editor DOM (not the document or the html output) has `dir="auto"` on the paragraphs and headings that `toHTML` writes it on
+
 ## 19.1.1 (2026-10-15)
 
 #### Bug Fixes

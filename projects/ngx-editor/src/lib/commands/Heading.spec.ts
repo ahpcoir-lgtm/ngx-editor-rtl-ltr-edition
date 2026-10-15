@@ -53,14 +53,14 @@ describe('Heading', () => {
     toggle(2);
 
     const { doc } = editor.view.state;
-    expect(doc.child(0).attrs).toEqual({ level: 2, align: 'center', indent: null });
-    expect(doc.child(1).attrs).toEqual({ level: 2, align: 'right', indent: 2 });
+    expect(doc.child(0).attrs).toEqual({ level: 2, align: 'center', indent: null, dir: null });
+    expect(doc.child(1).attrs).toEqual({ level: 2, align: 'right', indent: 2, dir: null });
 
     toggle(2);
 
     expect(editor.view.state.doc.child(0).type.name).toBe('paragraph');
-    expect(editor.view.state.doc.child(0).attrs).toEqual({ align: 'center', indent: null });
-    expect(editor.view.state.doc.child(1).attrs).toEqual({ align: 'right', indent: 2 });
+    expect(editor.view.state.doc.child(0).attrs).toEqual({ align: 'center', indent: null, dir: null });
+    expect(editor.view.state.doc.child(1).attrs).toEqual({ align: 'right', indent: 2, dir: null });
   });
 
   it('should not take the attributes of the parent node', () => {
@@ -73,6 +73,6 @@ describe('Heading', () => {
 
     const block = editor.view.state.doc.firstChild.firstChild;
     expect(block.type.name).toBe('heading');
-    expect(block.attrs).toEqual({ level: 2, align: 'center', indent: null });
+    expect(block.attrs).toEqual({ level: 2, align: 'center', indent: null, dir: null });
   });
 });

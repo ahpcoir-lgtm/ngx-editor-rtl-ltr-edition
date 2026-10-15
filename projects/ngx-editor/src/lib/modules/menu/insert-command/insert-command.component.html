@@ -1,6 +1,7 @@
 <button
   type="button"
   class="NgxEditor__MenuItem--Icon"
+  [class.NgxEditor__MenuItem--Mirror]="mirrored"
   [disabled]="disabled"
   [class.NgxEditor--Disabled]="disabled"
   [innerHTML]="html | sanitizeHtml"

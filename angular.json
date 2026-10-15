@@ -27,7 +27,11 @@
         "test": {
           "builder": "@angular/build:unit-test",
           "options": {
-            "tsConfig": "projects/ngx-editor/tsconfig.spec.json"
+            "tsConfig": "projects/ngx-editor/tsconfig.spec.json",
+            "include": [
+              "**/*.spec.ts",
+              "../*/**/*.spec.ts"
+            ]
           }
         },
         "lint": {
