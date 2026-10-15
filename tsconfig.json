@@ -10,23 +10,23 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "paths": {
-      "ngx-editor": [
-        "./dist/ngx-editor"
+      "ngx-editor-rtl-ltr-edition": [
+        "./dist/ngx-editor-rtl-ltr-edition"
       ],
-      "ngx-editor/utils": [
-        "./dist/ngx-editor/utils"
+      "ngx-editor-rtl-ltr-edition/utils": [
+        "./dist/ngx-editor-rtl-ltr-edition/utils"
       ],
-      "ngx-editor/schema": [
-        "./dist/ngx-editor/schema"
+      "ngx-editor-rtl-ltr-edition/schema": [
+        "./dist/ngx-editor-rtl-ltr-edition/schema"
       ],
-      "ngx-editor/commands": [
-        "./dist/ngx-editor/commands"
+      "ngx-editor-rtl-ltr-edition/commands": [
+        "./dist/ngx-editor-rtl-ltr-edition/commands"
       ],
-      "ngx-editor/input-rules": [
-        "./dist/ngx-editor/input-rules"
+      "ngx-editor-rtl-ltr-edition/input-rules": [
+        "./dist/ngx-editor-rtl-ltr-edition/input-rules"
       ],
-      "ngx-editor/helpers": [
-        "./dist/ngx-editor/helpers"
+      "ngx-editor-rtl-ltr-edition/helpers": [
+        "./dist/ngx-editor-rtl-ltr-edition/helpers"
       ],
     },
     "skipLibCheck": true,

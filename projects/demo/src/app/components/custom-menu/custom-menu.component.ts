@@ -4,8 +4,8 @@ import { setBlockType } from 'prosemirror-commands';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
-import { Editor } from 'ngx-editor';
-import { isNodeActive } from 'ngx-editor/helpers';
+import { Editor } from 'ngx-editor-rtl-ltr-edition';
+import { isNodeActive } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 @Component({
   selector: 'app-custom-menu',

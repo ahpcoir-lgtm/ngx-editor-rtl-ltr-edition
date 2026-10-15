@@ -3,7 +3,7 @@ import { EditorState, Plugin, Transaction } from 'prosemirror-state';
 import { EditorProps, EditorView } from 'prosemirror-view';
 import { Observable, Subject } from 'rxjs';
 
-import { isNil } from 'ngx-editor/utils';
+import { isNil } from 'ngx-editor-rtl-ltr-edition/utils';
 
 import EditorCommands from './EditorCommands';
 import defautlSchema from './schema';

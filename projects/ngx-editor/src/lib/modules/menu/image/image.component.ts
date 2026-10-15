@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { uniq } from 'ngx-editor/utils';
+import { uniq } from 'ngx-editor-rtl-ltr-edition/utils';
 import { NodeSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Observable, Subscription } from 'rxjs';
@@ -18,7 +18,8 @@ import { Image as ImageCommand } from '../MenuCommands';
   selector: 'ngx-image',
   templateUrl: './image.component.html',
   styleUrls: ['./image.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [AsyncPipe, SanitizeHtmlPipe, ReactiveFormsModule, CommonModule, PopupPositionDirective],
 })
 export class ImageComponent implements OnInit, OnDestroy {

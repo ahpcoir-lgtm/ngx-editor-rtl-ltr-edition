@@ -1,7 +1,7 @@
 import { MarkType } from 'prosemirror-model';
 import { EditorState, TextSelection, Transaction, type Command } from 'prosemirror-state';
 
-import { markApplies } from 'ngx-editor/helpers';
+import { markApplies } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 export const removeMark = (type: MarkType): Command => {
   return (state: EditorState, dispatch?: (tr: Transaction) => void): boolean => {

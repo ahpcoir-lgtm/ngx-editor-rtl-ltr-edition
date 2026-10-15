@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Editor } from 'ngx-editor';
+import { Editor } from 'ngx-editor-rtl-ltr-edition';
 
 import { AppCustomMenuComponent } from './custom-menu.component';
 

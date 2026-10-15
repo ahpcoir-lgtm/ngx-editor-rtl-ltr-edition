@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { uniq } from 'ngx-editor/utils';
+import { uniq } from 'ngx-editor-rtl-ltr-edition/utils';
 import { EditorView } from 'prosemirror-view';
 import { Observable, Subscription } from 'rxjs';
 import { NgxEditorService } from '../../../editor.service';

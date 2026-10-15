@@ -1,7 +1,7 @@
 import type { NodeType } from 'prosemirror-model';
 import { type EditorState, type Transaction, type Command, TextSelection } from 'prosemirror-state';
 
-import { canInsert } from 'ngx-editor/helpers';
+import { canInsert } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import { InsertCommand } from './types';
 

@@ -14,7 +14,8 @@ import { ToggleCommands } from '../MenuCommands';
   selector: 'ngx-toggle-command',
   templateUrl: './toggle-command.component.html',
   styleUrls: ['./toggle-command.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [AsyncPipe, SanitizeHtmlPipe],
 })
 export class ToggleCommandComponent implements OnInit, OnDestroy {

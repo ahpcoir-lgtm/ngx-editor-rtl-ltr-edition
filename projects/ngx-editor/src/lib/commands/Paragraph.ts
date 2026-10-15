@@ -1,7 +1,7 @@
 import type { NodeType } from 'prosemirror-model';
 import type { EditorState, Transaction, Command } from 'prosemirror-state';
 
-import { getSelectionNodes } from 'ngx-editor/helpers';
+import { getSelectionNodes } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import { setBlockTypeWithAttrs } from './blockType';
 import { ToggleCommand } from './types';

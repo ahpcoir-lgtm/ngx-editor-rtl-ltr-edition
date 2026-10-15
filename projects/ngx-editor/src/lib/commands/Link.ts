@@ -2,8 +2,8 @@ import type { MarkType } from 'prosemirror-model';
 import type { EditorState, Command } from 'prosemirror-state';
 import { toggleMark } from 'prosemirror-commands';
 
-import { isMarkActive } from 'ngx-editor/helpers';
-import { removeLink } from 'ngx-editor/commands';
+import { isMarkActive } from 'ngx-editor-rtl-ltr-edition/helpers';
+import { removeLink } from 'ngx-editor-rtl-ltr-edition/commands';
 import type { Dispatch } from './types';
 
 const defaultOptions = {

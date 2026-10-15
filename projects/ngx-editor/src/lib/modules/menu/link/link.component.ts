@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { uniq } from 'ngx-editor/utils';
+import { uniq } from 'ngx-editor-rtl-ltr-edition/utils';
 import { EditorView } from 'prosemirror-view';
 import { Observable, Subscription } from 'rxjs';
 
@@ -28,7 +28,8 @@ const DEFAULT_LINK_OPTIONS: LinkOptions = {
   selector: 'ngx-link',
   templateUrl: './link.component.html',
   styleUrls: ['./link.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [AsyncPipe, CommonModule, ReactiveFormsModule, SanitizeHtmlPipe, PopupPositionDirective],
 })
 export class LinkComponent implements OnInit, OnDestroy {

@@ -1,7 +1,7 @@
 import { MarkType } from 'prosemirror-model';
 import { EditorState, TextSelection, Transaction, type Command } from 'prosemirror-state';
 
-import { markApplies } from 'ngx-editor/helpers';
+import { markApplies } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 // Ref: https://github.com/ProseMirror/prosemirror-commands/blob/master/src/commands.js
 export const applyMark = (type: MarkType, attrs: Record<string, unknown> = {}): Command => {

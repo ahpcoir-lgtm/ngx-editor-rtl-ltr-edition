@@ -20,7 +20,8 @@ type Command = typeof TextColor | typeof TextBackgroundColor;
   selector: 'ngx-color-picker',
   templateUrl: './color-picker.component.html',
   styleUrls: ['./color-picker.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [AsyncPipe, CommonModule, SanitizeHtmlPipe, PopupPositionDirective],
 })
 export class ColorPickerComponent implements OnInit, OnDestroy {

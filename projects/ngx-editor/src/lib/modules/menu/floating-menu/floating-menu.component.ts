@@ -9,7 +9,7 @@ import { EditorView } from 'prosemirror-view';
 import { asyncScheduler, fromEvent, Subscription } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
-import { NgxEditorError } from 'ngx-editor/utils';
+import { NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor from '../../../Editor';
 import { BubbleComponent } from '../bubble/bubble.component';
 
@@ -22,7 +22,8 @@ interface BubblePosition {
   selector: 'ngx-editor-floating-menu',
   templateUrl: './floating-menu.component.html',
   styleUrls: ['./floating-menu.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [BubbleComponent],
 })
 export class NgxEditorFloatingMenuComponent implements OnInit, OnDestroy {

@@ -1,8 +1,8 @@
 import type { MarkType } from 'prosemirror-model';
 import type { EditorState, Command } from 'prosemirror-state';
 
-import { getSelectionMarks, isMarkActive } from 'ngx-editor/helpers';
-import { applyMark, removeMark } from 'ngx-editor/commands';
+import { getSelectionMarks, isMarkActive } from 'ngx-editor-rtl-ltr-edition/helpers';
+import { applyMark, removeMark } from 'ngx-editor-rtl-ltr-edition/commands';
 
 import type { Dispatch } from './types';
 

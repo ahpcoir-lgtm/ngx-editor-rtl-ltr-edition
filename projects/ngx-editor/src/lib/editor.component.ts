@@ -20,7 +20,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { isNil, NgxEditorError } from 'ngx-editor/utils';
+import { isNil, NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor, { isFormWrite, writeFormValue } from './Editor';
 import { emptyDoc, toHTML } from './parsers';
 import * as plugins from './plugins';
@@ -37,7 +37,8 @@ import { HTML, isHtml } from './trustedTypesUtil';
       multi: true,
     },
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   encapsulation: ViewEncapsulation.None,
 })
 export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChanges, OnDestroy {

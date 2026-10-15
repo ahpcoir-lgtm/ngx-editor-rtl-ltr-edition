@@ -9,7 +9,7 @@ import {
   smartQuotes, emDash, ellipsis, InputRule,
 } from 'prosemirror-inputrules';
 import { columnResizing, tableEditing, goToNextCell } from 'prosemirror-tables';
-import { markInputRule } from 'ngx-editor/helpers';
+import { markInputRule } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import taskList from './plugins/task-list';
 

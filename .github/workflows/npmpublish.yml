@@ -48,4 +48,4 @@ jobs:
       - run: npm run build:lib
 
       # the release waits on npmjs.com until a maintainer approves it with 2FA
-      - run: npm stage publish dist/ngx-editor/ --tag ${{ github.event.release.prerelease && 'next' || 'latest' }}
+      - run: npm stage publish dist/ngx-editor-rtl-ltr-edition/ --tag ${{ github.event.release.prerelease && 'next' || 'latest' }}

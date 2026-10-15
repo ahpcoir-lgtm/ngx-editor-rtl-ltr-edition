@@ -15,7 +15,8 @@ import { ToggleCommands } from '../MenuCommands';
   templateUrl: './bubble.component.html',
   styleUrls: ['./bubble.component.scss'],
   imports: [AsyncPipe, CommonModule],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   providers: [SanitizeHtmlPipe],
 })
 export class BubbleComponent implements OnInit, OnDestroy {

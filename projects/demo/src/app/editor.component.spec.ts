@@ -2,7 +2,7 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { NgxEditorModule } from 'ngx-editor';
+import { NgxEditorModule } from 'ngx-editor-rtl-ltr-edition';
 
 import { EditorComponent } from './editor.component';
 import { AppCustomMenuComponent } from './components/custom-menu/custom-menu.component';

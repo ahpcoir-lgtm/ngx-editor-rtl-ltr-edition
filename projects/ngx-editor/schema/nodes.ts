@@ -2,7 +2,7 @@ import { DOMOutputSpec, Node as ProseMirrorNode, NodeSpec } from 'prosemirror-mo
 import { type MutableAttrs, tableNodes } from 'prosemirror-tables';
 import * as sl from 'prosemirror-schema-list';
 
-import { toStyleString } from 'ngx-editor/utils';
+import { toStyleString } from 'ngx-editor-rtl-ltr-edition/utils';
 
 const doc: NodeSpec = {
   content: 'block+',

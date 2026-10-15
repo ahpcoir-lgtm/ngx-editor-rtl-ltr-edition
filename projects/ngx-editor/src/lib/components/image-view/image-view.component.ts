@@ -6,7 +6,8 @@ import { EditorView } from 'prosemirror-view';
   selector: 'ngx-image-view',
   templateUrl: './image-view.component.html',
   styleUrls: ['./image-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [CommonModule],
 })
 export class ImageViewComponent {

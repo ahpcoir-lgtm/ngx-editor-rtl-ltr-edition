@@ -6,7 +6,7 @@ import {
 } from 'prosemirror-commands';
 import { DOMParser } from 'prosemirror-model';
 
-import { NgxEditorError } from 'ngx-editor/utils';
+import { NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import MarkCommand from './commands/Mark';
 import ListCommand from './commands/ListItem';
 import LinkCommand, { LinkAttrs } from './commands/Link';

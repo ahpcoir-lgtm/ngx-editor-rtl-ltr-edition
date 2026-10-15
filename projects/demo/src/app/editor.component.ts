@@ -9,7 +9,7 @@ import {
   NgxEditorMenuComponent,
   Toolbar,
   Validators,
-} from 'ngx-editor';
+} from 'ngx-editor-rtl-ltr-edition';
 
 import { AppCustomMenuComponent } from './components/custom-menu/custom-menu.component';
 import jsonDoc from './doc';

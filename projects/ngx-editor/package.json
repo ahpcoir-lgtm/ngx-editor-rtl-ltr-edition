@@ -1,25 +1,36 @@
 {
-  "name": "ngx-editor",
-  "version": "19.1.1",
-  "description": "The Rich Text Editor for Angular, Built on ProseMirror",
+  "name": "ngx-editor-rtl-ltr-edition",
+  "version": "0.1.0",
+  "description": "A fork of ngx-editor with first-class RTL/LTR support, Persian and Arabic locales and fonts, stronger image upload and video embedding. Rich text editor for Angular, built on ProseMirror",
   "license": "MIT",
   "type": "module",
-  "repository": "https://github.com/sibiraj-s/ngx-editor.git",
-  "bugs": "https://github.com/sibiraj-s/ngx-editor/issues",
-  "homepage": "https://github.com/sibiraj-s/ngx-editor",
+  "contributors": [
+    "Sibiraj (original ngx-editor author)",
+    "Amir Farid Abbasi",
+    "Amin Abbasi"
+  ],
+  "repository": "https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition.git",
+  "bugs": "https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition/issues",
+  "homepage": "https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition",
   "keywords": [
     "angular-editor",
     "angular-wysiwyg-editor",
     "wysiwyg-editor",
     "ngx-editor",
-    "prosemirror"
+    "prosemirror",
+    "rtl",
+    "bidi",
+    "persian",
+    "farsi",
+    "arabic",
+    "urdu"
   ],
   "sideEffects": false,
   "peerDependencies": {
-    "@angular/common": ">=22.0.0",
-    "@angular/core": ">=22.0.0",
-    "@angular/forms": ">=22.0.0",
-    "@angular/platform-browser": ">=22.0.0",
+    "@angular/common": ">=19.0.0",
+    "@angular/core": ">=19.0.0",
+    "@angular/forms": ">=19.0.0",
+    "@angular/platform-browser": ">=19.0.0",
     "rxjs": ">=7.8.0"
   },
   "dependencies": {

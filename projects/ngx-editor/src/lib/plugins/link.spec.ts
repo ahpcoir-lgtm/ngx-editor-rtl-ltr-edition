@@ -1,5 +1,5 @@
 import { Schema } from 'prosemirror-model';
-import { marks, nodes } from 'ngx-editor/schema';
+import { marks, nodes } from 'ngx-editor-rtl-ltr-edition/schema';
 
 import Editor from '../Editor';
 import { toHTML } from '../parsers';

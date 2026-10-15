@@ -22,7 +22,8 @@ import {
   selector: 'ngx-dropdown',
   templateUrl: './dropdown.component.html',
   styleUrls: ['./dropdown.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [AsyncPipe, CommonModule, PopupPositionDirective],
 })
 export class DropdownComponent implements OnInit, OnDestroy {

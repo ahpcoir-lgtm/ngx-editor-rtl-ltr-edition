@@ -1,9 +1,9 @@
 import {
-  Component, ElementRef, HostListener, OnInit, TemplateRef, ChangeDetectionStrategy, afterEveryRender, inject, input,
+  AfterViewChecked, Component, ElementRef, HostListener, OnInit, TemplateRef, ChangeDetectionStrategy, inject, input,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
-import { NgxEditorError } from 'ngx-editor/utils';
+import { NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor from '../../Editor';
 import {
   Toolbar,
@@ -147,7 +147,8 @@ const DEFAULT_COLOR_PRESETS = [
   templateUrl: './menu.component.html',
   styleUrls: ['./menu.component.scss'],
   providers: [MenuService],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [
     CommonModule,
     ColorPickerComponent,
@@ -159,7 +160,7 @@ const DEFAULT_COLOR_PRESETS = [
     TableComponent,
   ],
 })
-export class NgxEditorMenuComponent implements OnInit {
+export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
   private menuService = inject(MenuService);
   private el = inject(ElementRef<HTMLElement>);
 
@@ -262,8 +263,9 @@ export class NgxEditorMenuComponent implements OnInit {
     return (item as ToolbarLink)?.link;
   }
 
-  constructor() {
-    afterEveryRender(() => this.updateTabIndex());
+  // a lifecycle hook instead of afterEveryRender, which only exists from Angular 20
+  ngAfterViewChecked(): void {
+    this.updateTabIndex();
   }
 
   private getButtons(): HTMLElement[] {
