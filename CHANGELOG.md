@@ -4,6 +4,16 @@ All notable changes to ngx-editor-rtl-ltr-edition are documented in this file. T
 the history of the original ngx-editor package, which this fork is based on, follows under
 [Upstream ngx-editor changelog](#upstream-ngx-editor-changelog).
 
+## ngx-editor-rtl-ltr-edition 0.1.1 (unreleased)
+
+#### Bug Fixes
+
+- with `autoDirection`, blocks without letters (e.g. the empty first paragraph) inherit the editor's direction, so the placeholder and the caret of an empty right-to-left editor are on the right
+
+#### Features
+
+- export `NgxEditorServiceConfig`, so apps can provide the configuration with a factory
+
 ## ngx-editor-rtl-ltr-edition 0.1.0 (unreleased)
 
 The first version of the fork, based on ngx-editor 19.1.1 by Sibiraj. Migrating from ngx-editor: rename the imports

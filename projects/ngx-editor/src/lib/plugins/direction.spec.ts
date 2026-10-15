@@ -108,6 +108,16 @@ describe('editor direction', () => {
       expect(editor.view.state.doc.firstChild?.attrs['dir']).toBeNull();
     });
 
+    // dir="auto" makes a block without letters ltr, so the placeholder of an empty rtl editor sat on the left
+    it('should let blocks without letters inherit the direction of the editor', () => {
+      editor = new Editor({ autoDirection: true, dir: 'rtl', content: '<p></p><p>12 - 34</p><p>سلام</p>' });
+      expect(dirs()).toEqual([null, null, 'auto']);
+
+      const { view } = editor;
+      view.dispatch(view.state.tr.insertText('Hello', 1));
+      expect(dirs()).toEqual(['auto', null, 'auto']);
+    });
+
   });
 
   describe('node views', () => {

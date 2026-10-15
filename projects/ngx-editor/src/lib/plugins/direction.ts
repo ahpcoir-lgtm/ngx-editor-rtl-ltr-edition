@@ -28,13 +28,20 @@ export const getEditorDirection = (state: EditorState): EditorDirectionState | u
 // so the set is cached per document
 const autoDirectionCache = new WeakMap<ProseMirrorNode, DecorationSet>();
 
+// a letter is a strong character for the bidi algorithm; digits and punctuation are not
+const STRONG_CHARACTER = /\p{L}/u;
+
 const getAutoDirectionDecorations = (doc: ProseMirrorNode): DecorationSet => {
   let set = autoDirectionCache.get(doc);
 
   if (!set) {
     const decorations: Decoration[] = [];
     forEachAutoDirectionBlock(doc, (node, pos) => {
-      decorations.push(Decoration.node(pos, pos + node.nodeSize, { dir: 'auto' }));
+      // `dir="auto"` resolves a block without letters (e.g. the empty first paragraph) to ltr, which put the
+      // placeholder and the caret on the left of a right-to-left editor; such blocks inherit the editor's direction
+      if (STRONG_CHARACTER.test(node.textContent)) {
+        decorations.push(Decoration.node(pos, pos + node.nodeSize, { dir: 'auto' }));
+      }
     });
 
     set = DecorationSet.create(doc, decorations);
