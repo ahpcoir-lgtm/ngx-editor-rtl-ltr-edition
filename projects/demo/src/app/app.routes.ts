@@ -4,6 +4,6 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./editor.component').then((m) => m.EditorComponent),
-    title: 'Ngx Editor',
+    title: 'ngx-editor RTL/LTR edition – demo',
   },
 ];

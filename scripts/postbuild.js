@@ -46,11 +46,10 @@ const makeLinkableOnOlderAngular = async function () {
 
 await makeLinkableOnOlderAngular();
 await copyFile('README.md', 'README.md');
-// the Persian README is optional until it is written
-if (await fs.stat('README.fa.md').catch(() => null)) {
-  await copyFile('README.fa.md', 'README.fa.md');
-}
+await copyFile('README.fa.md', 'README.fa.md');
 await copyFile('CHANGELOG.md', 'CHANGELOG.md');
 await copyFile('LICENSE', 'LICENSE');
-// the licenses of the bundled fonts (their OFL texts are next to the files in fonts/)
+// the notices of the dependencies, the icons and the bundled fonts (the OFL texts are next to the files in fonts/)
 await copyFile('THIRD_PARTY_NOTICES.md', 'THIRD_PARTY_NOTICES.md');
+// the license of the Material icons compiled into the library
+await copyFile('LICENSES/Apache-2.0.txt', 'LICENSES/Apache-2.0.txt');

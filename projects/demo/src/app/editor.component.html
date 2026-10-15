@@ -1,19 +1,24 @@
 <div class="container">
   <div class="content">
-    <div class="display">
+    <header class="display">
       <div class="logo">
-        <img src="/ngx-editor.svg" alt="ngx-editor" />
-        <div class="subtitle">Rich Text Editor for angular using ProseMirror</div>
-      </div>
-      @if (!isDevMode) {
-        <div class="badges">
-          <img src="https://badgen.net/npm/v/ngx-editor" alt="version" />
-          <img src="https://badgen.net/npm/dm/ngx-editor" alt="downloads per month " />
-          <img src="https://badgen.net/npm/dt/ngx-editor" alt="total downloads" />
-          <img src="https://badgen.net/npm/license/ngx-editor" alt="license" />
+        <img src="edition-logo.svg" alt="" width="56" height="56" />
+        <div>
+          <h1>ngx-editor <span class="edition">RTL/LTR edition</span></h1>
+          <p class="subtitle">
+            Rich text editor for Angular, built on ProseMirror, with right-to-left and left-to-right text, Persian and
+            Arabic locales and fonts, tables, images and videos.
+          </p>
         </div>
-      }
-    </div>
+      </div>
+      <p class="fork-note">
+        An independent fork of <a [href]="upstreamUrl" rel="noopener">ngx-editor</a> by Sibiraj (MIT), not the official
+        ngx-editor package.
+        <a [href]="repositoryUrl" rel="noopener">Source and documentation</a>
+        ·
+        <a [href]="repositoryUrl + '/blob/main/README.fa.md'" rel="noopener" lang="fa" dir="rtl">راهنمای فارسی</a>
+      </p>
+    </header>
 
     <div>
       <div class="options">
@@ -93,10 +98,45 @@
         }
       </section>
 
-      <!-- <div class="editor">
-      <ngx-editor [editor]="editor" [(ngModel)]="editordoc">
-      </ngx-editor>
-    </div> -->
+      <section class="html-output">
+        <div class="html-output__header">
+          <h2>HTML output</h2>
+          <div class="html-output__tabs" role="tablist" aria-label="HTML output">
+            <button
+              type="button"
+              role="tab"
+              id="html-output-tab-preview"
+              aria-controls="html-output-panel"
+              [attr.aria-selected]="outputView() === 'preview'"
+              (click)="outputView.set('preview')"
+            >
+              Rendered with content.css
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="html-output-tab-source"
+              aria-controls="html-output-panel"
+              [attr.aria-selected]="outputView() === 'source'"
+              (click)="outputView.set('source')"
+            >
+              toHTML() source
+            </button>
+          </div>
+        </div>
+        <div
+          id="html-output-panel"
+          role="tabpanel"
+          [attr.aria-labelledby]="outputView() === 'preview' ? 'html-output-tab-preview' : 'html-output-tab-source'"
+        >
+          @if (outputView() === 'preview') {
+            <!-- styles/content.css of the library renders the exported html like the editor -->
+            <div class="ngx-editor-content html-output__preview" [innerHTML]="previewHtml()"></div>
+          } @else {
+            <pre class="html-output__source" dir="ltr"><code>{{ html() }}</code></pre>
+          }
+        </div>
+      </section>
 
       <!-- custom menu -->
       <ng-template #customMenu>

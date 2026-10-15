@@ -1,0 +1,25 @@
+{
+  "name": "ngx-editor-rtl-ltr-edition-compat",
+  "private": true,
+  "description": "Smoke-test app: builds against the packed library with strict templates and a full library check. Created by scripts/compat/run.mjs, which fills in the versions.",
+  "scripts": {
+    "build": "ng build"
+  },
+  "dependencies": {
+    "@angular/common": "__ANGULAR__",
+    "@angular/compiler": "__ANGULAR__",
+    "@angular/core": "__ANGULAR__",
+    "@angular/forms": "__ANGULAR__",
+    "@angular/platform-browser": "__ANGULAR__",
+    "ngx-editor-rtl-ltr-edition": "__LIBRARY__",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "zone.js": "__ZONE__"
+  },
+  "devDependencies": {
+    "@angular/build": "__ANGULAR__",
+    "@angular/cli": "__ANGULAR__",
+    "@angular/compiler-cli": "__ANGULAR__",
+    "typescript": "__TYPESCRIPT__"
+  }
+}

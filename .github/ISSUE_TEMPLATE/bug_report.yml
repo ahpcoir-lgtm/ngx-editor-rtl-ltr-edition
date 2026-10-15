@@ -4,7 +4,10 @@ title: "[Bug]: "
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this bug report!
+      value: |
+        Thanks for taking the time to fill out this bug report! This is the tracker of **ngx-editor-rtl-ltr-edition**,
+        a fork of ngx-editor. If you use the original `ngx-editor` package, please report the problem upstream:
+        https://github.com/sibiraj-s/ngx-editor/issues
   - type: textarea
     id: what-happened
     attributes:
@@ -17,8 +20,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of our editor are you running?
-      placeholder: v12.0.x
+      description: What version of ngx-editor-rtl-ltr-edition are you running?
+      placeholder: 0.1.0
     validations:
       required: true
   - type: input
@@ -26,7 +29,7 @@ body:
     attributes:
       label: Angular Version
       description: What version of angular are you using?
-      placeholder: v13.x.x
+      placeholder: 19.2.x
     validations:
       required: true
   - type: dropdown
@@ -38,12 +41,26 @@ body:
         - Firefox
         - Chrome
         - Safari
+        - Edge
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Text direction and language
+      description: Which direction and locale does the problem happen with?
+      multiple: true
+      options:
+        - Right to left (rtl)
+        - Left to right (ltr)
+        - Auto direction
+        - Persian (fa) locale
+        - Arabic (ar) locale
+        - English (en) locale
   - type: input
     id: link-to-reproduce
     attributes:
       label: Link to reproduce
       description: A Github repo or a stackblitz/codesandbox link to reproduce the issue
-      placeholder: "https://stackblitz.com/edit/ngx-editor"
+      placeholder: "https://stackblitz.com/github/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition"
   - type: textarea
     id: logs
     attributes:

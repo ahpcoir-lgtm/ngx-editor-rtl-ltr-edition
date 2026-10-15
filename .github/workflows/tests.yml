@@ -5,13 +5,17 @@ env:
 
 on:
   push:
-    branches: master
+    branches: main
   pull_request:
-    branches: master
+    branches: main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    name: Unit tests
+    name: Lint, unit tests and builds
     permissions:
       contents: read
     runs-on: ubuntu-latest
@@ -29,10 +33,69 @@ jobs:
       - name: NPM Install
         run: npm ci
 
-      - name: Build
+      - name: Lint
+        run: npx ng lint ngx-editor
+
+      - name: Strict type check of the fork's code
+        run: npm run check:strict
+
+      - name: Build the library
         run: npm run build:lib
         env:
           NODE_ENV: production
 
-      - name: Test
-        run: npm run test
+      - name: Library tests
+        run: npm run test:lib
+
+      - name: Build the demo
+        run: npm run build:demo
+
+      - name: Build the demo for GitHub Pages
+        run: npx ng build demo --configuration pages
+
+      - name: Demo tests
+        run: npm run test:demo
+
+      - name: Pack the library
+        run: npm pack ./dist/ngx-editor-rtl-ltr-edition --pack-destination ${{ runner.temp }}
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v5
+        with:
+          name: package
+          path: ${{ runner.temp }}/ngx-editor-rtl-ltr-edition-*.tgz
+          retention-days: 7
+
+  compat:
+    name: Angular ${{ matrix.angular }} app
+    needs: test
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        angular: [19, 20, 21, 22]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Using node v-${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{env.NODE_VERSION}}
+
+      - name: Download the package
+        uses: actions/download-artifact@v5
+        with:
+          name: package
+          path: ${{ runner.temp }}/package
+
+      # builds a small app with strictTemplates and skipLibCheck: false against the packed library
+      - name: Build an Angular ${{ matrix.angular }} app with the library
+        run: |
+          node scripts/compat/run.mjs --angular ${{ matrix.angular }} \
+            --dir ${{ runner.temp }}/compat-${{ matrix.angular }} \
+            --tarball "$(ls ${{ runner.temp }}/package/ngx-editor-rtl-ltr-edition-*.tgz)"

@@ -3,16 +3,19 @@
     @if (fileSrc(); as file) {
       <video controls preload="metadata" [src]="file" [attr.poster]="posterSrc()"></video>
     }
-  } @else if (embedSrc(); as embed) {
-    <iframe
-      [src]="embed"
-      [title]="iframeTitle"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-      loading="lazy"
-      referrerpolicy="strict-origin-when-cross-origin"
-    ></iframe>
+  } @else {
+    <!-- an alias on @else if needs Angular 20, so the embed has its own @if -->
+    @if (embedSrc(); as embed) {
+      <iframe
+        [src]="embed"
+        [title]="iframeTitle"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy"
+        referrerpolicy="strict-origin-when-cross-origin"
+      ></iframe>
+    }
   }
 
   <!-- takes the clicks while the video is not selected, so a click selects it instead of playing it -->

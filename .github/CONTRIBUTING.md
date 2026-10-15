@@ -1,41 +1,53 @@
 # Contributing
 
-All type of contributions are welcome, but when contributing to this repository, please first discuss the change you wish to make.
+Contributions to ngx-editor-rtl-ltr-edition are welcome. Please discuss a change first:
 
-If it is a bug - file an issue here https://github.com/sibiraj-s/ngx-editor/issues
+- bugs: open an issue at https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition/issues
+- anything else: start a discussion at https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition/discussions
 
-For all others - Open a discussion https://github.com/sibiraj-s/ngx-editor/discussions here first.
+This repository is a fork of [ngx-editor](https://github.com/sibiraj-s/ngx-editor). Problems that also happen with
+the original `ngx-editor` package are best reported (and fixed) upstream as well.
 
-## Setting up dev environment
+Read [FORK_DESIGN.md](../FORK_DESIGN.md) before changing the editor: it lists the rules every feature of the fork
+follows (Angular 19 – 22, strict TypeScript for fork code, logical CSS properties, locale keys for every string,
+sanitized URLs, emitted HTML changes listed in the changelog).
+
+## Setting up the development environment
 
 - clone the repository
 
 ```bash
-git clone https://github.com/sibiraj-s/ngx-editor
+git clone https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition
 ```
 
-- run npm install to install the deps
+- install the dependencies (Node.js 22.22.3+ or 24.15+)
 
 ```bash
-npm i
+npm install
 ```
 
-- Run the following to build and watch the changes to the library
+- build the library (the demo imports it from `dist/`), or build and watch it
 
 ```bash
+npm run build:lib
 npm run dev
 ```
 
-- Run the demo server to test the editor
+- run the demo on http://localhost:5002
 
 ```bash
 npm run demo
 ```
 
-This will run the demo server in port 5200.
-
-- To preview docs locally
+## Checks
 
 ```bash
-npm run serve:docs
+npx ng lint ngx-editor
+npm run check:strict
+npm run test:lib
+npm run build:demo
+npx ng build demo --configuration pages
+npm run test:demo
+# a small Angular 19 app built against the packed library (in a folder outside the repository)
+npm run compat -- --angular 19 --dir ../compat-19
 ```

@@ -1,55 +1,92 @@
 # CHANGELOG
 
-All notable changes to this project will be documented in this file.
+All notable changes to ngx-editor-rtl-ltr-edition are documented in this file. The fork's own releases come first;
+the history of the original ngx-editor package, which this fork is based on, follows under
+[Upstream ngx-editor changelog](#upstream-ngx-editor-changelog).
 
-> **Tags**
->
-> - Features
-> - Bug Fixes
-> - Performance Improvements
-> - Dependency Updates
-> - Breaking Changes
-> - Enhancements
-> - Documentation
-> - Internal
+## ngx-editor-rtl-ltr-edition 0.1.0 (unreleased)
 
-## Unreleased (ngx-editor-rtl-ltr-edition)
+The first version of the fork, based on ngx-editor 19.1.1 by Sibiraj. Migrating from ngx-editor: rename the imports
+from `ngx-editor` to `ngx-editor-rtl-ltr-edition` (see the README); everything else is compatible.
+
+#### Compatibility
+
+- the package is renamed to `ngx-editor-rtl-ltr-edition`, with the secondary entry points `/schema`, `/commands`, `/helpers`, `/input-rules`, `/utils` and the new `/locales`; the selectors (`<ngx-editor>`, `<ngx-editor-menu>`, `<ngx-editor-floating-menu>`), the class names and the Trusted Types policy name `ngx-editor` are unchanged
+- Angular 19, 20, 21 and 22 (peer dependencies `>=19.0.0`; upstream 19.x needs Angular 22): one build made with the Angular 22 toolchain; components use `ChangeDetectionStrategy.Default`, which the post-build step keeps linkable on Angular 19 – 21; no API newer than Angular 19.0 (the menu uses `ngAfterViewChecked` instead of `afterEveryRender`, the templates use no Angular 20+ syntax)
+- verified by a CI job that builds a small app against the packed library for Angular 19, 20, 21 and 22 with `strictTemplates` and `skipLibCheck: false` (`scripts/compat`)
+- `provideNgxEditorConfig(config)` for standalone apps (in a route's `providers` it configures that route), next to `NgxEditorModule.forRoot()`
+- the `[dir]` inputs are typed `string | null | undefined` in the published typings too, so strict templates can bind `null`
 
 #### Features
 
-- block direction: `dir` attribute (`ltr | rtl | auto`) on paragraphs, headings, blockquotes, code blocks, lists, list items, task lists, task items and tables; toolbar items `dir_ltr`, `dir_rtl`, `dir_auto`; Ctrl + Right Shift / Ctrl + Left Shift (`features.directionShortcuts`)
-- `[dir]` input on `<ngx-editor>`, `<ngx-editor-menu>` and `<ngx-editor-floating-menu>`, `Editor` options `dir` and `autoDirection`, `editor.config`. The inputs accept any string, like the native `dir` property (`ltr`/`rtl`/`auto` in any case; other strings count as not set); `null` writes no `dir`. `[dir]` on `<ngx-editor>` is still written on its host, and a projected floating menu follows it
-- a new list, task list or blockquote (toolbar or `- `, `1. `, `> `) takes the direction shared by the blocks it wraps
+Direction
+
+- block direction: `dir` attribute (`ltr | rtl | auto`) on paragraphs, headings, blockquotes, code blocks, lists, list items, task lists, task items and tables; toolbar items `dir_ltr`, `dir_rtl`, `dir_auto`; Ctrl + Right Shift / Ctrl + Left Shift (`features.directionShortcuts`); `EditorCommands.setTextDirection()` / `toggleTextDirection()`
+- `[dir]` input on `<ngx-editor>`, `<ngx-editor-menu>` and `<ngx-editor-floating-menu>`, `Editor` options `dir` and `autoDirection`, global `dir`, `editor.config`. The inputs accept any string, like the native `dir` property (`ltr`/`rtl`/`auto` in any case; other strings count as not set); `null` writes no `dir`. `[dir]` on `<ngx-editor>` is still written on its host, and a projected floating menu follows it
+- a new list, task list or blockquote (toolbar or `- `, `1. `, `> `) takes the direction shared by the blocks it wraps; Enter keeps the direction; pasted `direction: rtl` styles are kept
 - `toHTML(json, schema, { autoDirection: true })`
 - alignment `start` / `end` with the toolbar items `align_start` / `align_end`
-- tables: the insert dialog has a 10 × 10 grid picker and a "header row" option; `Table.insert(rows, cols, { headerRow, attrs })`
-- tables: `variant` (`bordered` | `striped` | `borderless`), `width` (`auto` | `full`) and `align` (`start` | `center` | `end`) on tables, `align` and `valign` on cells; table dropdown items `setCellBackground` (colour palette), `cellAlignStart/Center/End`, `cellVAlignTop/Middle/Bottom`, `tableVariantBordered/Striped/Borderless`, `tableWidthAuto/Full`, `tableAlignStart/Center/End` (in the built-in toolbars, `TABLE_DROPDOWN_ITEMS`)
-- tables: column resizing and Left/Right (also with Shift) work in right to left tables (`tableColumnResizing`, `tableRtlNavigation`)
-- `ngx-editor-rtl-ltr-edition/styles/content.css`: renders the exported HTML (directions, task lists, tables) like the editor
-- fonts: mark `font_family` (`<span style="font-family: …">`), toolbar item `font_family` (each font named in its own font and in the locale's language, plus "Default Font"), `EditorCommands.fontFamily(family)` / `removeFontFamily()`
-- fonts: 13 Arabic-script web fonts (Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic, Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi) and 4 system fonts; config `fonts: { list, extend, loading: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl, googleFontsUrl }` globally and as an `Editor` option; `NGX_EDITOR_FONTS`, `resolveFonts`, `loadFonts`, `NgxEditorFontLoader`, `buildFontFaceCss`, `buildGoogleFontsUrl`
-- fonts: the WOFF2 files (Arabic and Latin subsets, weights 400 and 700) ship in the package under `fonts/` with their OFL licenses; `THIRD_PARTY_NOTICES.md`
+- menus, popups, dropdowns and keyboard navigation mirror in right to left; icons drawn for a direction are flipped; URL and number inputs stay left to right
+
+Locales
+
+- built-in `en`, `fa` (Persian) and `ar` (Arabic) dictionaries in `ngx-editor-rtl-ltr-edition/locales`; config `locale` (`fa-IR` falls back to `fa`), `registerNgxEditorLocale`, `getNgxEditorLocale`, `isRtlLocale`; `locals` still overrides single keys; the placeholder is a locale key
+
+Tables
+
+- the insert dialog has a 10 × 10 grid picker and a "header row" option; `Table.insert(rows, cols, { headerRow, attrs })`
+- `variant` (`bordered` | `striped` | `borderless`), `width` (`auto` | `full`) and `align` (`start` | `center` | `end`) on tables, `align` and `valign` on cells; table dropdown items `setCellBackground` (colour palette), `cellAlignStart/Center/End`, `cellVAlignTop/Middle/Bottom`, `tableVariantBordered/Striped/Borderless`, `tableWidthAuto/Full`, `tableAlignStart/Center/End` (in the built-in toolbars, `TABLE_DROPDOWN_ITEMS`)
+- column resizing and Left/Right (also with Shift) work in right to left tables (`tableColumnResizing`, `tableRtlNavigation`)
+
+Fonts
+
+- mark `font_family` (`<span style="font-family: …">`), toolbar item `font_family` (each font named in its own font and in the locale's language, plus "Default Font"), `EditorCommands.fontFamily(family)` / `removeFontFamily()`
+- 13 Arabic-script web fonts (Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic, Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi) and 4 system fonts; config `fonts: { list, extend, loading: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl, googleFontsUrl }` globally and as an `Editor` option; `NGX_EDITOR_FONTS`, `resolveFonts`, `loadFonts`, `NgxEditorFontLoader`, `buildFontFaceCss`, `buildGoogleFontsUrl`
+- the WOFF2 files (Arabic and Latin subsets, weights 400 and 700) ship in the package under `fonts/` with their OFL licenses; `THIRD_PARTY_NOTICES.md`
 - `ngx-editor-rtl-ltr-edition/utils`: `parseFontFamily`, `normalizeFontFamily`, `getPrimaryFontFamily`
-- images: `sanitizeUrl(url, 'link' | 'image')` in `ngx-editor-rtl-ltr-edition/utils`, applied to every image and link url (parsing, serializing, commands, dialogs, upload results)
-- images: `height` and `align` (`start` | `center` | `end`) on `image`; new block node `figure` (captioned image with `src, alt, title, width, align, caption, href`); commands `setImageAlign`, `setImageAttrs`, `setImageLink`, `setImageCaption`, `imageToFigure`, `figureToImage`, `deleteImage` (also on `EditorCommands`)
-- images: upload pipeline for the insert dialog (new Upload tab with a drop zone), paste and drop of image files: `image: { uploadHandler, maxSize, accept, resize, base64WarnSize, onError, onWarning }` globally and as `Editor` option, placeholder with progress and cancel, localized error message, `editor.events` (`imageUploadStart`, `imageUploadProgress`, `imageUploaded`, `imageUploadCancelled`, `imageUploadError`, `imageUploadWarning`), `uploadImageFiles`, `resizeImageFile`, `features.imageUpload`
-- images: toolbar on the selected image or figure (alignment, alt text, caption, link, replace, delete) with localized labels; new icons `image_inline`, `image_alt`, `image_caption`, `image_replace`, `delete`, `upload`
-- videos: new block node `video` (`kind: embed | file`, `src`, `provider`, `width`, `align`, `poster`, `caption`, `ratio`), written as `<figure data-type="video">` with a responsive 16:9 frame and an `<iframe>` or `<video>`; read from that markup, from pasted embed code (`<iframe>` of an allowed host) and from `<video src>` / `<video><source src>`
-- videos: `normalizeVideoUrl` (YouTube watch/youtu.be/shorts/embed/live/m. links with start times, privacy-enhanced youtube-nocookie.com by default; Vimeo with private hashes; Aparat), `DEFAULT_VIDEO_HOSTS`, `isVideoHostAllowed`, `isVideoEmbedAllowed`, `getVideoProvider`, `extractVideoUrl` in `ngx-editor-rtl-ltr-edition/utils`; `sanitizeUrl(url, 'media')`
-- videos: config `video: { allowedHosts, youtubeNoCookie, uploadHandler, maxSize, accept, onError }` globally and as `Editor` option; pasted HTML is checked against the configured hosts (`videoEmbed` plugin, `clipboardParser`); video file upload with placeholders and progress (`uploadVideoFiles`, paste and drop, `features.videoUpload`), events `videoUploadStart`, `videoUploadProgress`, `videoUploaded`, `videoUploadCancelled`, `videoUploadError`. There is no fallback to the image upload handler and no data url fallback
-- videos: toolbar item `video` (dialog with Embed URL and Upload File tabs, live preview, poster and caption), icon `video`; node view with a click-to-select overlay, toolbar (align, width presets, caption, replace, delete) and a keyboard-accessible resize handle on the inline-end edge (`features.videoView`); commands `insertVideo`, `insertVideoUrl`, `setVideoAttrs`, `setVideoAlign`, `setVideoWidth`, `setVideoCaption`, `setVideoUrl`, `deleteVideo` (also on `EditorCommands`)
+
+Images
+
+- `height` and `align` (`start` | `center` | `end`) on `image`; new block node `figure` (captioned image with `src, alt, title, width, align, caption, href`); commands `setImageAlign`, `setImageAttrs`, `setImageLink`, `setImageCaption`, `imageToFigure`, `figureToImage`, `deleteImage` (also on `EditorCommands`)
+- upload pipeline for the insert dialog (new Upload tab with a drop zone), paste and drop of image files: `image: { uploadHandler, maxSize, accept, resize, base64WarnSize, onError, onWarning }` globally and as `Editor` option, placeholder with progress and cancel, localized error message, `editor.events` (`imageUploadStart`, `imageUploadProgress`, `imageUploaded`, `imageUploadCancelled`, `imageUploadError`, `imageUploadWarning`), `uploadImageFiles`, `resizeImageFile`, `features.imageUpload`
+- toolbar on the selected image or figure (alignment, alt text, caption, link, replace, delete) with localized labels; new icons `image_inline`, `image_alt`, `image_caption`, `image_replace`, `delete`, `upload`
+
+Videos
+
+- new block node `video` (`kind: embed | file`, `src`, `provider`, `width`, `align`, `poster`, `caption`, `ratio`), written as `<figure data-type="video">` with a responsive 16:9 frame and an `<iframe>` or `<video>`; read from that markup, from pasted embed code (`<iframe>` of an allowed host) and from `<video src>` / `<video><source src>`
+- `normalizeVideoUrl` (YouTube watch/youtu.be/shorts/embed/live/m. links with start times, privacy-enhanced youtube-nocookie.com by default; Vimeo with private hashes; Aparat), `DEFAULT_VIDEO_HOSTS`, `isVideoHostAllowed`, `isVideoEmbedAllowed`, `getVideoProvider`, `extractVideoUrl` in `ngx-editor-rtl-ltr-edition/utils`
+- config `video: { allowedHosts, youtubeNoCookie, uploadHandler, maxSize, accept, onError }` globally and as `Editor` option; pasted HTML is checked against the configured hosts (`videoEmbed` plugin, `clipboardParser`); video file upload with placeholders and progress (`uploadVideoFiles`, paste and drop, `features.videoUpload`), events `videoUploadStart`, `videoUploadProgress`, `videoUploaded`, `videoUploadCancelled`, `videoUploadError`. There is no fallback to the image upload handler and no data url fallback
+- toolbar item `video` (dialog with Embed URL and Upload File tabs, live preview, poster and caption), icon `video`; node view with a click-to-select overlay, toolbar (align, width presets, caption, replace, delete) and a keyboard-accessible resize handle on the inline-end edge (`features.videoView`); commands `insertVideo`, `insertVideoUrl`, `setVideoAttrs`, `setVideoAlign`, `setVideoWidth`, `setVideoCaption`, `setVideoUrl`, `deleteVideo` (also on `EditorCommands`)
+
+Output
+
+- `ngx-editor-rtl-ltr-edition/styles/content.css`: renders the exported HTML (directions, task lists, tables, aligned and captioned images, videos) like the editor
+
+#### Security
+
+- `sanitizeUrl(url, 'link' | 'image' | 'media')` in `ngx-editor-rtl-ltr-edition/utils`, applied to every link, image and video url: in parsing (loaded and pasted HTML), in serializing (JSON content), in commands, dialogs, toolbar inputs and upload results
+- `<a href="javascript:…">` and other unsafe links in loaded or pasted HTML are dropped (their text is kept); `<img>` with an unsafe `src` (`javascript:`, `data:image/svg+xml`, `data:text/html`) is dropped
+- video embeds only from an allowlist of hosts (YouTube, Vimeo, Aparat by default), `https:` only for other hosts, iframes with `referrerpolicy` and a fixed `allow` list
+- font families, CSS lengths and cell colours are validated before they are written into `style` attributes
+- the editor does not make HTML from other users safe to display: sanitize it on the server (README, Security)
 
 #### Bug Fixes
 
 - the background colour of a table cell is no longer also read as a text highlight of its content
 - the column resize handle is drawn on the inline-end edge (`inset-inline-end` instead of `right`)
 - image resize handles are on the inline-end corners and the drag follows the text direction (in right to left text it resized the wrong way); the width is clamped instead of ignoring the move
-- `<a href="javascript:…">` and other unsafe links in loaded or pasted HTML are dropped (their text is kept); `<img>` with an unsafe `src` (`javascript:`, `data:image/svg+xml`, `data:text/html`) is dropped
 
 #### Internal
 
 - in development, `Locals.get` warns once about a key that has no English string
 - `NgxEditorUploadContext.kind` is `'image' | 'video'`; the toolbar styles of the image node view moved to `components/media-toolbar.scss`, shared with the video node view
+- `npm run check:strict` type-checks the fork's own files with `strict: true`
+- the demo shows every toolbar item, direction and locale switches, simulated uploads and the `toHTML()` output rendered with `styles/content.css`; it is published on GitHub Pages and opens on StackBlitz
+- CI: lint, strict check, library and demo tests and builds, and the Angular 19 – 22 compatibility apps
+
+#### Documentation
+
+- README rewritten for the fork, Persian README (`README.fa.md`), design notes (`FORK_DESIGN.md`), third-party notices for the dependencies, icons and fonts (`THIRD_PARTY_NOTICES.md`, `LICENSES/`)
 
 #### Changes to the emitted HTML and JSON
 
@@ -71,6 +108,12 @@ All notable changes to this project will be documented in this file.
 - the URL tab of the image dialog accepts relative urls (`/img/a.png`) and rejects unsafe ones (it used a domain pattern)
 - with a font menu, or a document that uses a font, the editor adds a `<link>` to Google Fonts (default) or a `<style>` with `@font-face` rules to the `<head>`; editors without fonts load nothing
 - videos are written as `<figure data-type="video" data-kind data-provider data-align style>` + `<div class="ngx-video__frame" style="aspect-ratio: 16 / 9;">` + `<iframe>` / `<video>` + optional `<figcaption>`. `<iframe>` and `<video>` in loaded or pasted HTML were dropped; an `<iframe>` of a default video host and any `<video>` with a safe url are now read as a `video` node (other iframes are still dropped). The schema has the new node `video`; documents without videos are written as before
+
+# Upstream ngx-editor changelog
+
+The history of [ngx-editor](https://github.com/sibiraj-s/ngx-editor) by Sibiraj, up to the version this fork is based
+on. The commit links point to the upstream repository. Tags: Features, Bug Fixes, Performance Improvements,
+Dependency Updates, Breaking Changes, Enhancements, Documentation, Internal.
 
 ## 19.1.1 (2026-10-15)
 

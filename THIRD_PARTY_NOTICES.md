@@ -1,7 +1,45 @@
 # Third-party notices
 
-ngx-editor-rtl-ltr-edition is released under the MIT license (`LICENSE`). It includes or redistributes the
-third-party components listed below, each under its own license.
+ngx-editor-rtl-ltr-edition is released under the MIT license (`LICENSE`). It is a fork of
+[ngx-editor](https://github.com/sibiraj-s/ngx-editor) by Sibiraj (MIT, Copyright (c) 2017 Sibiraj), whose copyright
+notice is kept in `LICENSE`. It includes or redistributes the third-party components listed below, each under its own
+license.
+
+## Runtime dependencies
+
+These npm packages are installed with the library (`dependencies` of its `package.json` and their own dependencies)
+and end up in the bundle of an application that uses the editor. None of them is bundled into the package itself;
+each ships its full license text in its own package. Versions are those of the lock file at the time of writing.
+
+| Package | Version | License | Copyright |
+| --- | --- | --- | --- |
+| prosemirror-commands | 1.7.2 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-history | 1.5.1 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-inputrules | 1.5.1 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-keymap | 1.2.3 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-model | 1.25.12 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-schema-list | 1.5.1 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-state | 1.4.4 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-tables | 1.8.5 | MIT | Copyright (C) 2015-2016 by Marijn Haverbeke and others |
+| prosemirror-transform (via prosemirror-*) | 1.12.2 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| prosemirror-view | 1.42.6 | MIT | Copyright (C) 2015-2017 by Marijn Haverbeke and others |
+| orderedmap (via prosemirror-model) | 2.1.1 | MIT | Copyright (C) 2016 by Marijn Haverbeke and others |
+| rope-sequence (via prosemirror-history) | 1.3.4 | MIT | Copyright (C) 2016 by Marijn Haverbeke |
+| w3c-keyname (via prosemirror-keymap, prosemirror-view) | 2.2.8 | MIT | Copyright (C) 2016 by Marijn Haverbeke and others |
+| @floating-ui/core | 1.8.0 | MIT | Copyright (c) 2021-present Floating UI contributors |
+| @floating-ui/dom | 1.8.0 | MIT | Copyright (c) 2021-present Floating UI contributors |
+| @floating-ui/utils (via @floating-ui/*) | 0.2.12 | MIT | Copyright (c) 2021-present Floating UI contributors |
+| @types/trusted-types (type declarations only) | 2.0.7 | MIT | Copyright (c) Microsoft Corporation |
+| tslib | 2.8.1 | 0BSD | Copyright (c) Microsoft Corporation |
+
+Peer dependencies, installed by the application itself: `@angular/*` (MIT, Copyright (c) Google LLC) and `rxjs`
+(Apache-2.0, Copyright (c) Google, Inc., Netflix, Inc., Microsoft Corp. and contributors).
+
+## Icons
+
+The toolbar icons (SVG paths in `src/lib/icons/`, compiled into the library) are taken from Google's Material
+Icons / Material Symbols (https://fonts.google.com/icons), Copyright Google LLC, licensed under the Apache License,
+Version 2.0. The full license text is in `LICENSES/Apache-2.0.txt` (also in the package).
 
 ## Fonts
 

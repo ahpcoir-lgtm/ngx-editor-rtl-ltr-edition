@@ -118,6 +118,34 @@ describe('EditorComponent', () => {
     });
   });
 
+  describe('html output', () => {
+    it('should render the toHTML output with the content stylesheet class', () => {
+      const preview = (fixture.nativeElement as HTMLElement).querySelector('.ngx-editor-content.html-output__preview');
+      expect(preview?.querySelector('h1')?.textContent).toBe('Hello');
+      expect(preview?.querySelector('figure[data-type="video"] iframe')?.getAttribute('src'))
+        .toBe('https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ');
+      expect(preview?.querySelector('span[style*="font-family"]')).toBeTruthy();
+      expect(component.html()).toContain('dir="auto"');
+    });
+
+    it('should show the html source', async () => {
+      const tab: HTMLButtonElement = fixture.nativeElement.querySelector('#html-output-tab-source');
+      tab.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const source = (fixture.nativeElement as HTMLElement).querySelector('.html-output__source')?.textContent ?? '';
+      expect(source).toContain('<figure data-type="video"');
+      expect(tab.getAttribute('aria-selected')).toBe('true');
+    });
+
+    it('should show the header of the fork', () => {
+      const header = (fixture.nativeElement as HTMLElement).querySelector('header');
+      expect(header?.textContent).toContain('RTL/LTR edition');
+      expect(header?.textContent).toContain('not the official');
+    });
+  });
+
   describe('direction and language', () => {
     const query = (selector: string): HTMLElement => fixture.nativeElement.querySelector(selector);
 

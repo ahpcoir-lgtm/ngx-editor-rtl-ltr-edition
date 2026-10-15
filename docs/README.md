@@ -1,3 +1,9 @@
+> **Note — upstream documentation.** This folder is the documentation site of the original
+> [ngx-editor](https://github.com/sibiraj-s/ngx-editor) package (Astro / Starlight), kept unchanged from upstream for
+> reference. It describes upstream ngx-editor and its package name, not the additions of ngx-editor-rtl-ltr-edition,
+> and it is not built or deployed by this repository (GitHub Pages publishes the demo instead). The documentation of
+> the fork is [README.md](../README.md) / [README.fa.md](../README.fa.md).
+
 # docs site: built with Startlight(Astro)
 
 ```bash

@@ -25,7 +25,9 @@ This PR contains:
   - A feature commit message is prefixed "feat:"
   - A bugfix commit message is prefixed "fix:"
   - A document related commit is prefixed "docs:"
-- [ ] docs have been added / updated (for bug fixes / features)
+- [ ] docs have been added / updated (for bug fixes / features), in `README.md` and `README.fa.md`
+- [ ] new user-visible strings have `en`, `fa` and `ar` values; changes to the emitted HTML are listed in `CHANGELOG.md`
+- [ ] works in right to left and left to right content (see `FORK_DESIGN.md`)
 
 ### Describe Your Changes
 

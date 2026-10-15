@@ -16,6 +16,9 @@
     "test:demo": "ng test demo --watch false",
     "test:lib": "ng test ngx-editor --watch false",
     "test": "npm run test:lib && npm run test:demo",
+    "compat": "node ./scripts/compat/run.mjs",
+    "build:pages": "ng build demo --configuration pages",
+    "stackblitz": "npm run build:lib && ng serve demo --configuration stackblitz --port 5002",
     "prepare": "is-ci || husky"
   },
   "engines": {

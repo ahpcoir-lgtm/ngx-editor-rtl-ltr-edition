@@ -1,0 +1,8 @@
+{
+  "installDependencies": false,
+  "startCommand": "npm install --engine-strict=false --no-audit --no-fund && npm run stackblitz",
+  "env": {
+    "HUSKY": "0",
+    "NG_CLI_ANALYTICS": "false"
+  }
+}

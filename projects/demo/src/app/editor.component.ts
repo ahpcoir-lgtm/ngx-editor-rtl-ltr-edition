@@ -1,11 +1,12 @@
 import {
-  Component, OnDestroy, OnInit, ViewEncapsulation, isDevMode, ChangeDetectionStrategy, inject, signal,
+  Component, OnDestroy, OnInit, ViewEncapsulation, ChangeDetectionStrategy, inject, signal,
 } from '@angular/core';
+import { PlatformLocation } from '@angular/common';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {
-  DEFAULT_TOOLBAR,
   Editor,
   NgxEditorComponent,
   NgxEditorFloatingMenuComponent,
@@ -14,8 +15,10 @@ import {
   NgxEditorService,
   NgxEditorUploadContext,
   NgxEditorUploadResult,
+  TABLE_DROPDOWN_ITEMS,
   Toolbar,
   Validators,
+  toHTML,
 } from 'ngx-editor-rtl-ltr-edition';
 
 import { AppCustomMenuComponent } from './components/custom-menu/custom-menu.component';
@@ -73,14 +76,27 @@ const simulateUpload = <T>(ctx: NgxEditorUploadContext, fail: boolean, result: (
   });
 };
 
+// every toolbar item of the library, the ones added by this fork included
 const TOOLBAR: Toolbar = [
-  ...DEFAULT_TOOLBAR,
-  ['align_start', 'align_end'],
+  ['undo', 'redo'],
+  ['bold', 'italic', 'underline', 'strike'],
+  ['code', 'blockquote'],
+  ['superscript', 'subscript'],
+  ['ordered_list', 'bullet_list', 'task_list'],
+  [{ heading: ['paragraph', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }],
+  ['font_family'],
+  ['link', 'image', 'video'],
+  ['table', { table: TABLE_DROPDOWN_ITEMS }],
+  ['text_color', 'background_color'],
+  ['align_start', 'align_center', 'align_end', 'align_justify'],
+  ['align_left', 'align_right'],
   ['dir_ltr', 'dir_rtl', 'dir_auto'],
   ['indent', 'outdent'],
-  ['font_family'],
-  ['video'],
+  ['horizontal_rule', 'format_clear'],
 ];
+
+export const REPOSITORY_URL = 'https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition';
+export const UPSTREAM_URL = 'https://github.com/sibiraj-s/ngx-editor';
 
 @Component({
   selector: 'app-editor',
@@ -99,8 +115,13 @@ const TOOLBAR: Toolbar = [
 })
 export class EditorComponent implements OnInit, OnDestroy {
   private ngxeService = inject(NgxEditorService);
+  private sanitizer = inject(DomSanitizer);
 
-  isDevMode = isDevMode();
+  // the font files are served from <base href>assets/ngx-editor-fonts/, also on GitHub Pages (a sub path)
+  private fontsBaseUrl = `${(inject(PlatformLocation).getBaseHrefFromDOM() || '/').replace(/\/?$/, '/')}assets/ngx-editor-fonts/`;
+
+  readonly repositoryUrl = REPOSITORY_URL;
+  readonly upstreamUrl = UPSTREAM_URL;
   editordoc = jsonDoc;
   editor: Editor;
   toolbar: Toolbar = TOOLBAR;
@@ -109,6 +130,13 @@ export class EditorComponent implements OnInit, OnDestroy {
   failUploads = false;
   readonly eventLog = signal<string[]>([]);
   private eventsSubscription: Subscription | null = null;
+  private valueSubscription: Subscription | null = null;
+
+  /** `toHTML()` of the document, as an app would store it */
+  readonly html = signal('');
+  /** the same html for the rendered preview (see `updateHtml`) */
+  readonly previewHtml = signal<SafeHtml>('');
+  readonly outputView = signal<'preview' | 'source'>('preview');
   locale: DemoLocale = 'en';
 
   readonly directions: { value: DemoDirection; label: string }[] = [
@@ -167,6 +195,22 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.eventLog.set([]);
   }
 
+  private updateHtml(value: Record<string, unknown> | string | null): void {
+    if (!value) {
+      this.html.set('');
+      this.previewHtml.set('');
+      return;
+    }
+
+    const html = typeof value === 'string' ? value : toHTML(value, schema, { autoDirection: this.direction === 'auto' });
+    this.html.set(html);
+    // Angular's [innerHTML] sanitizer removes style attributes and iframes, which carry the alignment, the
+    // fonts and the videos. The demo trusts this html because the schema's serializer wrote it, from a document
+    // the viewer edited in this tab (every url passed sanitizeUrl). An app that shows html written by other
+    // users must sanitize it on the server (and may use a sanitizer such as DOMPurify) before rendering it.
+    this.previewHtml.set(this.sanitizer.bypassSecurityTrustHtml(html));
+  }
+
   private createEditor(): void {
     this.eventsSubscription?.unsubscribe();
     this.editor?.destroy();
@@ -180,7 +224,7 @@ export class EditorComponent implements OnInit, OnDestroy {
       attributes: { enterkeyhint: 'enter' },
       autoDirection: this.direction === 'auto',
       // the font files of the package, copied to /assets/ngx-editor-fonts/ by the asset glob in angular.json
-      fonts: { loading: 'self-hosted' },
+      fonts: { loading: 'self-hosted', selfHostedBaseUrl: this.fontsBaseUrl },
       // uploads are simulated; a real app sends the file to its server and resolves to the url
       image: {
         uploadHandler: (file, ctx) => simulateUpload<NgxEditorUploadResult>(ctx, this.failUploads, () => ({
@@ -205,14 +249,19 @@ export class EditorComponent implements OnInit, OnDestroy {
     this.eventsSubscription = this.editor.events.subscribe((event) => {
       this.eventLog.update((log) => [describeEvent(event), ...log].slice(0, 8));
     });
+
+    // the form control keeps the document while the editor is created again
+    this.updateHtml(this.doc.value);
   }
 
   ngOnInit(): void {
+    this.valueSubscription = this.doc.valueChanges.subscribe((value: Record<string, unknown> | string | null) => this.updateHtml(value));
     this.createEditor();
   }
 
   ngOnDestroy(): void {
     this.eventsSubscription?.unsubscribe();
+    this.valueSubscription?.unsubscribe();
     this.editor.destroy();
   }
 }

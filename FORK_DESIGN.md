@@ -11,7 +11,10 @@ pieces fit together. User-facing documentation lives in `README.md` / `README.fa
   Therefore: no `ChangeDetectionStrategy.Eager` (use `Default`; the 19–21 linker resolves the strategy by
   symbol name and only knows `Default`), no `afterEveryRender`/`afterRender` (use lifecycle hooks), no API
   introduced after Angular 19.0. Components keep `ChangeDetectionStrategy.Default` because the Angular 22
-  linker defaults to OnPush when the field is missing.
+  linker defaults to OnPush when the field is missing. Templates use Angular 19 syntax only (no `as` alias on
+  `@else if`). The library compiles with `strict: false`, which drops `null`/`undefined` from inferred types in the
+  `.d.ts`, so public members whose type includes them get an explicit type annotation (see the `dir` inputs).
+  `scripts/compat/run.mjs` builds an app for a given Angular major against the packed library (CI: 19 – 22).
 - **TypeScript.** Upstream compiles with `strict: false`. New fork code must also type-check under
   `strict: true`; `npm run check:strict` (scripts/check-strict.mjs) runs the compiler in strict mode and
   reports diagnostics only for fork-owned files (the `FORK_OWNED` globs at the top of the script; every

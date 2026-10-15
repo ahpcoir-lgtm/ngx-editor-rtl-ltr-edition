@@ -1,6 +1,6 @@
 import {
   Component, ElementRef, HostBinding, HostListener, OnDestroy, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, inject,
-  input
+  InputSignalWithTransform, input,
 } from '@angular/core';
 import type { VirtualElement } from '@floating-ui/core';
 import { autoPlacement, computePosition, detectOverflow, offset } from '@floating-ui/dom';
@@ -58,7 +58,11 @@ export class NgxEditorFloatingMenuComponent implements OnInit, OnDestroy {
   readonly editor = input<Editor>(undefined);
   readonly autoPlace = input(false);
   /** direction of the bubble menu; else the editor's `dir` option, the global `dir` or the locale's direction */
-  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+  // typed explicitly: the library compiles with strict: false, which would drop null and undefined from the
+  // inferred type in the .d.ts, and strictTemplates apps could not bind `null`
+  readonly dir: InputSignalWithTransform<NgxEditorDirection | null | undefined, string | null | undefined> = input<
+    NgxEditorDirection | null | undefined, string | null | undefined
+  >(undefined, {
     transform: normalizeDirection,
   });
 

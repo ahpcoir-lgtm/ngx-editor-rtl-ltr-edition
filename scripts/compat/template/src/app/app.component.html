@@ -1,0 +1,8 @@
+<p>Locale: {{ locale }} · Video: {{ video }}</p>
+<div class="NgxEditor__Wrapper">
+  <ngx-editor-menu [editor]="editor" [toolbar]="toolbar" [dir]="dir"></ngx-editor-menu>
+  <ngx-editor [editor]="editor" [(ngModel)]="html" [dir]="dir" outputFormat="html" placeholder="...">
+    <ngx-editor-floating-menu [editor]="editor"></ngx-editor-floating-menu>
+  </ngx-editor>
+</div>
+<div class="ngx-editor-content" [innerHTML]="output"></div>

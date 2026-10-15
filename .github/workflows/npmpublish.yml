@@ -1,3 +1,6 @@
+# Publishes dist/ngx-editor-rtl-ltr-edition when a GitHub release is created.
+# npm trusted publishing (OIDC, no token) has to be set up for the package on npmjs.com first; the very first
+# version of a new package cannot be published that way and is published by hand (npm publish with 2FA).
 name: NPM Publish
 
 env:
@@ -22,11 +25,15 @@ jobs:
 
       - run: npm ci
 
+      - run: npx ng lint ngx-editor
+      - run: npm run check:strict
       - run: npm run build:lib
       - run: npm run test:lib
 
   publish-npm:
     needs: test-lib
+    # forks of this repository do not publish
+    if: github.repository == 'ahpcoir-lgtm/ngx-editor-rtl-ltr-edition'
     runs-on: ubuntu-latest
 
     permissions:

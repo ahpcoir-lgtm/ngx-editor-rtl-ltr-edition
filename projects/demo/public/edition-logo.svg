@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>ngx-editor RTL/LTR edition</title>
+  <rect x="4" y="4" width="120" height="120" rx="20" fill="#1e5aa8"/>
+  <g fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M28 44h60"/>
+    <path d="M76 30l14 14-14 14"/>
+    <path d="M100 84H40"/>
+    <path d="M52 70L38 84l14 14"/>
+  </g>
+</svg>

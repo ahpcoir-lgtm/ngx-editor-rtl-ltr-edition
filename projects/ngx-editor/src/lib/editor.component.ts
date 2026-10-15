@@ -13,6 +13,7 @@ import {
   ViewEncapsulation,
   ChangeDetectionStrategy,
   inject,
+  InputSignalWithTransform,
   input,
   linkedSignal,
   output,
@@ -62,7 +63,11 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
 
   // Direction of the editor surface; else the editor's `dir` option, the global `dir` or the locale's direction.
   // `null` writes no `dir`. Accepts any string, like the native `dir` property this input replaced.
-  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+  // typed explicitly: the library compiles with strict: false, which would drop null and undefined from the
+  // inferred type in the .d.ts, and strictTemplates apps could not bind `null`
+  readonly dir: InputSignalWithTransform<NgxEditorDirection | null | undefined, string | null | undefined> = input<
+    NgxEditorDirection | null | undefined, string | null | undefined
+  >(undefined, {
     transform: normalizeDirection,
   });
 

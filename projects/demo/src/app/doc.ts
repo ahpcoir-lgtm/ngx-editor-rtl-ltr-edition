@@ -299,6 +299,38 @@ export default {
       attrs: {
         level: 2,
         align: null,
+        dir: 'rtl',
+      },
+      content: [
+        {
+          type: 'text',
+          text: 'نص عربي',
+        },
+      ],
+    },
+    {
+      type: 'paragraph',
+      attrs: {
+        align: null,
+      },
+      content: [
+        {
+          type: 'text',
+          marks: [
+            {
+              type: 'font_family',
+              attrs: { family: 'Amiri, serif' },
+            },
+          ],
+          text: 'هذه فقرة عربية مكتوبة بخط أميري. يمكنك تغيير اتجاه أي فقرة من شريط الأدوات، أو بالضغط على Ctrl مع Shift الأيمن أو الأيسر.',
+        },
+      ],
+    },
+    {
+      type: 'heading',
+      attrs: {
+        level: 2,
+        align: null,
       },
       content: [
         {
@@ -444,8 +476,8 @@ export default {
         {
           type: 'image',
           attrs: {
-            src: '/ngx-editor.svg',
-            alt: 'ngx-editor logo',
+            src: 'edition-logo.svg',
+            alt: 'RTL/LTR edition logo',
             title: null,
             width: '120px',
             align: 'end',
@@ -460,8 +492,8 @@ export default {
     {
       type: 'figure',
       attrs: {
-        src: '/ngx-editor.svg',
-        alt: 'ngx-editor logo',
+        src: 'edition-logo.svg',
+        alt: 'RTL/LTR edition logo',
         title: null,
         width: '200px',
         align: 'center',

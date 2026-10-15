@@ -1,23 +1,23 @@
+# Live demo on GitHub Pages: https://ahpcoir-lgtm.github.io/ngx-editor-rtl-ltr-edition/
+# Needs Settings > Pages > Build and deployment > Source: "GitHub Actions" in the repository.
 name: Github Pages
 
 on:
   push:
-    branches: master
+    branches: main
+  # allow manual trigger
+  workflow_dispatch:
 
 env:
   NODE_VERSION: 24
-  ASTRO_TELEMETRY_DISABLED: 1
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: pages
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: docs
 
     permissions:
       contents: read
@@ -35,13 +35,21 @@ jobs:
       - name: NPM Install
         run: npm ci
 
-      - name: Build site
-        run: npm run build
+      - name: Build the library
+        run: npm run build:lib
+
+      # static build (no server), base href /ngx-editor-rtl-ltr-edition/ (angular.json, configuration "pages")
+      - name: Build the demo
+        run: npx ng build demo --configuration pages
+
+      # the demo has one route; serve it for unknown paths too
+      - name: Add a 404 page
+        run: cp dist/demo-pages/browser/index.html dist/demo-pages/browser/404.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: ./docs/dist
+          path: ./dist/demo-pages/browser
 
   deploy:
     needs: build

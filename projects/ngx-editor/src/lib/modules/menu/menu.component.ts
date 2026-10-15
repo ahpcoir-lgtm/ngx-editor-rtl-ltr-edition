@@ -1,5 +1,6 @@
 import {
   AfterViewChecked, Component, ElementRef, HostListener, OnInit, TemplateRef, ChangeDetectionStrategy, inject, input,
+  InputSignalWithTransform,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -169,7 +170,11 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
   readonly customMenuRef = input<TemplateRef<unknown> | null>(null);
   readonly dropdownPlacement = input<'top' | 'bottom'>('bottom');
   /** direction of the toolbar and its popups; else the editor's `dir` option, the global `dir` or the locale's direction */
-  readonly dir = input<NgxEditorDirection | null | undefined, string | null | undefined>(undefined, {
+  // typed explicitly: the library compiles with strict: false, which would drop null and undefined from the
+  // inferred type in the .d.ts, and strictTemplates apps could not bind `null`
+  readonly dir: InputSignalWithTransform<NgxEditorDirection | null | undefined, string | null | undefined> = input<
+    NgxEditorDirection | null | undefined, string | null | undefined
+  >(undefined, {
     transform: normalizeDirection,
   });
 

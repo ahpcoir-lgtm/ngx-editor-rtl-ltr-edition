@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: Ask a question
-    url: https://github.com/sibiraj-s/ngx-editor/discussions
-    about: Ask questions and discuss with other community members
+    url: https://github.com/ahpcoir-lgtm/ngx-editor-rtl-ltr-edition/discussions
+    about: Ask questions about ngx-editor-rtl-ltr-edition and discuss with other users
+  - name: Upstream ngx-editor
+    url: https://github.com/sibiraj-s/ngx-editor/issues
+    about: Problems of the original ngx-editor package (not this fork) belong in the upstream repository
