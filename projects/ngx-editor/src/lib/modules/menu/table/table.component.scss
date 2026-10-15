@@ -1,0 +1,51 @@
+// the grid picker; it follows the direction of the menu, so the first column is on the inline start side
+.NgxEditor__TableGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  inline-size: fit-content;
+  margin-block-end: 4px;
+  outline: none;
+
+  &:focus-visible {
+    outline: 1px solid var(--ngx-editor-focus-ring-color);
+    outline-offset: 2px;
+  }
+}
+
+.NgxEditor__TableGrid--Row {
+  display: flex;
+  gap: 2px;
+}
+
+.NgxEditor__TableGrid--Cell {
+  display: block;
+  inline-size: 14px;
+  block-size: 14px;
+  box-sizing: border-box;
+  border: 1px solid var(--ngx-editor-border-color);
+  border-radius: 2px;
+  background-color: var(--ngx-editor-background-color);
+}
+
+.NgxEditor__TableGrid--Selected {
+  border-color: var(--ngx-editor-menu-item-active-color);
+  background-color: var(--ngx-editor-menu-item-active-bg-color);
+}
+
+.NgxEditor__TableGrid--Size {
+  font-size: 85%;
+  text-align: center;
+  margin-block-end: 8px;
+}
+
+.NgxEditor__Popup--Checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 85%;
+
+  > input {
+    margin: 0;
+  }
+}

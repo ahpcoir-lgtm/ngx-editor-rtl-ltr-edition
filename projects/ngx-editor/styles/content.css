@@ -1,0 +1,151 @@
+/*
+ * ngx-editor-rtl-ltr-edition: content stylesheet
+ *
+ * Renders the HTML written by the editor (the `html` output, `toHTML()`) the way the editor shows it.
+ * Put the HTML in an element with the class `ngx-editor-content`:
+ *
+ *   <div class="ngx-editor-content" [innerHTML]="html"></div>
+ *
+ * and add this file to the styles of the app, e.g. in angular.json:
+ *
+ *   "styles": ["node_modules/ngx-editor-rtl-ltr-edition/styles/content.css", ...]
+ *
+ * Only logical properties are used, so the same rules work in left to right and right to left content.
+ * The colours are CSS variables with the defaults of the editor.
+ */
+
+.ngx-editor-content {
+  --ngx-editor-content-border-color: rgba(0, 0, 0, 0.2);
+  --ngx-editor-content-blockquote-color: #ddd;
+  --ngx-editor-content-blockquote-border-width: 3px;
+  --ngx-editor-content-table-header-bg-color: #f5f5f5;
+  --ngx-editor-content-table-stripe-bg-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ---- direction ---- */
+
+/* `dir="ltr" | "rtl" | "auto"` on the blocks is applied by the browser; indentation is written as
+   `margin-inline-start`. The rules below keep markers and borders on the side of the text. */
+
+/* page styles like `ul { padding-left: 2rem }` would put the markers of right to left lists outside */
+.ngx-editor-content ul,
+.ngx-editor-content ol {
+  padding-inline: var(--ngx-editor-list-indent, 40px) 0;
+}
+
+.ngx-editor-content blockquote {
+  margin-inline: 0;
+  padding-inline-start: 16px;
+  border-inline-start: var(--ngx-editor-content-blockquote-border-width) solid var(--ngx-editor-content-blockquote-color);
+}
+
+/* code reads left to right, unless the block has a direction of its own */
+.ngx-editor-content pre:not([dir]) {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ---- task lists ---- */
+
+.ngx-editor-content ul[data-type='task_list'] {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.ngx-editor-content li[data-type='task_item'] {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.ngx-editor-content li[data-type='task_item']::before {
+  flex: 0 0 auto;
+  content: '\2610';
+}
+
+.ngx-editor-content li[data-type='task_item'][data-checked='true']::before {
+  content: '\2611';
+}
+
+.ngx-editor-content li[data-type='task_item'] > * {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ---- tables ---- */
+
+/* a table follows the direction of its content (`dir` on the table or inherited): in right to left text the
+   first column is on the right */
+.ngx-editor-content table {
+  margin-block: 1em;
+  margin-inline: 0;
+  border-collapse: collapse;
+  border: 1px solid var(--ngx-editor-content-border-color);
+}
+
+/* width: `auto` (default) or `full` */
+.ngx-editor-content table[data-width='full'] {
+  width: 100%;
+}
+
+/* alignment of the table: `start` (default), `center`, `end` */
+.ngx-editor-content table[data-align='center'] {
+  margin-inline: auto;
+}
+
+.ngx-editor-content table[data-align='end'] {
+  margin-inline: auto 0;
+}
+
+.ngx-editor-content th,
+.ngx-editor-content td {
+  min-width: 1em;
+  padding: 3px 5px;
+  border: 1px solid var(--ngx-editor-content-border-color);
+  text-align: start;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.ngx-editor-content th {
+  font-weight: bold;
+  background-color: var(--ngx-editor-content-table-header-bg-color);
+}
+
+/* cell alignment: `start` (default), `center`, `end`; vertical: `top` (default), `middle`, `bottom` */
+.ngx-editor-content th[data-align='center'],
+.ngx-editor-content td[data-align='center'] {
+  text-align: center;
+}
+
+.ngx-editor-content th[data-align='end'],
+.ngx-editor-content td[data-align='end'] {
+  text-align: end;
+}
+
+.ngx-editor-content th[data-valign='middle'],
+.ngx-editor-content td[data-valign='middle'] {
+  vertical-align: middle;
+}
+
+.ngx-editor-content th[data-valign='bottom'],
+.ngx-editor-content td[data-valign='bottom'] {
+  vertical-align: bottom;
+}
+
+/* variants: `bordered` (default), `striped` (row lines and alternating rows), `borderless` */
+.ngx-editor-content table[data-variant='striped'],
+.ngx-editor-content table[data-variant='striped'] th,
+.ngx-editor-content table[data-variant='striped'] td {
+  border-inline: none;
+}
+
+.ngx-editor-content table[data-variant='striped'] tr:nth-child(even) > td {
+  background-color: var(--ngx-editor-content-table-stripe-bg-color);
+}
+
+.ngx-editor-content table[data-variant='borderless'],
+.ngx-editor-content table[data-variant='borderless'] th,
+.ngx-editor-content table[data-variant='borderless'] td {
+  border: none;
+}

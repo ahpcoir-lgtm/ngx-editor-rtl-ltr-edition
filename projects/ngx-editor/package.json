@@ -25,7 +25,12 @@
     "arabic",
     "urdu"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
+  "exports": {
+    "./styles/content.css": "./styles/content.css"
+  },
   "peerDependencies": {
     "@angular/common": ">=19.0.0",
     "@angular/core": ">=19.0.0",

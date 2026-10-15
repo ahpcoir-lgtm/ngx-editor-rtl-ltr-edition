@@ -1,0 +1,40 @@
+// the cell background palette, drawn like the colour picker
+.NgxEditor__Dropdown--Palette {
+  padding: 8px;
+  width: 230px;
+  box-sizing: border-box;
+}
+
+.NgxEditor__ColorContainer {
+  display: flex;
+  justify-content: space-between;
+
+  & + .NgxEditor__ColorContainer {
+    margin-block-start: 5px;
+  }
+}
+
+.NgxEditor__Color {
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+
+  &:focus-visible {
+    outline: 1px solid var(--ngx-editor-focus-ring-color);
+    outline-offset: 1px;
+  }
+}
+
+.NgxEditor__Color--Active {
+  &::after {
+    content: '✔';
+    font-size: 90%;
+  }
+}
+
+.NgxEditor__MenuItem--Button {
+  margin-block-start: 5px;
+}

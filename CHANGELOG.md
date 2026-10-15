@@ -22,6 +22,15 @@ All notable changes to this project will be documented in this file.
 - a new list, task list or blockquote (toolbar or `- `, `1. `, `> `) takes the direction shared by the blocks it wraps
 - `toHTML(json, schema, { autoDirection: true })`
 - alignment `start` / `end` with the toolbar items `align_start` / `align_end`
+- tables: the insert dialog has a 10 × 10 grid picker and a "header row" option; `Table.insert(rows, cols, { headerRow, attrs })`
+- tables: `variant` (`bordered` | `striped` | `borderless`), `width` (`auto` | `full`) and `align` (`start` | `center` | `end`) on tables, `align` and `valign` on cells; table dropdown items `setCellBackground` (colour palette), `cellAlignStart/Center/End`, `cellVAlignTop/Middle/Bottom`, `tableVariantBordered/Striped/Borderless`, `tableWidthAuto/Full`, `tableAlignStart/Center/End` (in the built-in toolbars, `TABLE_DROPDOWN_ITEMS`)
+- tables: column resizing and Left/Right (also with Shift) work in right to left tables (`tableColumnResizing`, `tableRtlNavigation`)
+- `ngx-editor-rtl-ltr-edition/styles/content.css`: renders the exported HTML (directions, task lists, tables) like the editor
+
+#### Bug Fixes
+
+- the background colour of a table cell is no longer also read as a text highlight of its content
+- the column resize handle is drawn on the inline-end edge (`inset-inline-end` instead of `right`)
 
 #### Internal
 
@@ -35,6 +44,11 @@ All notable changes to this project will be documented in this file.
 - the JSON of the nodes listed above has a new attribute `dir` (`null` when not set); JSON without it is still read
 - wrapping blocks that share a direction in a list or blockquote writes that `dir` on the new `ul`/`ol`/`blockquote`; blocks without a direction are wrapped as before
 - with `autoDirection`, the editor DOM (not the document or the html output) has `dir="auto"` on the paragraphs and headings that `toHTML` writes it on
+- a new table gets one empty header cell per column instead of one merged header cell with the text "Header"; the dialog's row count now includes the header row (it opens with 3 × 3, the size it inserted before)
+- tables with a non-default variant, width or alignment are written with `data-variant`, `data-width`, `data-align` and an inline `width: 100%` / `margin-inline`; aligned cells with `data-align` / `data-valign` and `text-align` / `vertical-align`; tables and cells with the defaults are written as before
+- the JSON of tables has the new attributes `variant`, `width`, `align` and that of cells `align`, `valign`
+- a cell `background` that is not a colour (hex, rgb/hsl or a name) is no longer written into the style attribute
+- in the editor, tables are as wide as their columns unless `width` is `full` (they were always 100% wide), like the exported HTML
 
 ## 19.1.1 (2026-10-15)
 

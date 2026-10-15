@@ -132,6 +132,13 @@ const textBackgroundColor: MarkSpec = {
     },
   },
   parseDOM: [
+    // the background of a table cell is its `background` attribute, not a highlight of the text in it
+    {
+      style: 'background-color',
+      context: 'table_row/',
+      priority: 60,
+      clearMark: () => false,
+    },
     {
       style: 'background-color',
       getAttrs: (value: string) => {

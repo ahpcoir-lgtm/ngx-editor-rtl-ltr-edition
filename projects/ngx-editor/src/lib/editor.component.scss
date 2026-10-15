@@ -32,6 +32,8 @@
   --ngx-editor-table-header-bg-color: #f5f5f5;
   --ngx-editor-table-resize-handle-color: #adf;
   --ngx-editor-table-selected-cell-bg-color: rgba(200, 200, 255, 0.4);
+  --ngx-editor-table-stripe-bg-color: rgba(0, 0, 0, 0.04);
+  --ngx-editor-table-guide-color: rgba(0, 0, 0, 0.15);
 
   --ngx-editor-focus-ring-color: #5e9ed6;
   --ngx-editor-error-color: red;
@@ -266,6 +268,9 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     z-index: 10;
     width: max-content;
     min-width: 100%;
+    // the table dropdown has many items
+    max-height: min(70vh, 32rem);
+    overflow-y: auto;
     top: calc(#{$menubar-height} + 2px);
     display: flex;
     flex-direction: column;
@@ -404,22 +409,74 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
       min-width: 0;
     }
   }
+  // tables; the same rules as styles/content.css, plus the parts that only exist in the editor
+  // (the wrapper and column widths of the table view, the resize handle, guides of borderless tables)
   table {
     margin: 0;
     border-collapse: collapse;
     table-layout: fixed;
-    width: 100%;
     overflow: hidden;
     border: 1px solid $editor-border-color;
+
+    &[data-width='full'] {
+      // the table view writes a width in px once every column has one
+      width: 100% !important;
+    }
+
+    &[data-align='center'] {
+      margin-inline: auto;
+    }
+
+    &[data-align='end'] {
+      margin-inline: auto 0;
+    }
   }
   th,
   td {
     min-width: 1em;
     border: 1px solid $editor-border-color;
     padding: 3px 5px;
+    text-align: start;
     vertical-align: top;
     box-sizing: border-box;
     position: relative;
+
+    &[data-align='center'] {
+      text-align: center;
+    }
+
+    &[data-align='end'] {
+      text-align: end;
+    }
+
+    &[data-valign='middle'] {
+      vertical-align: middle;
+    }
+
+    &[data-valign='bottom'] {
+      vertical-align: bottom;
+    }
+  }
+  table[data-variant='striped'] {
+    border-inline: none;
+
+    th,
+    td {
+      border-inline: none;
+    }
+
+    tr:nth-child(even) > td {
+      background-color: var(--ngx-editor-table-stripe-bg-color);
+    }
+  }
+  table[data-variant='borderless'] {
+    border: none;
+
+    // a guide, so that the cells can be seen while editing; not part of the output
+    th,
+    td {
+      border: 1px dashed var(--ngx-editor-table-guide-color);
+    }
   }
   .tableWrapper {
     margin: 1em 0;
@@ -427,15 +484,14 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
   }
   th {
     font-weight: bold;
-    text-align: start;
     background-color: var(--ngx-editor-table-header-bg-color);
   }
+  // drawn on the inline-end edge of the cell, which the column resizing takes in both directions
+  // (see plugins/table-rtl.ts)
   .column-resize-handle {
     position: absolute;
-    // physical: prosemirror-tables finds the resized column from the mouse position on the screen
-    right: -2px;
-    top: 0;
-    bottom: 0;
+    inset-inline-end: -2px;
+    inset-block: 0;
     width: 4px;
     z-index: 20;
     background-color: var(--ngx-editor-table-resize-handle-color);

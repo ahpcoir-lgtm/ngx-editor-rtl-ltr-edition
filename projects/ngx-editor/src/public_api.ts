@@ -20,3 +20,11 @@ export * from './lib/defaultPlugins';
 
 // other exports for convenience
 export { ImageViewComponent } from './lib/components/image-view/image-view.component';
+
+// tables
+export {
+  setCellBackground, setCellsAttr, setTableAttr, cellAlign, cellVAlign, tableVariant, tableWidth, tableAlign,
+} from './lib/commands/TableCommands';
+export type { TableMenuCommand } from './lib/commands/TableCommands';
+export type { TableInsertOptions } from './lib/commands/table';
+export { tableColumnResizing, tableRtlNavigation } from './lib/plugins/table-rtl';

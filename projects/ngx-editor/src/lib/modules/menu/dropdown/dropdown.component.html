@@ -30,15 +30,48 @@
         (keydown.enter)="onDropdownItemKeydown($event, item)"
         (keydown.space)="onDropdownItemKeydown($event, item)"
         [ngClass]="{
-          'NgxEditor__Dropdown--Active': item === activeItem,
+          'NgxEditor__Dropdown--Active': isItemActive(item),
           'NgxEditor--Disabled': disabledItems.includes(item),
         }"
         [ariaLabel]="getName(item) | async"
         role="option"
-        [attr.aria-selected]="item === activeItem"
+        [attr.aria-selected]="isItemActive(item)"
+        [attr.aria-expanded]="hasPalette(item) ? isPaletteOpen : null"
       >
         {{ getName(item) | async }}
       </button>
+
+      @if (hasPalette(item) && isPaletteOpen) {
+        <div class="NgxEditor__Dropdown--Palette" role="group" [attr.aria-label]="getName(item) | async">
+          @for (colorGroup of presets(); track $index) {
+            <div class="NgxEditor__ColorContainer">
+              @for (color of colorGroup; track $index) {
+                <button
+                  type="button"
+                  class="NgxEditor__Color"
+                  [ngStyle]="{ backgroundColor: color, color: getContrastColor(color) }"
+                  [title]="color"
+                  [ariaLabel]="color"
+                  (mousedown)="onCellBackgroundMouseClick($event, color)"
+                  (keydown.enter)="onCellBackgroundKeydown($event, color)"
+                  (keydown.space)="onCellBackgroundKeydown($event, color)"
+                  [ngClass]="{ 'NgxEditor__Color--Active': isColorActive(color) }"
+                ></button>
+              }
+            </div>
+          }
+          <button
+            type="button"
+            class="NgxEditor__MenuItem--Button"
+            (mousedown)="onCellBackgroundMouseClick($event, null)"
+            (keydown.enter)="onCellBackgroundKeydown($event, null)"
+            (keydown.space)="onCellBackgroundKeydown($event, null)"
+            [disabled]="!activeColors.length"
+          >
+            {{ getName('remove') | async }}
+          </button>
+        </div>
+      }
     }
   </div>
 }

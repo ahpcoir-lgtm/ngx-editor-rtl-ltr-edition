@@ -1,3 +1,14 @@
+// table cells of the sample tables
+const cell = (text: string, attrs: Record<string, unknown> = {}, type = 'table_cell') => ({
+  type,
+  attrs,
+  content: [{ type: 'paragraph', content: text ? [{ type: 'text', text }] : [] }],
+});
+
+const header = (text: string, attrs: Record<string, unknown> = {}) => cell(text, attrs, 'table_header');
+
+const row = (...cells: ReturnType<typeof cell>[]) => ({ type: 'table_row', content: cells });
+
 export default {
   type: 'doc',
   content: [
@@ -263,6 +274,51 @@ export default {
             },
           ],
         },
+      ],
+    },
+    {
+      type: 'heading',
+      attrs: {
+        level: 2,
+        align: null,
+      },
+      content: [
+        {
+          type: 'text',
+          text: 'Tables',
+        },
+      ],
+    },
+    {
+      type: 'paragraph',
+      attrs: {
+        align: null,
+      },
+      content: [
+        {
+          type: 'text',
+          text: 'Insert a table with the grid picker and change it from the table dropdown: cell alignment, background, striped or borderless variants, full width and alignment of the table.',
+        },
+      ],
+    },
+    {
+      type: 'table',
+      attrs: { variant: 'striped', width: 'full', align: 'start' },
+      content: [
+        row(header('Feature'), header('Status', { align: 'center' }), header('Notes')),
+        row(cell('Grid picker'), cell('Done', { align: 'center' }), cell('Up to 10 × 10')),
+        row(cell('Cell background'), cell('Done', { align: 'center', background: '#c2e0c6' }), cell('Colour palette')),
+        row(cell('Column resizing'), cell('Done', { align: 'center' }), cell('Also in right to left tables', { valign: 'middle' })),
+      ],
+    },
+    {
+      type: 'table',
+      attrs: { dir: 'rtl', variant: 'bordered', width: 'auto', align: 'center' },
+      content: [
+        row(header('شهر'), header('جمعیت', { align: 'end' }), header('استان')),
+        row(cell('تهران'), cell('9,000,000', { align: 'end' }), cell('تهران')),
+        row(cell('مشهد'), cell('3,300,000', { align: 'end' }), cell('خراسان رضوی')),
+        row(cell('کرمانشاه'), cell('950,000', { align: 'end' }), cell('کرمانشاه', { background: '#fef2c0' })),
       ],
     },
     {

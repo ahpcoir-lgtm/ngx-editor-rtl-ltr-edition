@@ -128,8 +128,7 @@ case and treats other strings as not set.
 - Icons drawn for a line starting on the left (`align_start`, `align_end`, `indent`, `outdent`,
   `bullet_list`, `task_list`; `modules/menu/mirrored-icons.ts`) get `NgxEditor__MenuItem--Mirror` and are
   flipped with `:dir(rtl)`; `align_left`/`align_right` and the direction icons are physical and never flip.
-- Not yet RTL-aware (later sections): column resizing of prosemirror-tables (screen coordinates; tables),
-  the image resize handles (images).
+- Not yet RTL-aware (later sections): the image resize handles (images). Column resizing of tables: section 3.
 
 ## 2. Localization
 
@@ -164,6 +163,35 @@ column); table attributes `dir`, `variant` (`bordered` default | `striped` | `bo
 (`start` | `center` | `end`) and `valign` (`top` | `middle` | `bottom`) next to the existing `background`;
 a colour palette for the cell background (`setCellBackground`) — `setCellBackgroundGreen` stays for
 compatibility; correct behaviour of column resizing and cell navigation in RTL tables.
+
+- Schema (`schema/table-attrs.ts`): `withTableAttributes()` adds `variant`, `width`, `align` to the table spec of
+  prosemirror-tables (defaults `bordered`, `auto`, `start`, never written, so old tables keep their HTML);
+  non-defaults are written as `data-variant` / `data-width` / `data-align` plus the inline style that keeps them
+  without the content stylesheet (`width: 100%`, `margin-inline: auto`, `margin-inline-start: auto`). Parsed from
+  the `data-*` attributes, else `width="100%"` / `style="width: 100%"` and the legacy `align="center"`.
+  `tableCellAttributes`: `background` (only colours are written), `colwidth`, `align` and `valign`, written as
+  `data-align` / `data-valign` plus `text-align` / `vertical-align`; read from `data-*`, the style or the legacy
+  `align` / `valign` attributes (`left`/`right` are not read: physical, and paragraphs keep their own alignment).
+  The `text_background_color` mark ignores `background-color` on cells (a style rule with context `table_row/`).
+- `Table.insert(rows, cols, { headerRow = true, attrs })`: `rows` body rows plus the header row. The dialog counts
+  the header row as one of its rows (Word-like grid: 3 × 4 inserts three rows in all).
+- Commands (`commands/TableCommands.ts`, `TABLE_MENU_COMMANDS`): cell commands work on every cell of a cell
+  selection, else the cell around the cursor; a cell toggle clears the value when every selected cell has it. Table
+  commands change the innermost table around the selection; toggling an active non-default value goes back to the
+  default, and the active default is not executable. Everything is disabled outside a table. The table dropdown
+  marks every active item and keeps its own name on the button; `setCellBackground` opens a palette (the menu's
+  `colorPresets`) under the item.
+- RTL (`plugins/table-rtl.ts`): prosemirror-tables picks the resized column from the screen x and the physical
+  side (`left` = the column before, `right` = this column) and grows a column when the mouse moves right. A plugin
+  registered before `columnResizing` handles mousemove/mousedown in right to left tables (computed `direction` of
+  the cell): the physical left edge is the inline end (this column), the right edge the inline start (the column
+  before), and the drag offset is negated. Left to right tables still go to the original code. The handle
+  decoration is unchanged and drawn with `inset-inline-end`. `tableRtlNavigation` (before `tableEditing`) swaps the
+  logical direction of Left/Right and Shift-Left/Right in right to left cells; Tab/Shift-Tab (`goToNextCell`) were
+  logical already. `getDefaultPlugins` registers both.
+- Editor CSS: `table-layout: fixed` with `width` from the attribute (the table view's own px width is overridden for
+  `full`), `text-align: start` cells, striped = row lines and alternating rows, borderless shows dashed guides
+  in the editor only.
 
 ## 4. Fonts
 

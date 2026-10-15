@@ -85,7 +85,9 @@ describe('schema: block direction', () => {
     expect(findNode(heading, 'heading').attrs).toEqual({ level: 2, align: 'center', indent: 1, dir: 'rtl' });
 
     const cell = parse('<table><tbody><tr><td style="background-color: red" data-colwidth="80"><p>a</p></td></tr></tbody></table>');
-    expect(findNode(cell, 'table_cell').attrs).toEqual({ colspan: 1, rowspan: 1, colwidth: [80], background: 'red' });
+    expect(findNode(cell, 'table_cell').attrs).toEqual({
+      colspan: 1, rowspan: 1, colwidth: [80], background: 'red', align: null, valign: null,
+    });
   });
 
   it('should still tell task lists from bullet lists', () => {

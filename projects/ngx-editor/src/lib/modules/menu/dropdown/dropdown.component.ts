@@ -3,7 +3,6 @@ import {
   input
 } from '@angular/core';
 import { EditorView } from 'prosemirror-view';
-import type { Command } from 'prosemirror-state';
 import { Observable, Subscription } from 'rxjs';
 
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -13,10 +12,7 @@ import { MenuService } from '../menu.service';
 import { outsideClick } from '../outside-click';
 import { PopupPositionDirective } from '../popup-position.directive';
 import { ToggleCommands } from '../MenuCommands';
-import {
-  addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow,
-  mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable
-} from 'prosemirror-tables';
+import { TABLE_MENU_COMMANDS, getCellBackgrounds, setCellBackground } from '../../../commands/TableCommands';
 
 @Component({
   selector: 'ngx-dropdown',
@@ -31,11 +27,13 @@ export class DropdownComponent implements OnInit, OnDestroy {
   private menuService = inject(MenuService);
   private cdr = inject(ChangeDetectorRef);
 
-  private editorView: EditorView;
-  private updateSubscription: Subscription;
+  private editorView!: EditorView;
+  private updateSubscription?: Subscription;
 
-  readonly group = input<string>(undefined);
+  readonly group = input<string>('');
   readonly items = input<(TBHeadingItems | TBTableItems)[]>([]);
+  /** colours of the cell background palette (`setCellBackground`), in rows */
+  readonly presets = input<string[][]>([]);
 
   private outsideClick = outsideClick(() => {
     this.isDropdownOpen = false;
@@ -48,11 +46,16 @@ export class DropdownComponent implements OnInit, OnDestroy {
 
   set isDropdownOpen(value: boolean) {
     this.popupOpen = value;
+    this.isPaletteOpen = false;
     this.outsideClick.toggle(value);
   }
 
   disabledItems: (TBHeadingItems | TBTableItems)[] = [];
-  activeItem: TBHeadingItems | TBTableItems | null;
+  activeItem: TBHeadingItems | TBTableItems | null = null;
+  // the table group marks every active item (variant, width, alignment...) and keeps its own name on the button
+  activeItems: (TBHeadingItems | TBTableItems)[] = [];
+  isPaletteOpen = false;
+  activeColors: string[] = [];
 
   get isSelected(): boolean {
     return Boolean(this.activeItem || this.isDropdownOpen);
@@ -68,6 +71,27 @@ export class DropdownComponent implements OnInit, OnDestroy {
 
   getIsDropdownActive(item: TBHeadingItems | TBTableItems): boolean {
     return this.activeItem === item;
+  }
+
+  isItemActive(item: TBHeadingItems | TBTableItems): boolean {
+    return this.activeItem === item || this.activeItems.includes(item);
+  }
+
+  hasPalette(item: TBHeadingItems | TBTableItems): boolean {
+    return this.group() === 'table' && item === 'setCellBackground';
+  }
+
+  isColorActive(color: string): boolean {
+    return this.activeColors.includes(color.toLowerCase());
+  }
+
+  // black or white on the swatch, as in the colour picker
+  getContrastColor(color: string): string {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return ((r * 299) + (g * 587) + (b * 114)) / 1000 >= 128 ? 'black' : 'white';
   }
 
   toggleDropdown(): void {
@@ -89,32 +113,27 @@ export class DropdownComponent implements OnInit, OnDestroy {
   }
 
   selectItem(item: TBHeadingItems | TBTableItems): void {
+    if (this.hasPalette(item)) {
+      // the palette opens under the item and the dropdown stays open
+      this.isPaletteOpen = !this.isPaletteOpen;
+      return;
+    }
+
+    const { state, dispatch } = this.editorView;
+
     if (this.group() === 'table') {
-      const tableCommands: Record<TBTableItems, Command> = {
-        addColumnBefore,
-        addColumnAfter,
-        deleteColumn,
-        addRowBefore,
-        addRowAfter,
-        deleteRow,
-        deleteTable,
-        mergeCells,
-        splitCell,
-        toggleHeaderRow,
-        toggleHeaderColumn,
-        toggleHeaderCell,
-        setCellBackgroundGreen: setCellAttr('background', '#dfd'),
-        clearCellBackground: setCellAttr('background', null),
-      };
-      const command = tableCommands[item as TBTableItems];
-      const { state, dispatch } = this.editorView;
-      command(state, dispatch);
+      TABLE_MENU_COMMANDS[item as TBTableItems]?.execute(state, dispatch);
     } else {
       const command = ToggleCommands[item as TBHeadingItems];
-      const { state, dispatch } = this.editorView;
       command.toggle()(state, dispatch);
     }
 
+    this.isDropdownOpen = false;
+  }
+
+  selectCellBackground(color: string | null): void {
+    const { state, dispatch } = this.editorView;
+    setCellBackground(color)(state, dispatch);
     this.isDropdownOpen = false;
   }
 
@@ -135,8 +154,24 @@ export class DropdownComponent implements OnInit, OnDestroy {
     this.selectItem(item);
   }
 
+  onCellBackgroundMouseClick(e: MouseEvent, color: string | null): void {
+    e.preventDefault();
+
+    if (e.button !== 0) {
+      return;
+    }
+
+    this.selectCellBackground(color);
+  }
+
+  onCellBackgroundKeydown(event: Event, color: string | null): void {
+    event.preventDefault();
+    this.selectCellBackground(color);
+  }
+
   private update = (view: EditorView) => {
     const { state } = view;
+    const isTable = this.group() === 'table';
     this.disabledItems = [];
     const activeItems: (TBHeadingItems | TBTableItems)[] = [];
 
@@ -144,35 +179,10 @@ export class DropdownComponent implements OnInit, OnDestroy {
       let isActive = false;
       let canExecute = false;
 
-      if(this.group() === 'table'){
-          const tableCommands: Record<TBTableItems, Command> = {
-          addColumnBefore,
-          addColumnAfter,
-          deleteColumn,
-          addRowBefore,
-          addRowAfter,
-          deleteRow,
-          deleteTable,
-          mergeCells,
-          splitCell,
-          toggleHeaderRow,
-          toggleHeaderColumn,
-          toggleHeaderCell,
-          setCellBackgroundGreen: setCellAttr('background', '#dfd'),
-          clearCellBackground: setCellAttr('background', null),
-        };
-        const command = tableCommands[item as TBTableItems];
-        if (command) {
-          // Table commands lack 'isActive', so defaulting to false.
-          isActive = false; 
-          canExecute = command(state);
-        }
-      }else{
-        const command = ToggleCommands[item as TBHeadingItems];
-        if(command){
-          isActive = command.isActive(state);
-          canExecute = command.canExecute(state);
-        }
+      const command = isTable ? TABLE_MENU_COMMANDS[item as TBTableItems] : ToggleCommands[item as TBHeadingItems];
+      if (command) {
+        isActive = command.isActive(state);
+        canExecute = command.canExecute(state);
       }
 
       if (isActive) {
@@ -183,7 +193,12 @@ export class DropdownComponent implements OnInit, OnDestroy {
         this.disabledItems.push(item);
       }
     });
-    if (activeItems.length === 1) {
+
+    if (isTable) {
+      this.activeItem = null;
+      this.activeItems = activeItems;
+      this.activeColors = getCellBackgrounds(state).map((color) => color.toLowerCase());
+    } else if (activeItems.length === 1) {
       [this.activeItem] = activeItems;
     } else {
       this.activeItem = null;
@@ -200,6 +215,6 @@ export class DropdownComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.updateSubscription.unsubscribe();
+    this.updateSubscription?.unsubscribe();
   }
 }

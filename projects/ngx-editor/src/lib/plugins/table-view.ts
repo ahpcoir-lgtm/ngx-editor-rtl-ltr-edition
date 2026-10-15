@@ -1,10 +1,14 @@
 import { Node as ProseMirrorNode } from 'prosemirror-model';
 import { TableView } from 'prosemirror-tables';
+import { getTableDataAttributes } from 'ngx-editor-rtl-ltr-edition/schema';
 
 import { setOptionalAttribute } from './set-attribute';
 
+const DATA_ATTRIBUTES = ['data-variant', 'data-width', 'data-align'];
+
 // the table view of the column resizing plugin, which renders the table without its `toDOM`,
-// so the `dir` attribute is written here
+// so the `dir` and `data-*` attributes are written here (the inline style of `toDOM` is left to the editor CSS,
+// as the view sets the width itself)
 export class DirectionTableView extends TableView {
   constructor(node: ProseMirrorNode, defaultCellMinWidth: number) {
     super(node, defaultCellMinWidth);
@@ -22,6 +26,9 @@ export class DirectionTableView extends TableView {
 
   private render(): void {
     setOptionalAttribute(this.table, 'dir', this.node.attrs['dir']);
+
+    const data = getTableDataAttributes(this.node.attrs);
+    DATA_ATTRIBUTES.forEach((name) => setOptionalAttribute(this.table, name, data[name]));
   }
 }
 

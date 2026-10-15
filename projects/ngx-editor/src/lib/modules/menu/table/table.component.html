@@ -14,6 +14,37 @@
 
 @if (showPopup) {
   <div class="NgxEditor__Popup" ngxPopupPosition>
+    <!-- grid picker: hover or arrow keys choose the size, a click or Enter inserts the table -->
+    <div
+      class="NgxEditor__TableGrid"
+      role="group"
+      tabindex="0"
+      [attr.aria-label]="getLabel('tableSize') | async"
+      [attr.aria-describedby]="getId('table-popup-size')"
+      (keydown)="onGridKeydown($event)"
+    >
+      @for (row of gridRange; track row) {
+        <div class="NgxEditor__TableGrid--Row">
+          @for (col of gridRange; track col) {
+            <span
+              class="NgxEditor__TableGrid--Cell"
+              [class.NgxEditor__TableGrid--Selected]="isGridCellSelected(row, col)"
+              (mouseenter)="selectGridSize(row, col)"
+              (mousedown)="onGridMouseDown($event, row, col)"
+            ></span>
+          }
+        </div>
+      }
+    </div>
+    <div
+      class="NgxEditor__TableGrid--Size"
+      [id]="getId('table-popup-size')"
+      aria-live="polite"
+      [attr.aria-label]="sizeLabel | async"
+    >
+      <bdi>{{ sizeText }}</bdi>
+    </div>
+
     <form class="NgxEditor__Popup--Form" [formGroup]="form" (ngSubmit)="insertTable($event)">
       <div class="NgxEditor__Popup--FormGroup">
         <div class="NgxEditor__Popup--Col">
@@ -26,7 +57,7 @@
             [id]="getId('table-popup-rows')"
             formControlName="rows"
             min="1"
-            placeholder="2"
+            placeholder="3"
             autocomplete="off"
           />
           @if (form.get('rows').touched && form.get('rows').invalid) {
@@ -59,6 +90,13 @@
             </div>
           }
         </div>
+      </div>
+
+      <div class="NgxEditor__Popup--FormGroup">
+        <label class="NgxEditor__Popup--Checkbox">
+          <input type="checkbox" formControlName="headerRow" />
+          {{ getLabel('headerRow') | async }}
+        </label>
       </div>
 
       <button type="submit" [disabled]="!form.valid">{{ getLabel('insert') | async }}</button>

@@ -40,6 +40,16 @@ const FORK_OWNED = [
   'projects/ngx-editor/src/lib/modules/menu/floating-menu/floating-menu.direction.spec.ts',
   // 2. localization
   'projects/ngx-editor/src/lib/Locals.keys.spec.ts',
+  // 3. tables
+  'projects/ngx-editor/schema/table-attrs.ts',
+  'projects/ngx-editor/schema/table-attrs.spec.ts',
+  'projects/ngx-editor/src/lib/commands/table.ts',
+  'projects/ngx-editor/src/lib/commands/TableCommands.ts',
+  'projects/ngx-editor/src/lib/commands/TableCommands.spec.ts',
+  'projects/ngx-editor/src/lib/plugins/table-rtl.ts',
+  'projects/ngx-editor/src/lib/plugins/table-rtl.spec.ts',
+  'projects/ngx-editor/src/lib/modules/menu/table/table.component.ts',
+  'projects/ngx-editor/src/lib/modules/menu/dropdown/dropdown.component.ts',
 ];
 
 // the library sources and their specs, each checked with its own tsconfig

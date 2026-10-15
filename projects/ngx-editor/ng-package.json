@@ -4,6 +4,9 @@
   "lib": {
     "entryFile": "./src/public_api.ts"
   },
+  "assets": [
+    "styles/content.css"
+  ],
   "allowedNonPeerDependencies": [
     "prosemirror-state",
     "prosemirror-view",

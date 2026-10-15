@@ -30,7 +30,12 @@
       <!-- dropdown -->
       @if (isDropDown(item)) {
         @for (dropdownItem of getDropdownItems(item) | keyvalue; track $index) {
-          <ngx-dropdown [class]="dropdownContainerClass" [group]="dropdownItem.key" [items]="dropdownItem.value">
+          <ngx-dropdown
+            [class]="dropdownContainerClass"
+            [group]="dropdownItem.key"
+            [items]="dropdownItem.value"
+            [presets]="presets"
+          >
           </ngx-dropdown>
         }
       }

@@ -25,6 +25,38 @@ import { MenuService } from './menu.service';
 import { ToggleCommandComponent } from './toggle-command/toggle-command.component';
 import { TableComponent } from './table/table.component';
 
+/** the items of the table dropdown in the built-in toolbars */
+export const TABLE_DROPDOWN_ITEMS: TBTableItems[] = [
+  'addColumnBefore',
+  'addColumnAfter',
+  'deleteColumn',
+  'addRowBefore',
+  'addRowAfter',
+  'deleteRow',
+  'deleteTable',
+  'mergeCells',
+  'splitCell',
+  'toggleHeaderRow',
+  'toggleHeaderColumn',
+  'toggleHeaderCell',
+  'setCellBackground',
+  'clearCellBackground',
+  'cellAlignStart',
+  'cellAlignCenter',
+  'cellAlignEnd',
+  'cellVAlignTop',
+  'cellVAlignMiddle',
+  'cellVAlignBottom',
+  'tableVariantBordered',
+  'tableVariantStriped',
+  'tableVariantBorderless',
+  'tableWidthAuto',
+  'tableWidthFull',
+  'tableAlignStart',
+  'tableAlignCenter',
+  'tableAlignEnd',
+];
+
 export const DEFAULT_TOOLBAR: Toolbar = [
   ['bold', 'italic'],
   ['code', 'blockquote'],
@@ -35,22 +67,7 @@ export const DEFAULT_TOOLBAR: Toolbar = [
   [
     'table',
     {
-      table: [
-        'addColumnBefore',
-        'addColumnAfter',
-        'deleteColumn',
-        'addRowBefore',
-        'addRowAfter',
-        'deleteRow',
-        'deleteTable',
-        'mergeCells',
-        'splitCell',
-        'toggleHeaderRow',
-        'toggleHeaderColumn',
-        'toggleHeaderCell',
-        'setCellBackgroundGreen',
-        'clearCellBackground',
-      ],
+      table: TABLE_DROPDOWN_ITEMS,
     },
   ],
   ['text_color', 'background_color'],
@@ -65,22 +82,7 @@ export const TOOLBAR_MINIMAL: Toolbar = [
   [
     'table',
     {
-      table: [
-        'addColumnBefore',
-        'addColumnAfter',
-        'deleteColumn',
-        'addRowBefore',
-        'addRowAfter',
-        'deleteRow',
-        'deleteTable',
-        'mergeCells',
-        'splitCell',
-        'toggleHeaderRow',
-        'toggleHeaderColumn',
-        'toggleHeaderCell',
-        'setCellBackgroundGreen',
-        'clearCellBackground',
-      ],
+      table: TABLE_DROPDOWN_ITEMS,
     },
   ],
   ['text_color', 'background_color'],
@@ -96,22 +98,7 @@ export const TOOLBAR_FULL: Toolbar = [
   [
     'table',
     {
-      table: [
-        'addColumnBefore',
-        'addColumnAfter',
-        'deleteColumn',
-        'addRowBefore',
-        'addRowAfter',
-        'deleteRow',
-        'deleteTable',
-        'mergeCells',
-        'splitCell',
-        'toggleHeaderRow',
-        'toggleHeaderColumn',
-        'toggleHeaderCell',
-        'setCellBackgroundGreen',
-        'clearCellBackground',
-      ],
+      table: TABLE_DROPDOWN_ITEMS,
     },
   ],
   ['text_color', 'background_color'],
@@ -207,22 +194,7 @@ export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {
 
   insertCommands: ToolbarItem[] = ['horizontal_rule', 'format_clear', 'indent', 'outdent', 'undo', 'redo'];
 
-  tableCommands: TBTableItems[] = [
-    'addColumnBefore',
-    'addColumnAfter',
-    'deleteColumn',
-    'addRowBefore',
-    'addRowAfter',
-    'deleteRow',
-    'deleteTable',
-    'mergeCells',
-    'splitCell',
-    'toggleHeaderRow',
-    'toggleHeaderColumn',
-    'toggleHeaderCell',
-    'setCellBackgroundGreen',
-    'clearCellBackground',
-  ];
+  tableCommands: TBTableItems[] = [...TABLE_DROPDOWN_ITEMS, 'setCellBackgroundGreen'];
   iconContainerClass = ['NgxEditor__MenuItem', 'NgxEditor__MenuItem--IconContainer'];
   dropdownContainerClass = ['NgxEditor__Dropdown'];
   seperatorClass = ['NgxEditor__Seperator'];

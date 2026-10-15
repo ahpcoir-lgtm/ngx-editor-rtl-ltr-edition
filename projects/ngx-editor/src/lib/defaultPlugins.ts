@@ -11,11 +11,12 @@ import {
   inputRules, wrappingInputRule, textblockTypeInputRule,
   smartQuotes, emDash, ellipsis, InputRule,
 } from 'prosemirror-inputrules';
-import { columnResizing, tableEditing, goToNextCell } from 'prosemirror-tables';
+import { tableEditing, goToNextCell } from 'prosemirror-tables';
 import { markInputRule } from 'ngx-editor-rtl-ltr-edition/helpers';
 
 import taskList from './plugins/task-list';
 import DirectionTableView from './plugins/table-view';
+import { tableColumnResizing, tableRtlNavigation } from './plugins/table-rtl';
 
 interface Options {
   history: boolean;
@@ -275,7 +276,8 @@ const getDefaultPlugins = (schema: Schema, options: Options): Plugin[] => {
   }
   
   if (schema.nodes['table']) {
-    plugins.push(columnResizing({ View: DirectionTableView }), tableEditing());
+    // the right to left handling runs before the plugins of prosemirror-tables
+    plugins.push(...tableColumnResizing({ View: DirectionTableView }), tableRtlNavigation(), tableEditing());
   }
 
   if (schema.nodes['task_item']) {
