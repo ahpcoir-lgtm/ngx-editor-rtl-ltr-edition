@@ -25,9 +25,10 @@ jobs:
 
       - run: npm ci
 
+      # build before lint, see tests.yml
+      - run: npm run build:lib
       - run: npx ng lint ngx-editor
       - run: npm run check:strict
-      - run: npm run build:lib
       - run: npm run test:lib
 
   publish-npm:

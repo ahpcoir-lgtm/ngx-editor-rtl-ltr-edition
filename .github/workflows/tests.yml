@@ -33,16 +33,18 @@ jobs:
       - name: NPM Install
         run: npm ci
 
+      # build first: the lint rules use type information, and the sources import the package's own
+      # entry points through dist (tsconfig paths), so without dist those types are `any`
+      - name: Build the library
+        run: npm run build:lib
+        env:
+          NODE_ENV: production
+
       - name: Lint
         run: npx ng lint ngx-editor
 
       - name: Strict type check of the fork's code
         run: npm run check:strict
-
-      - name: Build the library
-        run: npm run build:lib
-        env:
-          NODE_ENV: production
 
       - name: Library tests
         run: npm run test:lib
