@@ -4,6 +4,12 @@ All notable changes to ngx-editor-rtl-ltr-edition are documented in this file. T
 the history of the original ngx-editor package, which this fork is based on, follows under
 [Upstream ngx-editor changelog](#upstream-ngx-editor-changelog).
 
+## ngx-editor-rtl-ltr-edition 0.1.2 (unreleased)
+
+#### Bug Fixes
+
+- dropdown menus scroll instead of shrinking their items: a long list (fonts, table actions) in a short space clipped every item to an unreadable sliver
+
 ## ngx-editor-rtl-ltr-edition 0.1.1 (unreleased)
 
 #### Bug Fixes

@@ -285,6 +285,9 @@ $pointer-style: var(--ngx-editor-click-pointer, default);
     text-overflow: ellipsis;
     width: 100%;
     box-sizing: border-box;
+    // the menu is a column with a max-height: without this, a long list (fonts, table actions) in a short space
+    // shrinks every item below its line height and the clipped text becomes unreadable, instead of scrolling
+    flex-shrink: 0;
 
     &:focus-visible {
       outline: 1px solid $focus-ring-color;
