@@ -8,6 +8,8 @@ export * from './lib/modules/menu/floating-menu/floating-menu.component';
 export * from './lib/editor.module';
 export * from './lib/editor.service';
 export { provideNgxEditorConfig } from './lib/provide-config';
+// the resolved configuration, for apps that provide it with a factory (e.g. a locale that follows the app language)
+export { NgxEditorServiceConfig } from './lib/editor-config.service';
 
 export * from './lib/schema';
 export * from './lib/validators';
