@@ -53,6 +53,11 @@
           <input type="checkbox" [checked]="doc.disabled" (change)="toggleDisabled()" />
           Disabled
         </label>
+
+        <label>
+          <input type="checkbox" [checked]="failUploads" (change)="failUploads = !failUploads" />
+          Fail uploads
+        </label>
       </div>
 
       <form [formGroup]="form">
@@ -71,6 +76,22 @@
           </div>
         }
       </form>
+
+      <section class="event-log" aria-live="polite">
+        <div class="event-log__header">
+          <h2>Editor events</h2>
+          <button type="button" (click)="clearEventLog()">Clear</button>
+        </div>
+        @if (eventLog().length) {
+          <ol>
+            @for (entry of eventLog(); track $index) {
+              <li dir="auto">{{ entry }}</li>
+            }
+          </ol>
+        } @else {
+          <p>Upload, paste or drop an image to see the events of <code>editor.events</code>.</p>
+        }
+      </section>
 
       <!-- <div class="editor">
       <ngx-editor [editor]="editor" [(ngModel)]="editordoc">

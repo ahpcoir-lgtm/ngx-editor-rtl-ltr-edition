@@ -96,6 +96,29 @@ const locals = {
   headerRow: 'Header row',
   required: 'This is required',
 
+  // images; {name}, {max} and {size} are replaced
+  uploadImage: 'Upload',
+  imageFromUrl: 'URL',
+  dropImages: 'Drop images here or click to choose files',
+  uploadingImage: 'Uploading image…',
+  cancelUpload: 'Cancel Upload',
+  imageTooLarge: 'The image “{name}” is larger than {max}.',
+  imageInvalidType: '“{name}” is not a supported image type.',
+  imageUploadFailed: 'The image “{name}” could not be uploaded.',
+  imageEmbeddedWarning: 'The image “{name}” ({size}) is embedded in the content. Configure an upload handler to keep the content small.',
+  imageToolbar: 'Image Tools',
+  imageAlignNone: 'In Line with Text',
+  imageAlignStart: 'Align Image to Start',
+  imageAlignCenter: 'Center Image',
+  imageAlignEnd: 'Align Image to End',
+  imageCaption: 'Caption',
+  removeCaption: 'Remove Caption',
+  imageLink: 'Link',
+  replaceImage: 'Replace Image',
+  deleteImage: 'Delete Image',
+  resizeImage: 'Resize Image',
+  apply: 'Apply',
+
   // editor
   placeholder: 'Type Here...',
 };

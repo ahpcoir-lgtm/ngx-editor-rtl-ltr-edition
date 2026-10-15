@@ -4,6 +4,7 @@ import { LocalsKeys } from './Locals';
 import { Observable } from 'rxjs';
 import { LinkOptions } from './modules/menu/link/link.component';
 import type { NgxEditorFontsConfig } from './fonts/types';
+import type { NgxEditorImageConfig } from './images/types';
 
 export type TBHeadingItems = 'paragraph' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 export type TBTableItems='addColumnBefore'
@@ -88,4 +89,6 @@ export interface NgxEditorConfig {
   dir?: NgxEditorDirection;
   /** the fonts of the `font_family` menu and how they are loaded; the `fonts` option of an `Editor` wins */
   fonts?: NgxEditorFontsConfig;
+  /** image upload (handler, limits, resizing); the `image` option of an `Editor` wins per field */
+  image?: NgxEditorImageConfig;
 }

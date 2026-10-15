@@ -40,3 +40,28 @@ export {
 } from './lib/fonts/config';
 export { NgxEditorFontLoader, buildFontFaceCss, buildGoogleFontsUrl, loadFonts } from './lib/fonts/loader';
 export { fontFamilyPaste } from './lib/plugins/font-family';
+
+// images
+export type {
+  NgxEditorImageConfig, NgxEditorImageError, NgxEditorImageErrorCode, NgxEditorImageResizeOptions,
+  NgxEditorImageUploadHandler, NgxEditorImageWarning, NgxEditorImageWarningCode, NgxEditorResolvedImageConfig,
+  NgxEditorUploadContext, NgxEditorUploadResult,
+} from './lib/images/types';
+export type { NgxEditorEvent, NgxEditorEventType } from './lib/events';
+export {
+  DEFAULT_BASE64_WARN_SIZE, DEFAULT_IMAGE_ACCEPT, formatFileSize, isAcceptedFile, resolveImageConfig,
+} from './lib/images/config';
+export { computeResizedSize, resizeImageFile } from './lib/images/resize';
+export type { ImageResizeEnvironment } from './lib/images/resize';
+export {
+  cancelImageUpload, getImageUploadConfig, getImageUploadPlaceholders, imageUpload, imageUploadKey, uploadImageFiles,
+} from './lib/plugins/image-upload';
+export type { ImageUploadOptions, ImageUploadTarget } from './lib/plugins/image-upload';
+export {
+  deleteImage, figureToImage, getImageAlignValue, getImageLink, getImageTarget, imageToFigure, setImageAlign,
+  setImageAttrs, setImageCaption, setImageLink,
+} from './lib/commands/ImageCommands';
+export type { ImageTarget } from './lib/commands/ImageCommands';
+export type { ImageAttrs } from './lib/commands/Image';
+export { computeResizeWidth } from './lib/components/image-view/image-view.component';
+export type { ImageViewAction, ResizeDrag } from './lib/components/image-view/image-view.component';

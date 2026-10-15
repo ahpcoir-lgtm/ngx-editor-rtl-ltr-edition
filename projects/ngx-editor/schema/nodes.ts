@@ -1,9 +1,11 @@
 import { DOMOutputSpec, Node as ProseMirrorNode, NodeSpec } from 'prosemirror-model';
 import { tableNodes } from 'prosemirror-tables';
 import * as sl from 'prosemirror-schema-list';
+import { sanitizeUrl } from 'ngx-editor-rtl-ltr-edition/utils';
 
 import { dirAttr, getAlign, getBlockStyle, getDir, getIndent, withDirection } from './block-attrs';
 import { tableCellAttributes, withTableAttributes } from './table-attrs';
+import { getImageAlign, getImageAlignStyle, getImageDomAttrs, isImageAlign, normalizeCssLength } from './image-attrs';
 
 const doc: NodeSpec = {
   content: 'block+',
@@ -181,9 +183,9 @@ const hardBreak: NodeSpec = {
   },
 };
 
-// :: NodeSpec An inline image (`<img>`) node. Supports `src`,
-// `alt`, and `href` attributes. The latter two default to the empty
-// string.
+// :: NodeSpec An inline image (`<img>`) node. Supports `src`, `alt`, `title`, `width`, `height` and `align`
+// (`start` | `center` | `end`, written as `data-align` plus an inline style). A link on an image is the `link`
+// mark on the node. Images with a `src` that `sanitizeUrl` rejects are dropped.
 export const image: NodeSpec = {
   inline: true,
   attrs: {
@@ -191,28 +193,114 @@ export const image: NodeSpec = {
     alt: { default: null },
     title: { default: null },
     width: { default: null },
+    height: { default: null },
+    align: { default: null },
   },
   group: 'inline',
   draggable: true,
   parseDOM: [
     {
       tag: 'img[src]',
-      getAttrs(dom: HTMLElement): Record<string, string> {
+      getAttrs(dom: HTMLElement) {
+        const src = sanitizeUrl(dom.getAttribute('src'), 'image');
+
+        if (!src) {
+          return false;
+        }
+
         return {
-          src: dom.getAttribute('src'),
+          src,
           title: dom.getAttribute('title'),
           alt: dom.getAttribute('alt'),
           width: dom.getAttribute('width'),
+          height: dom.getAttribute('height'),
+          align: getImageAlign(dom),
         };
       },
     },
   ],
   toDOM(node: ProseMirrorNode): DOMOutputSpec {
-    const { src, alt, title, width } = node.attrs;
-    return ['img', { src, alt, title, width }];
+    return ['img', getImageDomAttrs(node.attrs)];
   },
 };
 
+// the image of a figure: the first `<img>`, also inside a link
+const getFigureAttrs = (dom: HTMLElement): Record<string, string | null> | false => {
+  const type = dom.getAttribute('data-type');
+  const img = dom.querySelector('img');
+
+  if ((type && type !== 'image') || !img) {
+    return false;
+  }
+
+  const src = sanitizeUrl(img.getAttribute('src'), 'image');
+  if (!src) {
+    return false;
+  }
+
+  const link = img.closest('a');
+  const caption = dom.querySelector('figcaption')?.textContent ?? '';
+
+  return {
+    src,
+    alt: img.getAttribute('alt'),
+    title: img.getAttribute('title'),
+    width: normalizeCssLength(dom.style.width) ?? normalizeCssLength(img.getAttribute('width')),
+    align: getImageAlign(dom),
+    caption: caption.replace(/\s+/g, ' ').trim(),
+    href: link && dom.contains(link) ? sanitizeUrl(link.getAttribute('href'), 'link') : null,
+  };
+};
+
+// :: NodeSpec A captioned image, a block atom written as
+// `<figure data-type="image"><img><figcaption>…</figcaption></figure>`; `href` wraps the image in a link.
+// Also read from any `<figure>` with an `<img>` (and no other `data-type`).
+export const figure: NodeSpec = {
+  group: 'block',
+  atom: true,
+  draggable: true,
+  attrs: {
+    src: {},
+    alt: { default: null },
+    title: { default: null },
+    width: { default: null },
+    align: { default: null },
+    caption: { default: '' },
+    href: { default: null },
+  },
+  parseDOM: [
+    {
+      tag: 'figure',
+      getAttrs: getFigureAttrs,
+    },
+  ],
+  toDOM(node: ProseMirrorNode): DOMOutputSpec {
+    const { src, alt, title, align, caption } = node.attrs;
+    const width = normalizeCssLength(node.attrs['width']);
+    const href = sanitizeUrl(node.attrs['href'], 'link');
+
+    const style = [width ? `width: ${width};` : '', getImageAlignStyle(align, true) ?? ''].filter(Boolean).join(' ');
+    const img: DOMOutputSpec = ['img', {
+      src: sanitizeUrl(src, 'image'),
+      alt,
+      title,
+      style: width ? 'width: 100%;' : null,
+    }];
+
+    const children: DOMOutputSpec[] = [href ? ['a', { href }, img] : img];
+    if (caption) {
+      children.push(['figcaption', String(caption)]);
+    }
+
+    const attrs = {
+      'data-type': 'image',
+      'data-align': isImageAlign(align) ? align : null,
+      style: style || null,
+    };
+
+    return ['figure', attrs, ...children];
+  },
+};
 
 const tableNodeSpecs = tableNodes({
   tableGroup: 'block',
@@ -305,6 +393,7 @@ const nodes = {
   hard_break: hardBreak,
   code_block: codeBlock,
   image,
+  figure,
   ...tableNodeSpecs,
   table: withDirection(withTableAttributes(tableNodeSpecs.table)),
   list_item: listItem,

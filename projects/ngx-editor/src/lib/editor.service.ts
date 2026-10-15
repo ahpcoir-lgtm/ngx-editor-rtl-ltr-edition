@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { take } from 'rxjs/operators';
 import { NgxEditorLocale, getNgxEditorLocale } from 'ngx-editor-rtl-ltr-edition/locales';
 
 import { NgxEditorConfig, NgxEditorDirection } from './types';
@@ -9,6 +10,8 @@ import { HTML } from './trustedTypesUtil';
 import type Editor from './Editor';
 import { resolveFonts } from './fonts/config';
 import type { NgxEditorResolvedFonts } from './fonts/types';
+import { resolveImageConfig } from './images/config';
+import type { NgxEditorResolvedImageConfig } from './images/types';
 
 @Injectable({
   providedIn: 'root',
@@ -36,6 +39,21 @@ export class NgxEditorService {
     return resolveFonts(this.config?.fonts, editor?.config.fonts);
   }
 
+  /** the image options of an editor: its `image` option over the global config over the defaults */
+  getImageConfig(editor?: Editor | null): NgxEditorResolvedImageConfig {
+    return resolveImageConfig(this.config?.image, editor?.config.image);
+  }
+
+  /** the string of a locale key now (an observable override that has not emitted yet gives the English string) */
+  translate(key: string): string {
+    let text = '';
+    this.locals.get(key).pipe(take(1)).subscribe((value) => {
+      text = value;
+    }).unsubscribe();
+
+    return text;
+  }
+
   getIcon(icon: string): HTML {
     return this.config.icons[icon] ? this.config.icons[icon] : Icon.get(icon);
   }
@@ -48,5 +66,6 @@ export const provideMyServiceOptions = (config?: NgxEditorConfig): NgxEditorServ
     locale: config?.locale,
     dir: config?.dir,
     fonts: config?.fonts,
+    image: config?.image,
   };
 };

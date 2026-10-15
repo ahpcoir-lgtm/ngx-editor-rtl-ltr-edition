@@ -61,6 +61,25 @@ const FORK_OWNED = [
   'projects/ngx-editor/src/lib/plugins/font-family.spec.ts',
   'projects/ngx-editor/src/lib/modules/menu/font-family/**',
   'projects/ngx-editor/src/lib/editor.component.fonts.spec.ts',
+  // 5. images
+  'projects/ngx-editor/utils/sanitizeUrl.ts',
+  'projects/ngx-editor/utils/sanitizeUrl.spec.ts',
+  'projects/ngx-editor/schema/image-attrs.ts',
+  'projects/ngx-editor/schema/image*.spec.ts',
+  'projects/ngx-editor/src/lib/images/**',
+  'projects/ngx-editor/src/lib/events.ts',
+  'projects/ngx-editor/src/lib/commands/Image.ts',
+  'projects/ngx-editor/src/lib/commands/ImageCommands.ts',
+  'projects/ngx-editor/src/lib/commands/ImageCommands.spec.ts',
+  'projects/ngx-editor/src/lib/plugins/image-upload.ts',
+  'projects/ngx-editor/src/lib/plugins/image-upload.spec.ts',
+  'projects/ngx-editor/src/lib/plugins/image-resize.ts',
+  'projects/ngx-editor/src/lib/components/image-view/**',
+  'projects/ngx-editor/src/lib/modules/menu/image/**',
+  'projects/ngx-editor/src/lib/icons/image_*.ts',
+  'projects/ngx-editor/src/lib/icons/delete.ts',
+  'projects/ngx-editor/src/lib/icons/upload.ts',
+  'projects/ngx-editor/src/lib/editor.component.images.spec.ts',
 ];
 
 // the library sources and their specs, each checked with its own tsconfig

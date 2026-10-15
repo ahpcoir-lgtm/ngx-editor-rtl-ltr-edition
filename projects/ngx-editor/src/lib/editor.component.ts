@@ -22,7 +22,7 @@ import { Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { isNil, NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
-import Editor, { isFormWrite, writeFormValue } from './Editor';
+import Editor, { configureEditorContext, isFormWrite, writeFormValue } from './Editor';
 import { NgxEditorService } from './editor.service';
 import { NgxEditorFontLoader } from './fonts/loader';
 import { emptyDoc, toHTML } from './parsers';
@@ -222,6 +222,11 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
     if (!this.placeholderBound) {
       this.watchLocalePlaceholder();
     }
+
+    configureEditorContext(editor, {
+      image: this.ngxeService.config?.image,
+      translate: (key) => this.ngxeService.translate(key),
+    });
 
     this.registerPlugins();
     this.pluginsRegistered = true;

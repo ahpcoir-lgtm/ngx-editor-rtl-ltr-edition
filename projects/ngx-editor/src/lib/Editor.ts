@@ -4,6 +4,7 @@ import { EditorProps, EditorView } from 'prosemirror-view';
 import { Observable, Subject } from 'rxjs';
 
 import { isNil } from 'ngx-editor-rtl-ltr-edition/utils';
+import { en } from 'ngx-editor-rtl-ltr-edition/locales';
 
 import EditorCommands from './EditorCommands';
 import defautlSchema from './schema';
@@ -14,6 +15,10 @@ import type { TextDirectionValue } from './commands/TextDirection';
 import directionPlugin from './plugins/direction';
 import directionShortcuts from './plugins/direction-shortcuts';
 import type { NgxEditorFontsConfig } from './fonts/types';
+import type { NgxEditorEvent } from './events';
+import { resolveImageConfig } from './images/config';
+import type { NgxEditorImageConfig, NgxEditorResolvedImageConfig } from './images/types';
+import imageUpload from './plugins/image-upload';
 
 type JSONDoc = Record<string, unknown>;
 type Content = HTML | null | JSONDoc;
@@ -37,6 +42,8 @@ interface Options {
   autoDirection?: boolean;
   /** the fonts of the `font_family` menu of this editor, over the global `fonts` config */
   fonts?: NgxEditorFontsConfig;
+  /** image upload, limits and resizing of this editor, over the global `image` config */
+  image?: NgxEditorImageConfig;
 }
 
 export type EditorOptions = Options;
@@ -44,6 +51,8 @@ export type EditorOptions = Options;
 interface SetContentOptions {
   addToHistory?: boolean;
 }
+
+const englishString = (key: string): string => (en.locals as Record<string, string>)[key] ?? key;
 
 // marks the transaction of a value written by the form control
 const FORM_WRITE = 'FORM_WRITE';
@@ -56,12 +65,15 @@ interface EditorFeatures {
   resizeImage?: boolean;
   /** Ctrl + Right Shift / Ctrl + Left Shift make the selected blocks right to left / left to right */
   directionShortcuts?: boolean;
+  /** paste and drop of image files upload or embed them (`image` option) */
+  imageUpload?: boolean;
 }
 
 const defaultFeatures = {
   linkOnPaste: true,
   resizeImage: true,
   directionShortcuts: true,
+  imageUpload: true,
 };
 
 const DEFAULT_OPTIONS: Options = {
@@ -89,6 +101,21 @@ class Editor {
 
   private valueChangesSubject = new Subject<JSONDoc>();
   private updateSubject = new Subject<EditorView>();
+  private eventsSubject = new Subject<NgxEditorEvent>();
+
+  // set by the editor component: the global `image` config and the strings of the configured locale
+  private globalImageConfig: NgxEditorImageConfig | null = null;
+  private translate: (key: string) => string = englishString;
+
+  /** upload events, such as `imageUploaded`, `imageUploadError` and `imageUploadWarning` */
+  get events(): Observable<NgxEditorEvent> {
+    return this.eventsSubject.asObservable();
+  }
+
+  /** the image options of this editor merged with the global config and the defaults */
+  get imageConfig(): NgxEditorResolvedImageConfig {
+    return resolveImageConfig(this.globalImageConfig, this.options.image);
+  }
 
   get valueChanges(): Observable<JSONDoc> {
     return this.valueChangesSubject.asObservable();
@@ -166,6 +193,14 @@ class Editor {
 
     if (keyboardShortcuts && this.features.directionShortcuts) {
       defaultPlugins.push(directionShortcuts());
+    }
+
+    if (schema.nodes['image'] && this.features.imageUpload) {
+      defaultPlugins.push(imageUpload({
+        getConfig: () => this.imageConfig,
+        translate: (key) => this.translate(key),
+        emit: (event) => this.eventsSubject.next(event),
+      }));
     }
 
     this.view = new EditorView(null, {
@@ -248,8 +283,21 @@ class Editor {
 
   destroy(): void {
     this.view.destroy();
+    this.eventsSubject.complete();
   }
 }
+
+// internal, used by the editor component: the global image config and the locale's strings for the upload messages
+export const configureEditorContext = (
+  editor: Editor,
+  context: { image?: NgxEditorImageConfig | null; translate?: (key: string) => string },
+): void => {
+  /* eslint-disable @typescript-eslint/dot-notation */
+  editor['globalImageConfig'] = context.image ?? null;
+  const { translate } = context;
+  editor['translate'] = translate ? (key: string) => translate(key) || englishString(key) : englishString;
+  /* eslint-enable @typescript-eslint/dot-notation */
+};
 
 // internal, used by the editor component to set the value written by the form
 export const writeFormValue = (editor: Editor, content: Content, options: SetContentOptions = {}): void => {

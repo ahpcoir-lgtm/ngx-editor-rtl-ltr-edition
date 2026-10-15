@@ -96,6 +96,29 @@ const locals: NgxEditorLocals = {
   headerRow: 'سطر عنوان',
   required: 'این مورد الزامی است',
 
+  // images; {name}, {max} and {size} are replaced
+  uploadImage: 'بارگذاری',
+  imageFromUrl: 'نشانی',
+  dropImages: 'تصویرها را اینجا رها کنید یا برای انتخاب فایل کلیک کنید',
+  uploadingImage: 'در حال بارگذاری تصویر…',
+  cancelUpload: 'لغو بارگذاری',
+  imageTooLarge: 'حجم تصویر «{name}» بیشتر از {max} است.',
+  imageInvalidType: 'نوع فایل «{name}» پشتیبانی نمی‌شود.',
+  imageUploadFailed: 'بارگذاری تصویر «{name}» انجام نشد.',
+  imageEmbeddedWarning: 'تصویر «{name}» ({size}) درون محتوا جاسازی شد. برای کوچک ماندن محتوا یک بارگذار تنظیم کنید.',
+  imageToolbar: 'ابزارهای تصویر',
+  imageAlignNone: 'هم‌خط با متن',
+  imageAlignStart: 'تراز تصویر از ابتدا',
+  imageAlignCenter: 'تصویر در وسط',
+  imageAlignEnd: 'تراز تصویر از انتها',
+  imageCaption: 'زیرنویس تصویر',
+  removeCaption: 'حذف زیرنویس',
+  imageLink: 'پیوند',
+  replaceImage: 'جایگزینی تصویر',
+  deleteImage: 'حذف تصویر',
+  resizeImage: 'تغییر اندازهٔ تصویر',
+  apply: 'اعمال',
+
   // editor
   placeholder: 'اینجا بنویسید...',
 };

@@ -32,6 +32,12 @@ import superscript from './superscript';
 import subscript from './subscript';
 import undo from './undo';
 import redo from './redo';
+import imageInline from './image_inline';
+import imageAlt from './image_alt';
+import imageCaption from './image_caption';
+import imageReplace from './image_replace';
+import deleteIcon from './delete';
+import upload from './upload';
 
 const DEFAULT_ICON_HEIGHT = 20;
 const DEFAULT_ICON_WIDTH = 20;
@@ -70,6 +76,12 @@ export const icons: Record<string, string> = {
   subscript,
   undo,
   redo,
+  image_inline: imageInline,
+  image_alt: imageAlt,
+  image_caption: imageCaption,
+  image_replace: imageReplace,
+  delete: deleteIcon,
+  upload,
   path: '<path></path>',
 };
 

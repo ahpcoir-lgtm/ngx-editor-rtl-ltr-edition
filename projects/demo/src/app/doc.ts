@@ -438,5 +438,36 @@ export default {
         },
       ],
     },
+    {
+      type: 'paragraph',
+      content: [
+        {
+          type: 'image',
+          attrs: {
+            src: '/ngx-editor.svg',
+            alt: 'ngx-editor logo',
+            title: null,
+            width: '120px',
+            align: 'end',
+          },
+        },
+        {
+          type: 'text',
+          text: 'An image aligned to the end of the line: the text flows around it, on the left in left to right text and on the right in right to left text. Select it for the image toolbar: alignment, alt text, caption, link, replace and delete; drag the handles on its inline-end corners to resize it.',
+        },
+      ],
+    },
+    {
+      type: 'figure',
+      attrs: {
+        src: '/ngx-editor.svg',
+        alt: 'ngx-editor logo',
+        title: null,
+        width: '200px',
+        align: 'center',
+        caption: 'A captioned image (figure). Paste, drop or upload images to try the upload pipeline.',
+        href: null,
+      },
+    },
   ],
 };

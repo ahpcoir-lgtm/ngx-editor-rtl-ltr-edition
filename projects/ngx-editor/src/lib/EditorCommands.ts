@@ -17,6 +17,10 @@ import FontFamilyCommand from './commands/FontFamily';
 import TextAlignCommand, { Align } from './commands/TextAlign';
 import IndentCommand from './commands/Indent';
 import TextDirectionCommand, { setTextDirection, TextDirectionValue } from './commands/TextDirection';
+import {
+  deleteImage, setImageAlign, setImageAttrs, setImageCaption, setImageLink,
+} from './commands/ImageCommands';
+import type { ImageAlign } from 'ngx-editor-rtl-ltr-edition/schema';
 
 import { HTML, parseHTML } from './trustedTypesUtil';
 import { isString } from './stringUtil';
@@ -209,6 +213,35 @@ class EditorCommands {
   insertImage(src: string, attrs: ImageAttrs = {}): this {
     const command = new ImageCommand();
     command.insert(src, attrs)(this.state, this.dispatch);
+    return this;
+  }
+
+  // the selected image or figure: `start`, `center`, `end` or `null`
+  setImageAlign(align: ImageAlign | null): this {
+    setImageAlign(align)(this.state, this.dispatch);
+    return this;
+  }
+
+  // the caption of the selected image: a string makes an image a figure, `null` makes a figure an image
+  setImageCaption(caption: string | null): this {
+    setImageCaption(caption)(this.state, this.dispatch);
+    return this;
+  }
+
+  // links the selected image or figure (a sanitized url), `null` removes the link
+  setImageLink(href: string | null): this {
+    setImageLink(href)(this.state, this.dispatch);
+    return this;
+  }
+
+  // sets attributes of the selected image or figure, such as `alt` or `width`
+  updateImage(attrs: Record<string, unknown>): this {
+    setImageAttrs(attrs)(this.state, this.dispatch);
+    return this;
+  }
+
+  deleteImage(): this {
+    deleteImage()(this.state, this.dispatch);
     return this;
   }
 

@@ -14,38 +14,86 @@
 
 <!-- popup -->
 @if (showPopup) {
-  <div class="NgxEditor__Popup" ngxPopupPosition>
-    <form class="NgxEditor__Popup--Form" [formGroup]="form" (ngSubmit)="insertLink($event)">
-      <div class="NgxEditor__Popup--FormGroup">
-        <div class="NgxEditor__Popup--Col">
-          <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-url')">{{
-            getLabel('url') | async
-          }}</label>
-          <input type="url" dir="ltr" [id]="getId('image-popup-url')" formControlName="src" autocomplete="off" />
-          @if (src.touched && src.invalid) {
-            <div class="NgxEditor__HelpText NgxEditor__HelpText--Error">
-              {{ src.errors?.['pattern'] && getLabel('enterValidUrl') | async }}
-            </div>
-          }
-        </div>
+  <div class="NgxEditor__Popup NgxEditor__ImagePopup" ngxPopupPosition role="dialog" [ariaLabel]="getLabel('insertImage') | async">
+    <div class="NgxEditor__Tabs" role="tablist">
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          role="tab"
+          class="NgxEditor__Tab"
+          [class.NgxEditor__Tab--Active]="activeTab === tab"
+          [id]="getId('image-tab-' + tab)"
+          [attr.aria-selected]="activeTab === tab"
+          [attr.aria-controls]="getId('image-panel-' + tab)"
+          [tabIndex]="activeTab === tab ? 0 : -1"
+          (click)="selectTab(tab)"
+          (keydown)="onTabKeydown($event)"
+        >
+          {{ getLabel(tab === 'upload' ? 'uploadImage' : 'imageFromUrl') | async }}
+        </button>
+      }
+    </div>
+
+    @if (activeTab === 'upload') {
+      <div role="tabpanel" [id]="getId('image-panel-upload')" [attr.aria-labelledby]="getId('image-tab-upload')">
+        <label
+          class="NgxEditor__ImageDrop"
+          [class.NgxEditor__ImageDrop--Over]="dragOver"
+          (dragover)="onDragOver($event)"
+          (dragleave)="dragOver = false"
+          (drop)="onDrop($event)"
+        >
+          <span class="NgxEditor__ImageDrop--Icon" [innerHTML]="uploadIcon | sanitizeHtml"></span>
+          <span>{{ getLabel('dropImages') | async }}</span>
+          <input
+            type="file"
+            class="NgxEditor__ImageDrop--Input"
+            [attr.accept]="accept"
+            [multiple]="!isActive"
+            (change)="onFilesSelected($event)"
+          />
+        </label>
       </div>
-      <div class="NgxEditor__Popup--FormGroup">
-        <div class="NgxEditor__Popup--Col">
-          <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-label')">{{
-            getLabel('altText') | async
-          }}</label>
-          <input type="text" [id]="getId('image-popup-label')" formControlName="alt" autocomplete="off" />
+    } @else {
+      <form
+        class="NgxEditor__Popup--Form"
+        role="tabpanel"
+        [id]="getId('image-panel-url')"
+        [attr.aria-labelledby]="getId('image-tab-url')"
+        [formGroup]="form"
+        (ngSubmit)="insertLink($event)"
+      >
+        <div class="NgxEditor__Popup--FormGroup">
+          <div class="NgxEditor__Popup--Col">
+            <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-url')">{{
+              getLabel('url') | async
+            }}</label>
+            <input type="url" dir="ltr" [id]="getId('image-popup-url')" formControlName="src" autocomplete="off" />
+            @if (src.touched && src.invalid) {
+              <div class="NgxEditor__HelpText NgxEditor__HelpText--Error">
+                {{ src.errors?.['url'] && getLabel('enterValidUrl') | async }}
+              </div>
+            }
+          </div>
         </div>
-      </div>
-      <div class="NgxEditor__Popup--FormGroup">
-        <div class="NgxEditor__Popup--Col">
-          <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-title')">{{
-            getLabel('title') | async
-          }}</label>
-          <input type="text" [id]="getId('image-popup-title')" formControlName="title" autocomplete="off" />
+        <div class="NgxEditor__Popup--FormGroup">
+          <div class="NgxEditor__Popup--Col">
+            <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-label')">{{
+              getLabel('altText') | async
+            }}</label>
+            <input type="text" [id]="getId('image-popup-label')" formControlName="alt" autocomplete="off" />
+          </div>
         </div>
-      </div>
-      <button type="submit" [disabled]="!form.valid || !form.dirty">{{ getLabel('insert') | async }}</button>
-    </form>
+        <div class="NgxEditor__Popup--FormGroup">
+          <div class="NgxEditor__Popup--Col">
+            <label class="NgxEditor__Popup--Label" [htmlFor]="getId('image-popup-title')">{{
+              getLabel('title') | async
+            }}</label>
+            <input type="text" [id]="getId('image-popup-title')" formControlName="title" autocomplete="off" />
+          </div>
+        </div>
+        <button type="submit" [disabled]="!form.valid || !form.dirty">{{ getLabel('insert') | async }}</button>
+      </form>
+    }
   </div>
 }

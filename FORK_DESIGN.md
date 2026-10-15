@@ -128,7 +128,6 @@ case and treats other strings as not set.
 - Icons drawn for a line starting on the left (`align_start`, `align_end`, `indent`, `outdent`,
   `bullet_list`, `task_list`; `modules/menu/mirrored-icons.ts`) get `NgxEditor__MenuItem--Mirror` and are
   flipped with `:dir(rtl)`; `align_left`/`align_right` and the direction icons are physical and never flip.
-- Not yet RTL-aware (later sections): the image resize handles (images). Column resizing of tables: section 3.
 
 ## 2. Localization
 
@@ -255,20 +254,78 @@ compatibility; correct behaviour of column resizing and cell navigation in RTL t
 
 ## 5. Images
 
-- `image` (inline, existing) gains `height` and `align` (`start` | `center` | `end` | null). A link on an
-  image is the `link` mark applied to the image node.
-- New block node `figure` (atom) for captioned images: `src, alt, title, width, align, caption, href`,
-  `<figure data-type="image"><img …><figcaption>…</figcaption></figure>`.
-- Insert dialog: Upload (file picker, drop zone, multiple) and URL. Paste and drag & drop of files into the
-  editor go through the same pipeline (plugin `imageUpload`).
-- `image: { uploadHandler?: (file, ctx: { kind, onProgress(percent) }) => Promise<string | { src, alt?, width? }>,
-  maxSize?, accept?, resize?: { maxWidth?, maxHeight?, quality?, mimeType? }, base64WarnSize?,
-  onError?, onWarning? }`. Without a handler the file is embedded as a data URL and a warning is reported
-  above `base64WarnSize`.
-- While uploading, a widget decoration shows a placeholder with a progress bar at the drop/paste position;
-  errors replace it with a short-lived error message and are emitted on `editor.events`.
-- Selected image/figure shows a media toolbar: align start/center/end, alt text, caption on/off + text,
-  link, replace, delete. Resize handles on the inline-end corners (mirrored in RTL), aspect ratio kept.
+- `sanitizeUrl(url, kind = 'link')` (`utils/sanitizeUrl.ts`): trims, removes tab/CR/LF (the URL parser of the
+  browsers does too, so `java\tscript:` is caught), rejects other C0/C1 controls, DEL and bidi overrides (ZWNJ in
+  Persian paths stays). Without a scheme the url is relative (path, `//host`, `?query`, `#hash`) and kept. Schemes:
+  `http`/`https` always, `mailto`/`tel` for links, `blob` and `data:image/(png|jpe?g|gif|webp|avif|bmp);base64,…`
+  (base64 characters only) for images; everything else (`javascript:`, `vbscript:`, `data:text/*`,
+  `data:image/svg+xml`, `file:`, unknown) is `null`. Applied in `parseDOM` of `image`, `figure` and the `link` mark
+  (an unsafe `<img>`/`<figure>` is dropped, an unsafe `<a>` loses the mark and keeps its text), in their `toDOM` too
+  (JSON content bypasses the parser: the attribute is left out), in `Image.insert`, the image commands, the dialog and
+  toolbar inputs, and on the url an upload handler returns. `Link.insert/update` go through the schema (`toDOM`).
+- `image` (inline, existing) gains `height` and `align` (`start` | `center` | `end` | null), written as `data-align`
+  plus an inline style (start/end: `float: inline-start/end` + `margin-inline-end/start: 1em`; center:
+  `display: block; margin-inline: auto`), `height` as attribute. Defaults write nothing, so upstream images keep their
+  HTML. A link on an image is the `link` mark on the node (PM renders the mark around the node view too).
+- Block atom `figure` (`schema/nodes.ts`): `src, alt, title, width, align, caption, href` →
+  `<figure data-type="image" data-align style="width: W; …align"><a href?><img style="width: 100%"></a><figcaption>`.
+  `width` is normalized to a CSS length (`normalizeCssLength`, a bare number gets px) because it goes into a style;
+  the caption is plain text (an atom keeps editing simple; inline formatting of a pasted `<figcaption>` is flattened)
+  and an empty caption writes no `<figcaption>`. Parsed from `figure[data-type=image]` and any `<figure>` with an
+  `<img>` and no other `data-type` (section 6 uses `data-type="video"`); `href` from a link around the image.
+- Commands (`commands/ImageCommands.ts`; each takes an optional position, else the selected image/figure, and keeps
+  it selected): `setImageAttrs`, `setImageAlign`, `setImageLink` (image: link mark, figure: `href`),
+  `setImageCaption(text | null)` (text on an image → `imageToFigure`, null on a figure → `figureToImage`),
+  `deleteImage`, getters `getImageTarget`, `getImageAlignValue`, `getImageLink`. `imageToFigure` replaces the paragraph
+  when the image is its only content, else splits it (`replaceRangeWith`); `figureToImage` puts the image (with its
+  link) in a new paragraph. `EditorCommands`: `setImageAlign`, `setImageCaption`, `setImageLink`, `updateImage`,
+  `deleteImage`. `Image.insert` on a selected figure replaces its image and keeps the caption; `Image.isActive` is
+  true for both.
+- Config (`src/lib/images/`): `image: { uploadHandler, maxSize, accept, resize, base64WarnSize, onError, onWarning }`
+  globally and as `Editor` option; `resolveImageConfig` picks each field instance › global › default (accept = common
+  raster types, base64WarnSize = 500 KB, no maxSize). `editor.imageConfig` / `NgxEditorService.getImageConfig(editor)`.
+  The editor component hands the global config and the locale's strings to its `Editor` (internal
+  `configureEditorContext`); a headless `Editor` uses its own option and English.
+- Pipeline (`plugins/image-upload.ts`, registered by `Editor` when the schema has `image`, feature flag
+  `features.imageUpload`): type check (`accept`: mime, `image/*`, `.ext`) → placeholder → `resizeImageFile` (canvas via
+  `createImageBitmap`; GIF/SVG skipped; never enlarges; keeps aspect; `mimeType`/`quality`; a file that cannot be
+  decoded goes on unchanged) → `maxSize` (checked after resizing, so a big photo can still fit) → handler
+  (`ctx: { kind: 'image', onProgress, signal }`) or a data url (warning above `base64WarnSize`: `console.warn` +
+  `onWarning` + event) → `sanitizeUrl` of the result → the image replaces the placeholder (in a paragraph at a block
+  position). `uploadImageFiles(view, files, { pos, replace })` is the entry point of the dialog, the toolbar's
+  "replace", paste and drop; also `cancelImageUpload`, `getImageUploadPlaceholders`, `getImageUploadConfig`.
+- Placeholders are kept in the plugin state as `{ id, pos, kind }` and mapped by hand: an upload placeholder maps with
+  assoc -1 (text typed at it goes after the coming image) and is removed only when a deletion spans it
+  (`deletedAcross`); a replace placeholder follows the image after it and goes with it. A removed placeholder aborts its
+  upload (`signal`), as do the cancel button of the widget and destroying the editor; files of one batch keep their
+  order. Widgets (`Decoration.widget`, `key` = id so the DOM is reused) show a preview, a localized label, a
+  `role="progressbar"` and a cancel button; a failure replaces it with a `role="alert"` message for 4 s.
+- Paste: image files are uploaded only when the clipboard has no HTML (copying from a page or Word gives both, and the
+  HTML is what the user means); pasted `data:` images follow the base64 rules (sanitizer types, dropped above `maxSize`,
+  warning above `base64WarnSize`). Drop: files at `posAtCoords`; moves inside the editor are left alone. A paste over a
+  selected node replaces it, like any paste.
+- `editor.events` (`Observable<NgxEditorEvent>`): `imageUploadStart`, `imageUploadProgress`, `imageUploaded`
+  (`embedded` for data urls), `imageUploadCancelled`, `imageUploadError` (`error: { code, message, file, cause }`, codes
+  `tooLarge | invalidType | uploadFailed | invalidResult | readFailed`), `imageUploadWarning`.
+- Insert dialog (`<ngx-image>`): tabs Upload (drop zone with a focusable file input, `multiple`, `accept` from the
+  config; a selected image is replaced by the first file) and URL (the upstream form; its validator is now
+  `sanitizeUrl`, so relative paths are accepted and `javascript:` refused). It opens on URL when an image is selected.
+  Arrow keys/Home/End move between the tabs.
+- Image toolbar: in the node view (`components/image-view`, also used for `figure`), shown while the node is selected
+  and the editor editable; `contenteditable="false"`, `role="toolbar"`: align none/start/center/end (`aria-pressed`,
+  start/end icons mirrored in RTL), alt text, caption (input + remove), link (sanitized, remove), replace (url or file),
+  delete. Inputs apply on Enter, Escape returns to the editor. `stopEvent` keeps the toolbar's events from PM and
+  `ignoreMutation` its selection changes. The component is created with the editor component's injector, so locale and
+  icons follow `provideNgxEditorConfig` of a route. New icons `image_inline`, `image_alt`, `image_caption`,
+  `image_replace`, `delete`, `upload` (overridable through `icons`). The toolbar and the handles need
+  `features.resizeImage` (the node view).
+- Resize handles only on the inline-end corners (`inset-inline-end`, cursors swapped with `:dir(rtl)`);
+  `computeResizeWidth({ startWidth, deltaX, rtl, maxWidth })` negates the mouse delta when the computed direction is
+  rtl and clamps to 20 px … the editor width (upstream ignored moves outside the range). Resizing sets `width` and
+  clears `height` (aspect ratio kept).
+- Styles: aligned images and figures in `editor.component.scss` (plain DOM when the node view is off) and
+  `styles/content.css`; the node view host rules in the component; placeholder and error widgets in the editor styles.
+  Logical properties only.
 
 ## 6. Video
 

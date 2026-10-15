@@ -2,7 +2,7 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { NgxEditorModule } from 'ngx-editor-rtl-ltr-edition';
+import { NgxEditorModule, uploadImageFiles } from 'ngx-editor-rtl-ltr-edition';
 import { fa } from 'ngx-editor-rtl-ltr-edition/locales';
 
 import { EditorComponent } from './editor.component';
@@ -56,6 +56,36 @@ describe('EditorComponent', () => {
 
     const style = document.head.querySelector('style[data-ngx-editor-fonts]');
     expect(style?.textContent).toContain('url("/assets/ngx-editor-fonts/vazirmatn/vazirmatn-arabic.woff2")');
+  });
+
+  describe('images', () => {
+    it('should show the aligned and the captioned sample images', () => {
+      const element = fixture.nativeElement as HTMLElement;
+      expect(element.querySelector('ngx-image-view[data-align="end"]')).toBeTruthy();
+      expect(element.querySelector('ngx-image-view[data-kind="figure"] .NgxEditor__FigureCaption')).toBeTruthy();
+      expect(element.querySelector('.event-log')?.textContent).toContain('editor.events');
+    });
+
+    it('should upload with the simulated handler and log the events', async () => {
+      // jsdom has no object urls
+      const { createObjectURL, revokeObjectURL } = URL;
+      URL.createObjectURL = vi.fn(() => 'blob:http://localhost/demo-image');
+      URL.revokeObjectURL = vi.fn();
+
+      try {
+        const file = new File([new Uint8Array(3)], 'photo.png', { type: 'image/png' });
+        await uploadImageFiles(component.editor.view, [file], { pos: 1 });
+        fixture.detectChanges();
+
+        const html = (fixture.nativeElement as HTMLElement).querySelector('.NgxEditor__Content')?.innerHTML ?? '';
+        expect(html).toContain('blob:http://localhost/demo-image');
+        expect(component.eventLog()[0]).toBe('imageUploaded: photo.png');
+        expect(component.eventLog()).toContain('imageUploadProgress: photo.png 100%');
+      } finally {
+        URL.createObjectURL = createObjectURL;
+        URL.revokeObjectURL = revokeObjectURL;
+      }
+    });
   });
 
   describe('direction and language', () => {

@@ -1,11 +1,110 @@
-<span class="NgxEditor__ImageWrapper" [ngClass]="{ 'NgxEditor__Resizer--Active': selected() }" [style.width]="outerWidth()">
-  @if (selected()) {
+<span
+  class="NgxEditor__ImageWrapper"
+  [ngClass]="{ 'NgxEditor__Resizer--Active': selected() }"
+  [style.width]="kind() === 'figure' ? null : outerWidth()"
+  [style.height]="kind() === 'figure' ? null : height()"
+>
+  @if (showToolbar) {
+    <!-- on the inline-end corners: right in left to right text, left in right to left text -->
     <span class="NgxEditor__ResizeHandle">
-      <span class="NgxEditor__ResizeHandle--TL" (mousedown)="startResizing($event, 'left')"></span>
-      <span class="NgxEditor__ResizeHandle--TR" (mousedown)="startResizing($event, 'right')"></span>
-      <span class="NgxEditor__ResizeHandle--BL" (mousedown)="startResizing($event, 'left')"></span>
-      <span class="NgxEditor__ResizeHandle--BR" (mousedown)="startResizing($event, 'right')"></span>
+      <span
+        class="NgxEditor__ResizeHandle--TE"
+        [title]="getLabel('resizeImage') | async"
+        (mousedown)="startResizing($event)"
+      ></span>
+      <span
+        class="NgxEditor__ResizeHandle--BE"
+        [title]="getLabel('resizeImage') | async"
+        (mousedown)="startResizing($event)"
+      ></span>
     </span>
   }
-  <img [src]="src()" [alt]="alt()" [title]="title()" #imgEl />
+  <img [src]="src()" [alt]="alt() ?? ''" [title]="title() ?? ''" #imgEl />
 </span>
+@if (kind() === 'figure' && caption()) {
+  <span class="NgxEditor__FigureCaption">{{ caption() }}</span>
+}
+
+@if (showToolbar) {
+  <span
+    class="NgxEditor__ImageToolbar"
+    contenteditable="false"
+    role="toolbar"
+    tabindex="-1"
+    [attr.aria-label]="getLabel('imageToolbar') | async"
+    (keydown)="onToolbarKeydown($event)"
+  >
+    <span class="NgxEditor__ImageToolbar--Buttons">
+      @for (button of alignButtons; track button.key) {
+        <button
+          type="button"
+          class="NgxEditor__ImageToolbar--Button"
+          [class.NgxEditor__MenuItem--Mirror]="isMirrored(button.icon)"
+          [class.NgxEditor__ImageToolbar--Active]="button.pressed()"
+          [attr.aria-pressed]="button.pressed()"
+          [title]="getLabel(button.key) | async"
+          [attr.aria-label]="getLabel(button.key) | async"
+          [innerHTML]="getIcon(button.icon) | sanitizeHtml"
+          (mousedown)="$event.preventDefault()"
+          (click)="button.run()"
+        ></button>
+      }
+      <span class="NgxEditor__ImageToolbar--Separator"></span>
+      @for (button of panelButtons; track button.key) {
+        <button
+          type="button"
+          class="NgxEditor__ImageToolbar--Button"
+          [class.NgxEditor__ImageToolbar--Active]="button.pressed()"
+          [attr.aria-pressed]="button.panel ? button.pressed() : null"
+          [attr.aria-expanded]="button.panel ? panel === button.panel : null"
+          [title]="getLabel(button.key) | async"
+          [attr.aria-label]="getLabel(button.key) | async"
+          [innerHTML]="getIcon(button.icon) | sanitizeHtml"
+          (mousedown)="$event.preventDefault()"
+          (click)="button.run()"
+        ></button>
+      }
+    </span>
+
+    @if (panel) {
+      <span class="NgxEditor__ImageToolbar--Panel">
+        <input
+          class="NgxEditor__ImageToolbar--Input"
+          [type]="panel === 'link' || panel === 'replace' ? 'url' : 'text'"
+          [attr.dir]="panel === 'link' || panel === 'replace' ? 'ltr' : null"
+          [value]="panelValue"
+          [attr.aria-label]="getLabel(panelLabelKey) | async"
+          [attr.placeholder]="getLabel(panelLabelKey) | async"
+          [attr.aria-invalid]="invalid || null"
+          autocomplete="off"
+          (input)="onPanelInput($event)"
+          (keydown)="onPanelKeydown($event)"
+        />
+        <button type="button" class="NgxEditor__ImageToolbar--Apply" (click)="applyPanel()">
+          {{ getLabel('apply') | async }}
+        </button>
+        @if (panel === 'link' && href()) {
+          <button type="button" class="NgxEditor__ImageToolbar--Apply" (click)="removeLink()">
+            {{ getLabel('removeLink') | async }}
+          </button>
+        }
+        @if (panel === 'caption' && kind() === 'figure') {
+          <button type="button" class="NgxEditor__ImageToolbar--Apply" (click)="removeCaption()">
+            {{ getLabel('removeCaption') | async }}
+          </button>
+        }
+        @if (panel === 'replace') {
+          <label class="NgxEditor__ImageToolbar--Apply NgxEditor__ImageToolbar--File">
+            {{ getLabel('uploadImage') | async }}
+            <input type="file" [attr.accept]="accept() || null" (change)="onReplaceFile($event)" />
+          </label>
+        }
+        @if (invalid) {
+          <span class="NgxEditor__HelpText NgxEditor__HelpText--Error" role="alert">{{
+            getLabel('enterValidUrl') | async
+          }}</span>
+        }
+      </span>
+    }
+  </span>
+}

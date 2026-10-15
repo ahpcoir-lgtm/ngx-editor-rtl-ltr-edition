@@ -20,7 +20,7 @@ const TOOLBAR_KEYS: Record<TBItems, string[]> = {
   bullet_list: ['bullet_list'],
   task_list: ['task_list'],
   link: ['insertLink', 'removeLink', 'url', 'text', 'openInNewTab', 'insert', 'enterValidUrl', 'required'],
-  image: ['insertImage', 'url', 'altText', 'title', 'insert', 'enterValidUrl'],
+  image: ['insertImage', 'url', 'altText', 'title', 'insert', 'enterValidUrl', 'uploadImage', 'imageFromUrl', 'dropImages'],
   table: [
     'insertTable', 'table', 'rows', 'rowsRequired', 'rowsMin', 'cols', 'colsRequired', 'colsMin', 'insert', 'tableSize',
     'headerRow',
@@ -91,7 +91,15 @@ const TABLE_KEYS: Record<TBTableItems | 'table', true> = {
   tableAlignEnd: true,
 };
 
-const EDITOR_KEYS = ['placeholder'];
+const EDITOR_KEYS = [
+  'placeholder',
+  // image uploads (plugins/image-upload.ts)
+  'uploadingImage', 'cancelUpload', 'imageTooLarge', 'imageInvalidType', 'imageUploadFailed', 'imageEmbeddedWarning',
+  // the toolbar of a selected image (components/image-view)
+  'imageToolbar', 'imageAlignNone', 'imageAlignStart', 'imageAlignCenter', 'imageAlignEnd', 'altText', 'imageCaption',
+  'removeCaption', 'imageLink', 'removeLink', 'replaceImage', 'deleteImage', 'resizeImage', 'apply', 'url', 'uploadImage',
+  'enterValidUrl',
+];
 
 const lookupKeys = (): string[] => Array.from(new Set([
   ...Object.values(TOOLBAR_KEYS).flat(),

@@ -125,6 +125,34 @@ The fonts are loaded once per document, when a font menu is shown or the documen
 only the fonts of the list (`list: []` drops every pasted font). The fonts are licensed under the SIL Open Font
 License 1.1, see `THIRD_PARTY_NOTICES.md`.
 
+## Images
+
+The `image` toolbar item opens a dialog with an **Upload** tab (file picker and drop zone) and a **URL** tab. Pasting or
+dropping image files uploads them too. Configure the upload globally or per editor (the editor wins):
+
+```ts
+provideNgxEditorConfig({
+  image: {
+    uploadHandler: async (file, { onProgress, signal }) => {
+      // send the file to your server, report onProgress(0..100), stop when signal is aborted, return the url
+      return { src: 'https://cdn.example.com/a.png', alt: file.name };
+    },
+    maxSize: 5 * 1024 * 1024, // bytes, after resizing
+    accept: ['image/png', 'image/jpeg', 'image/webp'], // default: common raster types
+    resize: { maxWidth: 1600, quality: 0.85 }, // canvas downscale, aspect ratio kept (GIF/SVG untouched)
+    onError: (error) => console.error(error.code, error.message),
+  },
+});
+// or new Editor({ image: { ... } }); editor.events emits imageUploadStart/Progress, imageUploaded, imageUploadError …
+```
+
+Without an `uploadHandler` images are embedded as data URLs, with a warning (`onWarning`, console) above
+`base64WarnSize` (500 KB). A selected image shows a toolbar: alignment (start / center / end, mirrored in RTL), alt
+text, caption (`<figure data-type="image">`), link, replace and delete; the resize handles are on the inline-end
+corners. Every image and link URL goes through `sanitizeUrl` (`ngx-editor-rtl-ltr-edition/utils`): `javascript:`,
+`data:text/*` and SVG data URLs are dropped. Add `styles/content.css` to pages that show the HTML, for aligned and
+captioned images.
+
 ## Browser Compatibility
 
 Mostly works on all Evergreen-Browsers like

@@ -4,3 +4,5 @@ export { default as NgxEditorError } from './error';
 export { default as uniq } from './uniq';
 export { default as clamp } from './clamp';
 export { parseFontFamily, normalizeFontFamily, getPrimaryFontFamily } from './fontFamily';
+export { sanitizeUrl } from './sanitizeUrl';
+export type { SanitizeUrlKind } from './sanitizeUrl';

@@ -1,18 +1,29 @@
 import { Component, OnDestroy, OnInit, ChangeDetectorRef, ChangeDetectionStrategy, inject } from '@angular/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { uniq } from 'ngx-editor-rtl-ltr-edition/utils';
+import {
+  AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators,
+} from '@angular/forms';
+import { sanitizeUrl, uniq } from 'ngx-editor-rtl-ltr-edition/utils';
 import { NodeSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Observable, Subscription } from 'rxjs';
 
 import { NgxEditorService } from '../../../editor.service';
 import { SanitizeHtmlPipe } from '../../../pipes/sanitize/sanitize-html.pipe';
+import { uploadImageFiles } from '../../../plugins/image-upload';
 import { HTML } from '../../../trustedTypesUtil';
 import { MenuService } from '../menu.service';
 import { outsideClick } from '../outside-click';
 import { PopupPositionDirective } from '../popup-position.directive';
 import { Image as ImageCommand } from '../MenuCommands';
+
+type ImageTab = 'upload' | 'url';
+
+// the url of an image, as sanitizeUrl accepts it
+const imageUrlValidator = (control: AbstractControl): ValidationErrors | null => {
+  const value: unknown = control.value;
+  return !value || sanitizeUrl(value, 'image') ? null : { url: true };
+};
 
 @Component({
   selector: 'ngx-image',
@@ -40,26 +51,36 @@ export class ImageComponent implements OnInit, OnDestroy {
   }
 
   isActive = false;
+  readonly tabs: ImageTab[] = ['upload', 'url'];
+  activeTab: ImageTab = 'upload';
+  dragOver = false;
+
   private componentId = uniq();
-  private updateSubscription: Subscription;
+  private updateSubscription?: Subscription;
 
   form = new FormGroup({
-    src: new FormControl('', [
-      Validators.required,
-      Validators.pattern('(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/??([^#\n\r]*)?#?([^\n\r]*)'),
-    ]),
+    src: new FormControl('', [Validators.required, imageUrlValidator]),
     alt: new FormControl(''),
     title: new FormControl(''),
   });
 
-  private editorView: EditorView;
+  private editorView!: EditorView;
 
   get icon(): HTML {
     return this.ngxeService.getIcon('image');
   }
 
+  get uploadIcon(): HTML {
+    return this.ngxeService.getIcon('upload');
+  }
+
   get src(): AbstractControl {
-    return this.form.get('src');
+    return this.form.controls.src;
+  }
+
+  /** the `accept` of the file input, from the `image` config */
+  get accept(): string {
+    return this.ngxeService.getImageConfig(this.menuService.editor).accept.join(',');
   }
 
   getId(name: string): string {
@@ -72,6 +93,7 @@ export class ImageComponent implements OnInit, OnDestroy {
 
   private hideForm(): void {
     this.showPopup = false;
+    this.dragOver = false;
     this.form.reset({
       src: '',
       alt: '',
@@ -83,6 +105,8 @@ export class ImageComponent implements OnInit, OnDestroy {
     this.showPopup = !this.showPopup;
 
     if (this.showPopup) {
+      // a selected image is edited in the url tab
+      this.activeTab = this.isActive ? 'url' : 'upload';
       this.fillForm();
     }
   }
@@ -99,6 +123,35 @@ export class ImageComponent implements OnInit, OnDestroy {
     this.togglePopup();
   }
 
+  selectTab(tab: ImageTab): void {
+    this.activeTab = tab;
+  }
+
+  // arrow keys move between the tabs (in the reading direction of the popup)
+  onTabKeydown(e: KeyboardEvent): void {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) {
+      return;
+    }
+
+    e.preventDefault();
+    const index = this.tabs.indexOf(this.activeTab);
+    const rtl = getComputedStyle(e.target as HTMLElement).direction === 'rtl';
+    const forward = (e.key === 'ArrowRight') !== rtl;
+
+    let next = forward ? index + 1 : index - 1;
+    if (e.key === 'Home') {
+      next = 0;
+    } else if (e.key === 'End') {
+      next = this.tabs.length - 1;
+    }
+
+    this.activeTab = this.tabs[(next + this.tabs.length) % this.tabs.length];
+    this.cdr.detectChanges();
+
+    const tablist = (e.target as HTMLElement).parentElement;
+    tablist?.querySelector<HTMLElement>('[aria-selected="true"]')?.focus();
+  }
+
   private fillForm(): void {
     const { state } = this.editorView;
     const { selection } = state;
@@ -107,8 +160,8 @@ export class ImageComponent implements OnInit, OnDestroy {
 
       this.form.setValue({
         src,
-        alt,
-        title,
+        alt: alt ?? '',
+        title: title ?? '',
       });
     }
   }
@@ -118,17 +171,46 @@ export class ImageComponent implements OnInit, OnDestroy {
     this.isActive = ImageCommand.isActive(state);
   };
 
+  // a selected image or figure is replaced by the first file, else every file is inserted at the cursor
+  uploadFiles(files: FileList | File[] | null | undefined): void {
+    const list = Array.from(files ?? []);
+    if (list.length === 0) {
+      return;
+    }
+
+    const { state } = this.editorView;
+    const { selection } = state;
+    const replace = this.isActive && selection instanceof NodeSelection;
+
+    uploadImageFiles(this.editorView, list, { pos: selection.from, replace });
+    this.editorView.focus();
+    this.hideForm();
+  }
+
+  onFilesSelected(e: Event): void {
+    const input = e.target as HTMLInputElement;
+    const { files } = input;
+    this.uploadFiles(files ? Array.from(files) : []);
+    input.value = '';
+  }
+
+  onDragOver(e: DragEvent): void {
+    e.preventDefault();
+    this.dragOver = true;
+  }
+
+  onDrop(e: DragEvent): void {
+    e.preventDefault();
+    this.dragOver = false;
+    this.uploadFiles(e.dataTransfer?.files);
+  }
+
   insertLink(e: MouseEvent): void {
     e.preventDefault();
     const { src, alt, title } = this.form.getRawValue();
     const { dispatch, state } = this.editorView;
 
-    const attrs = {
-      alt,
-      title,
-    };
-
-    ImageCommand.insert(src, attrs)(state, dispatch);
+    ImageCommand.insert(src ?? '', { alt: alt ?? '', title: title ?? '' })(state, dispatch);
     this.editorView.focus();
     this.hideForm();
   }
@@ -143,6 +225,6 @@ export class ImageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.updateSubscription.unsubscribe();
+    this.updateSubscription?.unsubscribe();
   }
 }

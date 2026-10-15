@@ -149,3 +149,50 @@
 .ngx-editor-content table[data-variant='borderless'] td {
   border: none;
 }
+
+/* ---- images ---- */
+
+/* aligned images: `data-align` = `start` | `center` | `end` (also written as an inline style) */
+.ngx-editor-content img {
+  max-width: 100%;
+}
+
+.ngx-editor-content img[data-align='start'],
+.ngx-editor-content figure[data-type='image'][data-align='start'] {
+  float: inline-start;
+  margin-inline-end: 1em;
+}
+
+.ngx-editor-content img[data-align='end'],
+.ngx-editor-content figure[data-type='image'][data-align='end'] {
+  float: inline-end;
+  margin-inline-start: 1em;
+}
+
+.ngx-editor-content img[data-align='center'] {
+  display: block;
+  margin-inline: auto;
+}
+
+/* captioned images: `<figure data-type="image"><img><figcaption>` (the image may be inside a link) */
+.ngx-editor-content figure[data-type='image'] {
+  width: fit-content;
+  max-width: 100%;
+  margin-block: 1em;
+  margin-inline: 0;
+}
+
+.ngx-editor-content figure[data-type='image'][data-align='center'] {
+  margin-inline: auto;
+}
+
+.ngx-editor-content figure[data-type='image'] img {
+  display: block;
+  max-width: 100%;
+}
+
+.ngx-editor-content figure[data-type='image'] figcaption {
+  padding-block: 4px;
+  font-size: 90%;
+  text-align: center;
+}

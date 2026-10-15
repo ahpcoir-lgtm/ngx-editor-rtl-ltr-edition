@@ -30,11 +30,17 @@ All notable changes to this project will be documented in this file.
 - fonts: 13 Arabic-script web fonts (Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic, Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi) and 4 system fonts; config `fonts: { list, extend, loading: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl, googleFontsUrl }` globally and as an `Editor` option; `NGX_EDITOR_FONTS`, `resolveFonts`, `loadFonts`, `NgxEditorFontLoader`, `buildFontFaceCss`, `buildGoogleFontsUrl`
 - fonts: the WOFF2 files (Arabic and Latin subsets, weights 400 and 700) ship in the package under `fonts/` with their OFL licenses; `THIRD_PARTY_NOTICES.md`
 - `ngx-editor-rtl-ltr-edition/utils`: `parseFontFamily`, `normalizeFontFamily`, `getPrimaryFontFamily`
+- images: `sanitizeUrl(url, 'link' | 'image')` in `ngx-editor-rtl-ltr-edition/utils`, applied to every image and link url (parsing, serializing, commands, dialogs, upload results)
+- images: `height` and `align` (`start` | `center` | `end`) on `image`; new block node `figure` (captioned image with `src, alt, title, width, align, caption, href`); commands `setImageAlign`, `setImageAttrs`, `setImageLink`, `setImageCaption`, `imageToFigure`, `figureToImage`, `deleteImage` (also on `EditorCommands`)
+- images: upload pipeline for the insert dialog (new Upload tab with a drop zone), paste and drop of image files: `image: { uploadHandler, maxSize, accept, resize, base64WarnSize, onError, onWarning }` globally and as `Editor` option, placeholder with progress and cancel, localized error message, `editor.events` (`imageUploadStart`, `imageUploadProgress`, `imageUploaded`, `imageUploadCancelled`, `imageUploadError`, `imageUploadWarning`), `uploadImageFiles`, `resizeImageFile`, `features.imageUpload`
+- images: toolbar on the selected image or figure (alignment, alt text, caption, link, replace, delete) with localized labels; new icons `image_inline`, `image_alt`, `image_caption`, `image_replace`, `delete`, `upload`
 
 #### Bug Fixes
 
 - the background colour of a table cell is no longer also read as a text highlight of its content
 - the column resize handle is drawn on the inline-end edge (`inset-inline-end` instead of `right`)
+- image resize handles are on the inline-end corners and the drag follows the text direction (in right to left text it resized the wrong way); the width is clamped instead of ignoring the move
+- `<a href="javascript:…">` and other unsafe links in loaded or pasted HTML are dropped (their text is kept); `<img>` with an unsafe `src` (`javascript:`, `data:image/svg+xml`, `data:text/html`) is dropped
 
 #### Internal
 
@@ -54,6 +60,10 @@ All notable changes to this project will be documented in this file.
 - a cell `background` that is not a colour (hex, rgb/hsl or a name) is no longer written into the style attribute
 - in the editor, tables are as wide as their columns unless `width` is `full` (they were always 100% wide), like the exported HTML
 - `font-family` styles in loaded or pasted HTML were dropped; loaded HTML now keeps them as a `font_family` mark (`<span style="font-family: …">`, the family written as a sanitized stack), pasted HTML keeps only the configured fonts (with the stack of the config). The schema has the new mark `font_family`; documents without fonts are written as before
+- images with `align` / `height` are written with `data-align` plus `float: inline-start | inline-end` or `display: block; margin-inline: auto`, and `height`; images without them are written as before
+- captioned images are the new `figure` node, written as `<figure data-type="image">…<figcaption>`; a `<figure>` with an `<img>` in loaded HTML was read as an image plus a paragraph with the caption text and is now a `figure`
+- links and images whose url `sanitizeUrl` rejects are no longer read or written; the JSON of images has the new attributes `height` and `align`
+- the URL tab of the image dialog accepts relative urls (`/img/a.png`) and rejects unsafe ones (it used a domain pattern)
 - with a font menu, or a document that uses a font, the editor adds a `<link>` to Google Fonts (default) or a `<style>` with `@font-face` rules to the `<head>`; editors without fonts load nothing
 
 ## 19.1.1 (2026-10-15)

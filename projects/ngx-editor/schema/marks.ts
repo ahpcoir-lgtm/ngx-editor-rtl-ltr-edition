@@ -1,10 +1,10 @@
 import { Mark, MarkSpec } from 'prosemirror-model';
 
-import { normalizeFontFamily } from 'ngx-editor-rtl-ltr-edition/utils';
+import { normalizeFontFamily, sanitizeUrl } from 'ngx-editor-rtl-ltr-edition/utils';
 
 // :: MarkSpec A link. Has `href` and `title` attributes. `title`
 // defaults to the empty string. Rendered and parsed as an `<a>`
-// element.
+// element. An `href` that `sanitizeUrl` rejects (`javascript:` …) is not read, so the text stays without the link.
 const link: MarkSpec = {
   attrs: {
     href: {},
@@ -16,8 +16,14 @@ const link: MarkSpec = {
     {
       tag: 'a[href]',
       getAttrs(dom) {
+        const href = sanitizeUrl(dom.getAttribute('href'), 'link');
+
+        if (!href) {
+          return false;
+        }
+
         return {
-          href: dom.getAttribute('href'),
+          href,
           title: dom.getAttribute('title'),
           target: dom.getAttribute('target'),
         };
@@ -25,8 +31,8 @@ const link: MarkSpec = {
     },
   ],
   toDOM(node) {
-    const { href, title, target } = node.attrs;
-    return ['a', { href, title, target }, 0];
+    const { title, target } = node.attrs;
+    return ['a', { href: sanitizeUrl(node.attrs['href'], 'link'), title, target }, 0];
   },
 };
 

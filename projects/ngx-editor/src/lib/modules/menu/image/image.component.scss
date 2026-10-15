@@ -1,0 +1,64 @@
+.NgxEditor__ImagePopup {
+  min-width: 240px;
+}
+
+.NgxEditor__Tabs {
+  display: flex;
+  gap: 4px;
+  margin-block-end: 8px;
+  border-block-end: 1px solid var(--ngx-editor-border-color);
+}
+
+.NgxEditor__Tab {
+  all: unset;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-block-end: 2px solid transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--ngx-editor-focus-ring-color);
+  }
+
+  &.NgxEditor__Tab--Active {
+    color: var(--ngx-editor-menu-item-active-color);
+    border-block-end-color: var(--ngx-editor-menu-item-active-color);
+  }
+}
+
+.NgxEditor__ImageDrop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px;
+  text-align: center;
+  font-size: 90%;
+  border: 2px dashed var(--ngx-editor-border-color);
+  border-radius: var(--ngx-editor-popup-border-radius);
+  cursor: pointer;
+
+  &:focus-within {
+    outline: 2px solid var(--ngx-editor-focus-ring-color);
+  }
+
+  &.NgxEditor__ImageDrop--Over {
+    border-color: var(--ngx-editor-menu-item-active-color);
+    background-color: var(--ngx-editor-menu-item-active-bg-color);
+  }
+}
+
+.NgxEditor__ImageDrop--Icon {
+  display: inline-flex;
+  color: var(--ngx-editor-menu-item-active-color);
+}
+
+// hidden but focusable: the drop zone opens the file picker by keyboard too
+.NgxEditor__ImageDrop--Input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}

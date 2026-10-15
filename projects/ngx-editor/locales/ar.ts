@@ -96,6 +96,29 @@ const locals: NgxEditorLocals = {
   headerRow: 'صف الرأس',
   required: 'هذا الحقل مطلوب',
 
+  // images; {name}, {max} and {size} are replaced
+  uploadImage: 'رفع',
+  imageFromUrl: 'الرابط',
+  dropImages: 'أفلت الصور هنا أو انقر لاختيار الملفات',
+  uploadingImage: 'جارٍ رفع الصورة…',
+  cancelUpload: 'إلغاء الرفع',
+  imageTooLarge: 'حجم الصورة «{name}» أكبر من {max}.',
+  imageInvalidType: 'نوع الملف «{name}» غير مدعوم.',
+  imageUploadFailed: 'تعذّر رفع الصورة «{name}».',
+  imageEmbeddedWarning: 'تم تضمين الصورة «{name}» ({size}) في المحتوى. اضبط معالج رفع للحفاظ على صغر حجم المحتوى.',
+  imageToolbar: 'أدوات الصورة',
+  imageAlignNone: 'على سطر النص',
+  imageAlignStart: 'محاذاة الصورة إلى البداية',
+  imageAlignCenter: 'توسيط الصورة',
+  imageAlignEnd: 'محاذاة الصورة إلى النهاية',
+  imageCaption: 'التسمية التوضيحية',
+  removeCaption: 'إزالة التسمية التوضيحية',
+  imageLink: 'رابط',
+  replaceImage: 'استبدال الصورة',
+  deleteImage: 'حذف الصورة',
+  resizeImage: 'تغيير حجم الصورة',
+  apply: 'تطبيق',
+
   // editor
   placeholder: 'اكتب هنا...',
 };
