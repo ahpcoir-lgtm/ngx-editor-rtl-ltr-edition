@@ -5,3 +5,4 @@ export { default as focus } from './focus';
 export { default as blur } from './blur';
 export { default as imageResize } from './image-resize';
 export { default as linkify } from './link';
+export { default as fontFamilyPaste } from './font-family';

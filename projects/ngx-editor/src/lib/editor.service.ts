@@ -6,6 +6,9 @@ import Locals from './Locals';
 import { NgxEditorServiceConfig } from './editor-config.service';
 import Icon from './icons';
 import { HTML } from './trustedTypesUtil';
+import type Editor from './Editor';
+import { resolveFonts } from './fonts/config';
+import type { NgxEditorResolvedFonts } from './fonts/types';
 
 @Injectable({
   providedIn: 'root',
@@ -28,6 +31,11 @@ export class NgxEditorService {
     return this.config?.dir ?? this.locale?.dir ?? null;
   }
 
+  /** the fonts of an editor: its `fonts` option over the global config over the built-in fonts */
+  getFonts(editor?: Editor | null): NgxEditorResolvedFonts {
+    return resolveFonts(this.config?.fonts, editor?.config.fonts);
+  }
+
   getIcon(icon: string): HTML {
     return this.config.icons[icon] ? this.config.icons[icon] : Icon.get(icon);
   }
@@ -39,5 +47,6 @@ export const provideMyServiceOptions = (config?: NgxEditorConfig): NgxEditorServ
     icons: config?.icons ?? {},
     locale: config?.locale,
     dir: config?.dir,
+    fonts: config?.fonts,
   };
 };

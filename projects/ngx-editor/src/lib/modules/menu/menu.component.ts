@@ -18,6 +18,7 @@ import {
 } from '../../types';
 import { ColorPickerComponent } from './color-picker/color-picker.component';
 import { DropdownComponent } from './dropdown/dropdown.component';
+import { FontFamilyComponent } from './font-family/font-family.component';
 import { ImageComponent } from './image/image.component';
 import { InsertCommandComponent } from './insert-command/insert-command.component';
 import { LinkComponent } from './link/link.component';
@@ -143,6 +144,7 @@ const DEFAULT_COLOR_PRESETS = [
     CommonModule,
     ColorPickerComponent,
     DropdownComponent,
+    FontFamilyComponent,
     ToggleCommandComponent,
     InsertCommandComponent,
     LinkComponent,

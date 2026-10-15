@@ -24,6 +24,7 @@ import { takeUntil } from 'rxjs/operators';
 import { isNil, NgxEditorError } from 'ngx-editor-rtl-ltr-edition/utils';
 import Editor, { isFormWrite, writeFormValue } from './Editor';
 import { NgxEditorService } from './editor.service';
+import { NgxEditorFontLoader } from './fonts/loader';
 import { emptyDoc, toHTML } from './parsers';
 import * as plugins from './plugins';
 import { getEditorDirection, setEditorDirection } from './plugins/direction';
@@ -51,6 +52,7 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
   private injector = inject(Injector);
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private ngxeService = inject(NgxEditorService);
+  private fontLoader = inject(NgxEditorFontLoader);
 
   @ViewChild('ngxEditor', { static: true }) private ngxEditor: ElementRef;
 
@@ -82,6 +84,7 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
   private localePlaceholder = '';
   private localePlaceholderSubscription: Subscription | null = null;
   private pluginsRegistered = false;
+  private fontsLoaded = false;
   private initialValueSet = false;
   private onChange: (value: Record<string, unknown> | string) => void = () => { /** */ };
   private onTouched: () => void = () => { /** */ };
@@ -193,6 +196,21 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
     if (editor.features.linkOnPaste) {
       editor.registerPlugin(plugins.linkify());
     }
+
+    editor.registerPlugin(plugins.fontFamilyPaste(() => this.ngxeService.getFonts(editor).fonts));
+  }
+
+  // the fonts are loaded once the document uses one, also without a font menu
+  private loadFontsInUse(): void {
+    const { doc, schema } = this.editor().view.state;
+    const type = schema.marks['font_family'];
+
+    if (this.fontsLoaded || !type || !doc.rangeHasMark(0, doc.content.size, type)) {
+      return;
+    }
+
+    this.fontsLoaded = true;
+    this.fontLoader.load(this.ngxeService.getFonts(this.editor()));
   }
 
   ngOnInit(): void {
@@ -211,7 +229,10 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
 
     this.renderer.appendChild(this.ngxEditor.nativeElement, editor.view.dom);
 
+    this.loadFontsInUse();
+
     editor.valueChanges.pipe(takeUntil(this.unsubscribe)).subscribe((jsonDoc) => {
+      this.loadFontsInUse();
       this.handleChange(jsonDoc);
     });
   }

@@ -31,6 +31,8 @@ const locals: NgxEditorLocals = {
   dir_auto: 'جهت متن خودکار',
   text_color: 'رنگ متن',
   background_color: 'رنگ پس‌زمینه',
+  font_family: 'قلم',
+  defaultFont: 'قلم پیش‌فرض',
   horizontal_rule: 'خط افقی',
   format_clear: 'پاک کردن قالب‌بندی',
   insertLink: 'درج پیوند',

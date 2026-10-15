@@ -1,5 +1,7 @@
 import { Mark, MarkSpec } from 'prosemirror-model';
 
+import { normalizeFontFamily } from 'ngx-editor-rtl-ltr-edition/utils';
+
 // :: MarkSpec A link. Has `href` and `title` attributes. `title`
 // defaults to the empty string. Rendered and parsed as an `<a>`
 // element.
@@ -152,6 +154,29 @@ const textBackgroundColor: MarkSpec = {
   },
 };
 
+// The family is a CSS stack, written as `<span style="font-family: Vazirmatn, sans-serif;">`. Every family is read, so
+// stored content keeps fonts that are no longer configured; pasting keeps only the configured ones (plugins/font-family).
+const fontFamily: MarkSpec = {
+  attrs: {
+    family: {
+      default: null,
+    },
+  },
+  parseDOM: [
+    {
+      style: 'font-family',
+      getAttrs: (value: string) => {
+        const family = normalizeFontFamily(value);
+        return family ? { family } : false;
+      },
+    },
+  ],
+  toDOM(mark: Mark) {
+    const family = normalizeFontFamily(mark.attrs['family'] as string | null);
+    return ['span', family ? { style: `font-family: ${family};` } : {}, 0];
+  },
+};
+
 const sup: MarkSpec = {
   attrs: {},
   parseDOM: [
@@ -176,6 +201,8 @@ const sub: MarkSpec = {
 
 const marks = {
   link,
+  // before the other marks, so that code and other marks are rendered inside the font span
+  font_family: fontFamily,
   em,
   strong,
   code,

@@ -26,6 +26,7 @@ const TOOLBAR: Toolbar = [
   ['align_start', 'align_end'],
   ['dir_ltr', 'dir_rtl', 'dir_auto'],
   ['indent', 'outdent'],
+  ['font_family'],
 ];
 
 @Component({
@@ -117,6 +118,8 @@ export class EditorComponent implements OnInit, OnDestroy {
       inputRules: true,
       attributes: { enterkeyhint: 'enter' },
       autoDirection: this.direction === 'auto',
+      // the font files of the package, copied to /assets/ngx-editor-fonts/ by the asset glob in angular.json
+      fonts: { loading: 'self-hosted' },
       features: {
         linkOnPaste: true,
         resizeImage: true,

@@ -50,6 +50,17 @@ const FORK_OWNED = [
   'projects/ngx-editor/src/lib/plugins/table-rtl.spec.ts',
   'projects/ngx-editor/src/lib/modules/menu/table/table.component.ts',
   'projects/ngx-editor/src/lib/modules/menu/dropdown/dropdown.component.ts',
+  // 4. fonts
+  'projects/ngx-editor/utils/fontFamily.ts',
+  'projects/ngx-editor/utils/fontFamily.spec.ts',
+  'projects/ngx-editor/schema/font-family.spec.ts',
+  'projects/ngx-editor/src/lib/fonts/**',
+  'projects/ngx-editor/src/lib/commands/FontFamily.ts',
+  'projects/ngx-editor/src/lib/commands/FontFamily.spec.ts',
+  'projects/ngx-editor/src/lib/plugins/font-family.ts',
+  'projects/ngx-editor/src/lib/plugins/font-family.spec.ts',
+  'projects/ngx-editor/src/lib/modules/menu/font-family/**',
+  'projects/ngx-editor/src/lib/editor.component.fonts.spec.ts',
 ];
 
 // the library sources and their specs, each checked with its own tsconfig

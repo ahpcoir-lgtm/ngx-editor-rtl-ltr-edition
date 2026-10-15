@@ -69,6 +69,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/demo/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/ngx-editor/fonts",
+                "output": "assets/ngx-editor-fonts"
               }
             ],
             "styles": [

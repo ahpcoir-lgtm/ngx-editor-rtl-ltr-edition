@@ -26,6 +26,10 @@ All notable changes to this project will be documented in this file.
 - tables: `variant` (`bordered` | `striped` | `borderless`), `width` (`auto` | `full`) and `align` (`start` | `center` | `end`) on tables, `align` and `valign` on cells; table dropdown items `setCellBackground` (colour palette), `cellAlignStart/Center/End`, `cellVAlignTop/Middle/Bottom`, `tableVariantBordered/Striped/Borderless`, `tableWidthAuto/Full`, `tableAlignStart/Center/End` (in the built-in toolbars, `TABLE_DROPDOWN_ITEMS`)
 - tables: column resizing and Left/Right (also with Shift) work in right to left tables (`tableColumnResizing`, `tableRtlNavigation`)
 - `ngx-editor-rtl-ltr-edition/styles/content.css`: renders the exported HTML (directions, task lists, tables) like the editor
+- fonts: mark `font_family` (`<span style="font-family: …">`), toolbar item `font_family` (each font named in its own font and in the locale's language, plus "Default Font"), `EditorCommands.fontFamily(family)` / `removeFontFamily()`
+- fonts: 13 Arabic-script web fonts (Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic, Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi) and 4 system fonts; config `fonts: { list, extend, loading: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl, googleFontsUrl }` globally and as an `Editor` option; `NGX_EDITOR_FONTS`, `resolveFonts`, `loadFonts`, `NgxEditorFontLoader`, `buildFontFaceCss`, `buildGoogleFontsUrl`
+- fonts: the WOFF2 files (Arabic and Latin subsets, weights 400 and 700) ship in the package under `fonts/` with their OFL licenses; `THIRD_PARTY_NOTICES.md`
+- `ngx-editor-rtl-ltr-edition/utils`: `parseFontFamily`, `normalizeFontFamily`, `getPrimaryFontFamily`
 
 #### Bug Fixes
 
@@ -49,6 +53,8 @@ All notable changes to this project will be documented in this file.
 - the JSON of tables has the new attributes `variant`, `width`, `align` and that of cells `align`, `valign`
 - a cell `background` that is not a colour (hex, rgb/hsl or a name) is no longer written into the style attribute
 - in the editor, tables are as wide as their columns unless `width` is `full` (they were always 100% wide), like the exported HTML
+- `font-family` styles in loaded or pasted HTML were dropped; loaded HTML now keeps them as a `font_family` mark (`<span style="font-family: …">`, the family written as a sanitized stack), pasted HTML keeps only the configured fonts (with the stack of the config). The schema has the new mark `font_family`; documents without fonts are written as before
+- with a font menu, or a document that uses a font, the editor adds a `<link>` to Google Fonts (default) or a `<style>` with `@font-face` rules to the `<head>`; editors without fonts load nothing
 
 ## 19.1.1 (2026-10-15)
 

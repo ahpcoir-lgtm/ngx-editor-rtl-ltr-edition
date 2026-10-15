@@ -1,0 +1,58 @@
+<button
+  type="button"
+  class="NgxEditor__Dropdown--Text"
+  [class.NgxEditor__Dropdown--Selected]="isDropdownOpen"
+  [disabled]="!canExecute"
+  [class.NgxEditor--Disabled]="!canExecute"
+  [style.font-family]="activeFont?.family ?? null"
+  (mousedown)="onToggleDropdownMouseClick($event)"
+  (keydown.enter)="onToggleDropdownKeydown()"
+  (keydown.space)="onToggleDropdownKeydown()"
+  [title]="getName('font_family') | async"
+  [ariaLabel]="getName('font_family') | async"
+  aria-haspopup="listbox"
+  [ariaExpanded]="isDropdownOpen"
+>
+  <span class="NgxEditor__FontFamily--Text">{{ buttonText | async }}</span>
+</button>
+
+@if (isDropdownOpen) {
+  <div
+    class="NgxEditor__Dropdown--DropdownMenu NgxEditor__FontFamily--Menu"
+    role="listbox"
+    [ariaLabel]="getName('font_family') | async"
+    ngxPopupPosition
+    ngxPopupMatchWidth
+    ngxPopupAlign="start"
+  >
+    <button
+      type="button"
+      class="NgxEditor__Dropdown--Item"
+      role="option"
+      [class.NgxEditor__Dropdown--Active]="isActive(null)"
+      [attr.aria-selected]="isActive(null)"
+      (mousedown)="onFontMouseClick($event, null)"
+      (keydown.enter)="onFontKeydown($event, null)"
+      (keydown.space)="onFontKeydown($event, null)"
+    >
+      {{ getName('defaultFont') | async }}
+    </button>
+
+    @for (font of fonts; track font.id) {
+      <button
+        type="button"
+        class="NgxEditor__Dropdown--Item"
+        role="option"
+        [style.font-family]="font.family"
+        [class.NgxEditor__Dropdown--Active]="isActive(font)"
+        [attr.aria-selected]="isActive(font)"
+        [attr.data-font]="font.id"
+        (mousedown)="onFontMouseClick($event, font)"
+        (keydown.enter)="onFontKeydown($event, font)"
+        (keydown.space)="onFontKeydown($event, font)"
+      >
+        {{ getLabel(font) }}
+      </button>
+    }
+  </div>
+}

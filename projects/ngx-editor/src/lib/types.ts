@@ -3,6 +3,7 @@ import { IconsKeys } from './icons';
 import { LocalsKeys } from './Locals';
 import { Observable } from 'rxjs';
 import { LinkOptions } from './modules/menu/link/link.component';
+import type { NgxEditorFontsConfig } from './fonts/types';
 
 export type TBHeadingItems = 'paragraph' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 export type TBTableItems='addColumnBefore'
@@ -48,6 +49,7 @@ export type TBItems = 'bold'
 | 'table'
 | 'text_color'
 | 'background_color'
+| 'font_family'
 | 'align_left'
 | 'align_center'
 | 'align_right'
@@ -84,4 +86,6 @@ export interface NgxEditorConfig {
   locale?: string;
   /** direction of the editor and its menus, the locale's direction when not set */
   dir?: NgxEditorDirection;
+  /** the fonts of the `font_family` menu and how they are loaded; the `fonts` option of an `Editor` wins */
+  fonts?: NgxEditorFontsConfig;
 }

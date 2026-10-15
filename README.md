@@ -90,6 +90,41 @@ Then in HTML
 
 Note: Input can be a HTML string or a jsonDoc
 
+## Fonts
+
+Add `'font_family'` to the toolbar for a font menu (each name drawn in its font, in the language of the `locale`). It
+offers 13 Arabic-script web fonts (Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal,
+IBM Plex Sans Arabic, Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi) and Tahoma, Arial,
+Times New Roman and Courier New. The font is written as `<span style="font-family: …">`.
+
+```ts
+provideNgxEditorConfig({
+  fonts: {
+    list: ['vazirmatn', 'amiri', 'tahoma'], // optional: ids of built-in fonts or your own NgxEditorFont objects
+    extend: [{ id: 'brand', family: "'Brand Sans', sans-serif", label: { en: 'Brand', fa: 'برند' } }],
+    loading: 'self-hosted', // 'google' (default) | 'self-hosted' | 'none'
+  },
+});
+// or per editor: new Editor({ fonts: { ... } }), which wins over the global config
+```
+
+- `google`: one stylesheet from `fonts.googleapis.com` (`googleFontsUrl` for a mirror).
+- `self-hosted`: `@font-face` rules for the WOFF2 files that ship in the package (`fonts/`). Copy them with an asset
+  glob in `angular.json` (served from `/assets/ngx-editor-fonts/`, or set `selfHostedBaseUrl`):
+
+  ```json
+  "assets": [
+    { "glob": "**/*", "input": "node_modules/ngx-editor-rtl-ltr-edition/fonts", "output": "assets/ngx-editor-fonts" }
+  ]
+  ```
+
+- `none`: the app loads the fonts itself (`buildFontFaceCss()` and `buildGoogleFontsUrl()` help, also for pages
+  that show the exported HTML).
+
+The fonts are loaded once per document, when a font menu is shown or the document uses a font. Pasted content keeps
+only the fonts of the list (`list: []` drops every pasted font). The fonts are licensed under the SIL Open Font
+License 1.1, see `THIRD_PARTY_NOTICES.md`.
+
 ## Browser Compatibility
 
 Mostly works on all Evergreen-Browsers like

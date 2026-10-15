@@ -13,6 +13,7 @@ import { HTML } from './trustedTypesUtil';
 import type { TextDirectionValue } from './commands/TextDirection';
 import directionPlugin from './plugins/direction';
 import directionShortcuts from './plugins/direction-shortcuts';
+import type { NgxEditorFontsConfig } from './fonts/types';
 
 type JSONDoc = Record<string, unknown>;
 type Content = HTML | null | JSONDoc;
@@ -34,6 +35,8 @@ interface Options {
   dir?: TextDirectionValue;
   /** blocks without a direction of their own take the direction of their first strong character, also in the html output */
   autoDirection?: boolean;
+  /** the fonts of the `font_family` menu of this editor, over the global `fonts` config */
+  fonts?: NgxEditorFontsConfig;
 }
 
 export type EditorOptions = Options;

@@ -47,6 +47,10 @@
       @if (item === 'background_color') {
         <ngx-color-picker [class]="iconContainerClass" type="background_color" [presets]="presets"> </ngx-color-picker>
       }
+      <!-- font family -->
+      @if (item === 'font_family') {
+        <ngx-font-family [class]="dropdownContainerClass"></ngx-font-family>
+      }
       <!-- seperator -->
       @if (lastItem && !lastToolbarItem) {
         <div [class]="seperatorClass"></div>

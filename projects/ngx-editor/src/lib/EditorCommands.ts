@@ -13,6 +13,7 @@ import LinkCommand, { LinkAttrs } from './commands/Link';
 import HeadingCommand, { HeadingLevels } from './commands/Heading';
 import ImageCommand, { ImageAttrs } from './commands/Image';
 import TextColorCommand from './commands/TextColor';
+import FontFamilyCommand from './commands/FontFamily';
 import TextAlignCommand, { Align } from './commands/TextAlign';
 import IndentCommand from './commands/Indent';
 import TextDirectionCommand, { setTextDirection, TextDirectionValue } from './commands/TextDirection';
@@ -231,6 +232,19 @@ class EditorCommands {
 
   removeBackgroundColor(): this {
     const command = new TextColorCommand('text_background_color');
+    command.remove()(this.state, this.dispatch);
+    return this;
+  }
+
+  // sets the font of the selection, a CSS font-family stack such as `Vazirmatn, sans-serif`
+  fontFamily(family: string): this {
+    const command = new FontFamilyCommand();
+    command.apply(family)(this.state, this.dispatch);
+    return this;
+  }
+
+  removeFontFamily(): this {
+    const command = new FontFamilyCommand();
     command.remove()(this.state, this.dispatch);
     return this;
   }

@@ -5,7 +5,12 @@
     "entryFile": "./src/public_api.ts"
   },
   "assets": [
-    "styles/content.css"
+    "styles/content.css",
+    {
+      "glob": "**/*",
+      "input": "fonts",
+      "output": "fonts"
+    }
   ],
   "allowedNonPeerDependencies": [
     "prosemirror-state",

@@ -1,0 +1,13 @@
+// the button keeps its width when the name of a long font is shown
+.NgxEditor__FontFamily--Text {
+  display: inline-block;
+  max-inline-size: 9em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.NgxEditor__FontFamily--Menu .NgxEditor__Dropdown--Item {
+  text-align: start;
+  font-size: 1.05em;
+}

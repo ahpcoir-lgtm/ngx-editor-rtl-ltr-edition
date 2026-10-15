@@ -31,6 +31,8 @@ const locals = {
   dir_auto: 'Automatic Text Direction',
   text_color: 'Text Color',
   background_color: 'Background Color',
+  font_family: 'Font',
+  defaultFont: 'Default Font',
   horizontal_rule: 'Horizontal rule',
   format_clear: 'Clear Formatting',
   insertLink: 'Insert Link',

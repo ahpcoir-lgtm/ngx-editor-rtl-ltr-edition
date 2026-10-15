@@ -52,3 +52,5 @@ if (await fs.stat('README.fa.md').catch(() => null)) {
 }
 await copyFile('CHANGELOG.md', 'CHANGELOG.md');
 await copyFile('LICENSE', 'LICENSE');
+// the licenses of the bundled fonts (their OFL texts are next to the files in fonts/)
+await copyFile('THIRD_PARTY_NOTICES.md', 'THIRD_PARTY_NOTICES.md');

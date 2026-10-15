@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 
+import type { NgxEditorFontsConfig } from './fonts/types';
 import { NgxEditorDirection } from './types';
 
 @Injectable({
@@ -10,4 +11,5 @@ export class NgxEditorServiceConfig {
   public icons = {};
   public locale?: string;
   public dir?: NgxEditorDirection;
+  public fonts?: NgxEditorFontsConfig;
 }

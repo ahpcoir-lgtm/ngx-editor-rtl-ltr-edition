@@ -195,21 +195,63 @@ compatibility; correct behaviour of column resizing and cell navigation in RTL t
 
 ## 4. Fonts
 
-- Mark `font_family` (`attrs: { family }`) → `<span style="font-family: …">`; parsed from `font-family`
-  styles that match a configured font.
-- Toolbar item `font_family`: dropdown of configured fonts, each label rendered in its own font, plus
-  "Default" to remove the mark.
+- Mark `font_family` (`attrs: { family }`, `schema/marks.ts`) → `<span style="font-family: …">`. It comes right
+  after `link` in the mark order, so `code`, colours etc. render inside the font span (inline code stays monospace).
+  The family is a CSS stack normalized by `normalizeFontFamily()` (`utils/fontFamily.ts`): names split respecting
+  quotes, names with anything but one identifier in single quotes, generic families lower case, CSS-wide keywords and
+  names with CSS punctuation (`;`, `:`, braces, parentheses, `<`, `>`, `\`, `/`, `*`, `!`, `@`, `=`, backtick) or
+  control characters dropped (nothing can leave the declaration);
+  no valid name → no mark.
+- Parsing: **every** `font-family` is read (also families that are not configured), so stored HTML round-trips and a
+  font removed from the config later is not silently lost. The schema is static and cannot see the config, so the
+  "configured fonts only" rule is applied where it matters, on paste: plugin `fontFamilyPaste`
+  (`plugins/font-family.ts`, registered by the editor component with a getter for the resolved list) maps the pasted
+  slice: a font whose first family matches a configured font (`findFont`, case-insensitive) gets the configured
+  stack, any other font mark is dropped. Word and Google Docs put `Calibri`/`Arial`… on every run, which would
+  override the page font; `fonts: { list: [] }` drops every pasted font (the upstream paste behaviour).
+- Commands (`commands/FontFamily.ts`, `FONT_FAMILY`): `apply(family)` (replaces another font: a mark type excludes
+  itself; stored mark at a cursor; not on a selected atom; refused for an unsafe value), `remove()`, `isActive`,
+  `getActiveFamilies` (unique), `canExecute`. `EditorCommands.fontFamily(family)` / `removeFontFamily()`.
+  Clear formatting removes it (all marks but `link`).
+- Toolbar item `font_family` (`modules/menu/font-family`, `<ngx-font-family>` with the dropdown classes): "Default
+  Font" (removes the mark) and the configured fonts, each label in its own `font-family`, label from
+  `getFontLabel(font, config.locale)` (exact code › language › `en` › first › id). The button shows the active
+  font's label in that font, the first family of a font that is not configured, else "Font". Active = the font of the
+  selection (first of a mixed selection), "Default Font" when there is none. Not in the built-in toolbars (they would
+  start loading Google Fonts for existing users). Locale keys `font_family`, `defaultFont`.
 - `NgxEditorFont = { id, family /* CSS stack */, label: string | Record<locale, string>, category?,
-  google?: { family, weights }, files?: { weight, style, path }[] }`.
-- Built-in: Vazirmatn, Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic,
-  Almarai, Harmattan, Lateef, Scheherazade New, El Messiri, Reem Kufi (+ a few system fonts that need no
-  loading). Labels in en/fa/ar.
-- `fonts: { list?, extend?, loading?: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl?, googleFontsUrl? }`.
-  Default `loading: 'google'` (one `<link>` to fonts.googleapis.com, injected once, SSR-safe).
-  `'self-hosted'` injects `@font-face` rules pointing at `selfHostedBaseUrl` (default
-  `/assets/ngx-editor-fonts/`); the woff2 files ship in the package under `fonts/` and are copied with an
-  `angular.json` asset glob. `'none'`: the app loads fonts itself.
-- OFL texts in `LICENSES/fonts/`, summary in `THIRD_PARTY_NOTICES.md`.
+  google?: { family, weights }, files?: { weight, style?, path, unicodeRange? }[] }` (`src/lib/fonts/types.ts`).
+- Built-in (`fonts/built-in.ts`, `NGX_EDITOR_WEB_FONTS` + `NGX_EDITOR_SYSTEM_FONTS` = `NGX_EDITOR_FONTS`): Vazirmatn,
+  Noto Sans Arabic, Noto Naskh Arabic, Amiri, Cairo, Tajawal, IBM Plex Sans Arabic, Almarai, Harmattan, Lateef,
+  Scheherazade New, El Messiri, Reem Kufi; Tahoma, Arial, Times New Roman, Courier New (no loading). Labels in
+  en/fa/ar (Persian with ی/ک, Arabic with ي/ك; tested). Web fonts: Google weights 400;700; files = the Arabic and Latin
+  subsets of Google Fonts. Google serves one variable file for both weights of Vazirmatn, Noto Sans/Naskh Arabic,
+  Cairo, El Messiri and Reem Kufi: shipped once as `<dir>-<subset>.woff2` with `font-weight: 400 700`; the static
+  fonts as `<dir>-<weight>-<subset>.woff2`.
+- `fonts: { list?, extend?, loading?: 'google' | 'self-hosted' | 'none', selfHostedBaseUrl?, googleFontsUrl? }` in
+  `NgxEditorConfig` and as `Editor` option. `resolveFonts(global, instance)`: every field instance › global › default;
+  list = instance list › global list › built-ins; `extend` is appended (the global `extend` only when the instance has
+  no list); strings in `list`/`extend` are ids of built-in fonts (unknown ids skipped); a later font with the same id
+  replaces the earlier one in its place. `NgxEditorService.getFonts(editor)`.
+- Loading (`fonts/loader.ts`, `loadFonts(document, resolved)`, service `NgxEditorFontLoader` with `DOCUMENT`, so on
+  the server the element is rendered into the page): `google` → one `<link rel="stylesheet">` to
+  `googleFontsUrl?family=Name:wght@400;700&…&display=swap` (fonts with `google`); `self-hosted` → one `<style>` with
+  `@font-face` per file (`font-display: swap`, `unicode-range`, `format()` from the extension) relative to
+  `selfHostedBaseUrl` (default `/assets/ngx-editor-fonts/`; absolute paths and urls kept); `none` → nothing. Values
+  are escaped/validated so they cannot leave the rule. Once per document: the elements carry
+  `data-ngx-editor-fonts` (ids) and `data-ngx-editor-fonts-source` (mode + url); fonts already loaded with the same
+  source are skipped (also elements rendered by the server, so hydration adds nothing), new fonts get one more
+  element. Lazily: when `<ngx-font-family>` initialises (all fonts of the editor, the labels need them) and when the
+  editor component sees a `font_family` mark in the document (on init and on doc changes until loaded). An editor
+  that uses no fonts loads nothing. Browsers download a file only when its glyphs are rendered.
+- Package: the files and each `OFL.txt` live in `projects/ngx-editor/fonts/<dir>/` and are an ng-packagr asset
+  (`fonts/` in the package, about 1.7 MB); apps copy them with
+  `{ "glob": "**/*", "input": "node_modules/ngx-editor-rtl-ltr-edition/fonts", "output": "assets/ngx-editor-fonts" }`.
+  The demo uses `projects/ngx-editor/fonts` as input and `loading: 'self-hosted'`, so it works offline.
+- Exported HTML: the inline `font-family` keeps the font; the page showing it must load the fonts (the loader,
+  `buildFontFaceCss`, `buildGoogleFontsUrl` or its own CSS). `styles/content.css` needs no rule.
+- OFL texts in `LICENSES/fonts/<Font>-OFL.txt`, summary in `THIRD_PARTY_NOTICES.md` (copied into the package by
+  `scripts/postbuild.js`).
 
 ## 5. Images
 

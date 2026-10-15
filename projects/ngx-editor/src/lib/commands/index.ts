@@ -14,6 +14,7 @@ import Indent from './Indent';
 import History from './History';
 import Table from './table';
 import TextDirection from './TextDirection';
+import FontFamily from './FontFamily';
 
 
 export const STRONG = new Mark('strong');
@@ -48,6 +49,7 @@ export const IMAGE = new Image();
 export const TABLE = new Table();
 export const TEXT_COLOR = new TextColor('text_color', 'color');
 export const TEXT_BACKGROUND_COLOR = new TextColor('text_background_color', 'backgroundColor');
+export const FONT_FAMILY = new FontFamily();
 export const INDENT = new Indent('increase');
 export const OUTDENT = new Indent('decrease');
 export const SUPERSCRIPT = new Mark('sup');

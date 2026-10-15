@@ -31,6 +31,8 @@ const locals: NgxEditorLocals = {
   dir_auto: 'اتجاه النص التلقائي',
   text_color: 'لون النص',
   background_color: 'لون الخلفية',
+  font_family: 'الخط',
+  defaultFont: 'الخط الافتراضي',
   horizontal_rule: 'خط أفقي',
   format_clear: 'مسح كافة التنسيقات',
   insertLink: 'إدراج رابط',

@@ -27,6 +27,7 @@ const TOOLBAR_KEYS: Record<TBItems, string[]> = {
   ],
   text_color: ['text_color', 'remove'],
   background_color: ['background_color', 'remove'],
+  font_family: ['font_family', 'defaultFont'],
   align_left: ['align_left'],
   align_center: ['align_center'],
   align_right: ['align_right'],

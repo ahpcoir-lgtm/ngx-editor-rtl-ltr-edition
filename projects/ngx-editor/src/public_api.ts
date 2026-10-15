@@ -28,3 +28,15 @@ export {
 export type { TableMenuCommand } from './lib/commands/TableCommands';
 export type { TableInsertOptions } from './lib/commands/table';
 export { tableColumnResizing, tableRtlNavigation } from './lib/plugins/table-rtl';
+
+// fonts
+export type {
+  NgxEditorFont, NgxEditorFontCategory, NgxEditorFontFile, NgxEditorFontLoading, NgxEditorFontsConfig,
+  NgxEditorResolvedFonts,
+} from './lib/fonts/types';
+export { NGX_EDITOR_FONTS, NGX_EDITOR_SYSTEM_FONTS, NGX_EDITOR_WEB_FONTS } from './lib/fonts/built-in';
+export {
+  DEFAULT_GOOGLE_FONTS_URL, DEFAULT_SELF_HOSTED_BASE_URL, findFont, getFontLabel, resolveFonts,
+} from './lib/fonts/config';
+export { NgxEditorFontLoader, buildFontFaceCss, buildGoogleFontsUrl, loadFonts } from './lib/fonts/loader';
+export { fontFamilyPaste } from './lib/plugins/font-family';

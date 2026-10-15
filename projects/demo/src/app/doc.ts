@@ -227,6 +227,24 @@ export default {
       ],
     },
     {
+      type: 'paragraph',
+      attrs: {
+        align: null,
+      },
+      content: [
+        {
+          type: 'text',
+          marks: [
+            {
+              type: 'font_family',
+              attrs: { family: 'Vazirmatn, sans-serif' },
+            },
+          ],
+          text: 'این سطر با قلم وزیرمتن نوشته شده است؛ قلم هر بخش از متن را از منوی «قلم» (Font) انتخاب کنید.',
+        },
+      ],
+    },
+    {
       type: 'bullet_list',
       attrs: {
         dir: 'rtl',

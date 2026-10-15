@@ -49,6 +49,15 @@ describe('EditorComponent', () => {
     expect(compiled.query(By.css('.NgxEditor__MenuBar'))).toBeTruthy();
   });
 
+  it('should show the font menu and load the self-hosted fonts', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.querySelector('ngx-font-family')).toBeTruthy();
+    expect(element.querySelector('.NgxEditor__Content span[style*="Vazirmatn"]')).toBeTruthy();
+
+    const style = document.head.querySelector('style[data-ngx-editor-fonts]');
+    expect(style?.textContent).toContain('url("/assets/ngx-editor-fonts/vazirmatn/vazirmatn-arabic.woff2")');
+  });
+
   describe('direction and language', () => {
     const query = (selector: string): HTMLElement => fixture.nativeElement.querySelector(selector);
 
