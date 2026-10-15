@@ -25,6 +25,7 @@ import { LinkComponent } from './link/link.component';
 import { MenuService } from './menu.service';
 import { ToggleCommandComponent } from './toggle-command/toggle-command.component';
 import { TableComponent } from './table/table.component';
+import { VideoComponent } from './video/video.component';
 
 /** the items of the table dropdown in the built-in toolbars */
 export const TABLE_DROPDOWN_ITEMS: TBTableItems[] = [
@@ -150,6 +151,7 @@ const DEFAULT_COLOR_PRESETS = [
     LinkComponent,
     ImageComponent,
     TableComponent,
+    VideoComponent,
   ],
 })
 export class NgxEditorMenuComponent implements OnInit, AfterViewChecked {

@@ -1,5 +1,8 @@
-/** what the url is used for: `link` allows `mailto:` and `tel:`, `image` allows `blob:` and raster `data:` urls */
-export type SanitizeUrlKind = 'link' | 'image';
+/**
+ * what the url is used for: `link` allows `mailto:` and `tel:`, `image` allows `blob:` and raster `data:` urls,
+ * `media` (the file of a video) allows `blob:` and no `data:` urls
+ */
+export type SanitizeUrlKind = 'link' | 'image' | 'media';
 
 // tab, line feed and carriage return are removed by the url parser of the browsers ("java\tscript:" runs), so they
 // are removed here too; any other control character (C0, DEL, C1) or a bidi override rejects the url
@@ -13,14 +16,15 @@ const DATA_IMAGE = /^data:image\/(?:png|jpe?g|gif|webp|avif|bmp);base64,[a-z\d+/
 
 const LINK_SCHEMES = new Set(['http', 'https', 'mailto', 'tel']);
 const IMAGE_SCHEMES = new Set(['http', 'https', 'blob']);
+const SCHEMES: Record<SanitizeUrlKind, Set<string>> = { link: LINK_SCHEMES, image: IMAGE_SCHEMES, media: IMAGE_SCHEMES };
 
 /**
  * The url when it is safe to write into the document, else `null`.
  *
  * Allowed: `http(s):`, protocol-relative (`//host/…`) and relative urls (paths, `?query`, `#hash`); for links also
  * `mailto:` and `tel:`; for images also `blob:` (while an upload runs) and base64 `data:` urls of raster images
- * (png, jpeg, gif, webp, avif, bmp). Everything else is rejected: `javascript:`, `vbscript:`, `data:text/html`,
- * `data:image/svg+xml`, unknown schemes.
+ * (png, jpeg, gif, webp, avif, bmp); for media `blob:`. Everything else is rejected: `javascript:`, `vbscript:`,
+ * `data:text/html`, `data:image/svg+xml`, unknown schemes.
  */
 export const sanitizeUrl = (url: unknown, kind: SanitizeUrlKind = 'link'): string | null => {
   if (typeof url !== 'string') {
@@ -43,8 +47,7 @@ export const sanitizeUrl = (url: unknown, kind: SanitizeUrlKind = 'link'): strin
     return DATA_IMAGE.test(value) ? value : null;
   }
 
-  const allowed = kind === 'image' ? IMAGE_SCHEMES : LINK_SCHEMES;
-  return allowed.has(scheme) ? value : null;
+  return (SCHEMES[kind] ?? LINK_SCHEMES).has(scheme) ? value : null;
 };
 
 export default sanitizeUrl;

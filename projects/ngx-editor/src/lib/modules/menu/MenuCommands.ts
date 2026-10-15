@@ -43,6 +43,7 @@ export const InsertCommands: Record<string, InsertCommand> = {
 
 export const Link = Commands.LINK;
 export const Image = Commands.IMAGE;
+export const Video = Commands.VIDEO;
 export const Table = Commands.TABLE;
 export const TextColor = Commands.TEXT_COLOR;
 export const TextBackgroundColor = Commands.TEXT_BACKGROUND_COLOR;

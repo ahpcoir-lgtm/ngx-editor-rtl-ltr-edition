@@ -1,6 +1,7 @@
 /** what the upload handler gets with each file */
 export interface NgxEditorUploadContext {
-  kind: 'image';
+  /** `'video'` for the upload handler of the `video` config */
+  kind: 'image' | 'video';
   /** reports the progress of the upload, 0 – 100; the placeholder shows it */
   onProgress: (percent: number) => void;
   /** aborted when the placeholder is removed from the document, the upload is cancelled or the editor destroyed */

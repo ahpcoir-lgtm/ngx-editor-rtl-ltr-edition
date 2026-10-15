@@ -1,0 +1,36 @@
+.NgxEditor__VideoPopup {
+  min-width: 280px;
+  max-width: min(420px, 90vw);
+}
+
+.NgxEditor__VideoPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-block-start: 4px;
+  font-size: 85%;
+
+  code {
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+}
+
+.NgxEditor__VideoNote {
+  margin: 0;
+  padding: 8px;
+  font-size: 85%;
+  border: 1px dashed var(--ngx-editor-border-color);
+  border-radius: var(--ngx-editor-popup-border-radius);
+}
+
+.NgxEditor__VideoFile {
+  margin-block: 4px;
+  font-size: 85%;
+  overflow-wrap: anywhere;
+}
+
+.NgxEditor__ImageDrop--Disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

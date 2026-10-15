@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { LinkOptions } from './modules/menu/link/link.component';
 import type { NgxEditorFontsConfig } from './fonts/types';
 import type { NgxEditorImageConfig } from './images/types';
+import type { NgxEditorVideoConfig } from './video/types';
 
 export type TBHeadingItems = 'paragraph' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 export type TBTableItems='addColumnBefore'
@@ -47,6 +48,7 @@ export type TBItems = 'bold'
 | 'task_list'
 | 'link'
 | 'image'
+| 'video'
 | 'table'
 | 'text_color'
 | 'background_color'
@@ -91,4 +93,6 @@ export interface NgxEditorConfig {
   fonts?: NgxEditorFontsConfig;
   /** image upload (handler, limits, resizing); the `image` option of an `Editor` wins per field */
   image?: NgxEditorImageConfig;
+  /** allowed embed hosts, YouTube privacy mode and video upload; the `video` option of an `Editor` wins per field */
+  video?: NgxEditorVideoConfig;
 }

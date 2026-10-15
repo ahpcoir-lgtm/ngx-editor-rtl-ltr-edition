@@ -19,6 +19,10 @@ import type { NgxEditorEvent } from './events';
 import { resolveImageConfig } from './images/config';
 import type { NgxEditorImageConfig, NgxEditorResolvedImageConfig } from './images/types';
 import imageUpload from './plugins/image-upload';
+import { resolveVideoConfig } from './video/config';
+import type { NgxEditorResolvedVideoConfig, NgxEditorVideoConfig } from './video/types';
+import videoEmbed from './plugins/video-embed';
+import videoUpload from './plugins/video-upload';
 
 type JSONDoc = Record<string, unknown>;
 type Content = HTML | null | JSONDoc;
@@ -44,6 +48,8 @@ interface Options {
   fonts?: NgxEditorFontsConfig;
   /** image upload, limits and resizing of this editor, over the global `image` config */
   image?: NgxEditorImageConfig;
+  /** allowed embed hosts and video upload of this editor, over the global `video` config */
+  video?: NgxEditorVideoConfig;
 }
 
 export type EditorOptions = Options;
@@ -67,6 +73,10 @@ interface EditorFeatures {
   directionShortcuts?: boolean;
   /** paste and drop of image files upload or embed them (`image` option) */
   imageUpload?: boolean;
+  /** paste and drop of video files upload them (`video` option) */
+  videoUpload?: boolean;
+  /** the node view of videos: the player under an overlay that selects it, and the video toolbar */
+  videoView?: boolean;
 }
 
 const defaultFeatures = {
@@ -74,6 +84,8 @@ const defaultFeatures = {
   resizeImage: true,
   directionShortcuts: true,
   imageUpload: true,
+  videoUpload: true,
+  videoView: true,
 };
 
 const DEFAULT_OPTIONS: Options = {
@@ -105,6 +117,7 @@ class Editor {
 
   // set by the editor component: the global `image` config and the strings of the configured locale
   private globalImageConfig: NgxEditorImageConfig | null = null;
+  private globalVideoConfig: NgxEditorVideoConfig | null = null;
   private translate: (key: string) => string = englishString;
 
   /** upload events, such as `imageUploaded`, `imageUploadError` and `imageUploadWarning` */
@@ -115,6 +128,11 @@ class Editor {
   /** the image options of this editor merged with the global config and the defaults */
   get imageConfig(): NgxEditorResolvedImageConfig {
     return resolveImageConfig(this.globalImageConfig, this.options.image);
+  }
+
+  /** the video options of this editor merged with the global config and the defaults */
+  get videoConfig(): NgxEditorResolvedVideoConfig {
+    return resolveVideoConfig(this.globalVideoConfig, this.options.video);
   }
 
   get valueChanges(): Observable<JSONDoc> {
@@ -203,6 +221,18 @@ class Editor {
       }));
     }
 
+    if (schema.nodes['video']) {
+      defaultPlugins.push(videoEmbed(schema, { getConfig: () => this.videoConfig }));
+
+      if (this.features.videoUpload) {
+        defaultPlugins.push(videoUpload({
+          getConfig: () => this.videoConfig,
+          translate: (key) => this.translate(key),
+          emit: (event) => this.eventsSubject.next(event),
+        }));
+      }
+    }
+
     this.view = new EditorView(null, {
       state: EditorState.create({
         doc,
@@ -287,13 +317,15 @@ class Editor {
   }
 }
 
-// internal, used by the editor component: the global image config and the locale's strings for the upload messages
+// internal, used by the editor component: the global image and video config and the locale's strings for the upload
+// messages
 export const configureEditorContext = (
   editor: Editor,
-  context: { image?: NgxEditorImageConfig | null; translate?: (key: string) => string },
+  context: { image?: NgxEditorImageConfig | null; video?: NgxEditorVideoConfig | null; translate?: (key: string) => string },
 ): void => {
   /* eslint-disable @typescript-eslint/dot-notation */
   editor['globalImageConfig'] = context.image ?? null;
+  editor['globalVideoConfig'] = context.video ?? null;
   const { translate } = context;
   editor['translate'] = translate ? (key: string) => translate(key) || englishString(key) : englishString;
   /* eslint-enable @typescript-eslint/dot-notation */

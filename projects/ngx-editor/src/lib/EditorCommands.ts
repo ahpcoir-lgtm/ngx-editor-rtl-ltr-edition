@@ -20,6 +20,9 @@ import TextDirectionCommand, { setTextDirection, TextDirectionValue } from './co
 import {
   deleteImage, setImageAlign, setImageAttrs, setImageCaption, setImageLink,
 } from './commands/ImageCommands';
+import {
+  type VideoInsertAttrs, deleteVideo, insertVideoUrl, setVideoAlign, setVideoAttrs, setVideoCaption, setVideoWidth,
+} from './commands/VideoCommands';
 import type { ImageAlign } from 'ngx-editor-rtl-ltr-edition/schema';
 
 import { HTML, parseHTML } from './trustedTypesUtil';
@@ -242,6 +245,41 @@ class EditorCommands {
 
   deleteImage(): this {
     deleteImage()(this.state, this.dispatch);
+    return this;
+  }
+
+  // the video of a YouTube, Vimeo or Aparat link (or another allowed host), checked with the editor's `video` config
+  insertVideo(url: string, attrs: VideoInsertAttrs = {}): this {
+    insertVideoUrl(url, attrs)(this.state, this.dispatch);
+    return this;
+  }
+
+  // the selected video: `start`, `center`, `end` or `null`
+  setVideoAlign(align: ImageAlign | null): this {
+    setVideoAlign(align)(this.state, this.dispatch);
+    return this;
+  }
+
+  // the width of the selected video (`50%`, `480px`), `null` for the full width
+  setVideoWidth(width: string | null): this {
+    setVideoWidth(width)(this.state, this.dispatch);
+    return this;
+  }
+
+  // the caption of the selected video, `null` removes it
+  setVideoCaption(caption: string | null): this {
+    setVideoCaption(caption)(this.state, this.dispatch);
+    return this;
+  }
+
+  // sets attributes of the selected video, such as `poster` or `ratio`
+  updateVideo(attrs: Record<string, unknown>): this {
+    setVideoAttrs(attrs)(this.state, this.dispatch);
+    return this;
+  }
+
+  deleteVideo(): this {
+    deleteVideo()(this.state, this.dispatch);
     return this;
   }
 

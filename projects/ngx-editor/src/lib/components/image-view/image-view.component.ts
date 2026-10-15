@@ -55,7 +55,7 @@ interface ToolbarButton {
 @Component({
   selector: 'ngx-image-view',
   templateUrl: './image-view.component.html',
-  styleUrls: ['./image-view.component.scss'],
+  styleUrls: ['../media-toolbar.scss', './image-view.component.scss'],
   // `Default` instead of `Eager`: the Angular 19-21 linker only knows `Default` (both mean check-always)
   changeDetection: ChangeDetectionStrategy.Default,
   imports: [CommonModule, AsyncPipe, SanitizeHtmlPipe],

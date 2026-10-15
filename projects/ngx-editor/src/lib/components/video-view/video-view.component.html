@@ -1,0 +1,135 @@
+<div class="NgxEditor__VideoFrame" [class.NgxEditor__VideoFrame--Active]="selected()" [style.aspect-ratio]="aspectRatio()" #frame>
+  @if (kind() === 'file') {
+    @if (fileSrc(); as file) {
+      <video controls preload="metadata" [src]="file" [attr.poster]="posterSrc()"></video>
+    }
+  } @else if (embedSrc(); as embed) {
+    <iframe
+      [src]="embed"
+      [title]="iframeTitle"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowfullscreen
+      loading="lazy"
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
+  }
+
+  <!-- takes the clicks while the video is not selected, so a click selects it instead of playing it -->
+  @if (showOverlay) {
+    <div class="NgxEditor__VideoOverlay" aria-hidden="true"></div>
+  }
+
+  @if (showToolbar) {
+    <!-- on the inline-end edge: right in left to right text, left in right to left text -->
+    <span
+      class="NgxEditor__VideoResize"
+      role="slider"
+      tabindex="0"
+      aria-valuemin="10"
+      aria-valuemax="100"
+      [attr.aria-valuenow]="widthPercent"
+      [attr.aria-valuetext]="widthPercent + '%'"
+      [title]="getLabel('resizeVideo') | async"
+      [attr.aria-label]="getLabel('resizeVideo') | async"
+      (mousedown)="startResizing($event)"
+      (keydown)="onResizeKeydown($event)"
+    ></span>
+  }
+</div>
+@if (caption()) {
+  <span class="NgxEditor__VideoCaption">{{ caption() }}</span>
+}
+
+@if (showToolbar) {
+  <span
+    class="NgxEditor__VideoToolbar NgxEditor__ImageToolbar"
+    contenteditable="false"
+    role="toolbar"
+    tabindex="-1"
+    [attr.aria-label]="getLabel('videoToolbar') | async"
+    (keydown)="onToolbarKeydown($event)"
+  >
+    <span class="NgxEditor__ImageToolbar--Buttons">
+      @for (button of alignButtons; track button.key) {
+        <button
+          type="button"
+          class="NgxEditor__ImageToolbar--Button"
+          [class.NgxEditor__MenuItem--Mirror]="isMirrored(button.icon)"
+          [class.NgxEditor__ImageToolbar--Active]="button.pressed()"
+          [attr.aria-pressed]="button.pressed()"
+          [title]="button.label | async"
+          [attr.aria-label]="button.label | async"
+          [innerHTML]="getIcon(button.icon ?? '') | sanitizeHtml"
+          (mousedown)="$event.preventDefault()"
+          (click)="button.run()"
+        ></button>
+      }
+      <span class="NgxEditor__ImageToolbar--Separator"></span>
+      @for (button of widthButtons; track button.key) {
+        <button
+          type="button"
+          class="NgxEditor__ImageToolbar--Button NgxEditor__VideoToolbar--Width"
+          dir="ltr"
+          [class.NgxEditor__ImageToolbar--Active]="button.pressed()"
+          [attr.aria-pressed]="button.pressed()"
+          [title]="button.label | async"
+          [attr.aria-label]="button.label | async"
+          (mousedown)="$event.preventDefault()"
+          (click)="button.run()"
+        >
+          {{ button.text }}
+        </button>
+      }
+      <span class="NgxEditor__ImageToolbar--Separator"></span>
+      @for (button of panelButtons; track button.key) {
+        <button
+          type="button"
+          class="NgxEditor__ImageToolbar--Button"
+          [class.NgxEditor__ImageToolbar--Active]="button.pressed()"
+          [attr.aria-pressed]="button.panel ? button.pressed() : null"
+          [attr.aria-expanded]="button.panel ? panel === button.panel : null"
+          [title]="button.label | async"
+          [attr.aria-label]="button.label | async"
+          [innerHTML]="getIcon(button.icon ?? '') | sanitizeHtml"
+          (mousedown)="$event.preventDefault()"
+          (click)="button.run()"
+        ></button>
+      }
+    </span>
+
+    @if (panel) {
+      <span class="NgxEditor__ImageToolbar--Panel">
+        <input
+          class="NgxEditor__ImageToolbar--Input"
+          [type]="panel === 'replace' ? 'url' : 'text'"
+          [attr.dir]="panel === 'replace' ? 'ltr' : null"
+          [value]="panelValue"
+          [attr.aria-label]="getLabel(panel === 'replace' ? 'videoUrl' : 'videoCaption') | async"
+          [attr.placeholder]="getLabel(panel === 'replace' ? 'videoUrl' : 'videoCaption') | async"
+          [attr.aria-invalid]="error ? true : null"
+          autocomplete="off"
+          (input)="onPanelInput($event)"
+          (keydown)="onPanelKeydown($event)"
+        />
+        <button type="button" class="NgxEditor__ImageToolbar--Apply" (click)="applyPanel()">
+          {{ getLabel('apply') | async }}
+        </button>
+        @if (panel === 'caption' && caption()) {
+          <button type="button" class="NgxEditor__ImageToolbar--Apply" (click)="removeCaption()">
+            {{ getLabel('removeCaption') | async }}
+          </button>
+        }
+        @if (panel === 'replace' && canUpload) {
+          <label class="NgxEditor__ImageToolbar--Apply NgxEditor__ImageToolbar--File">
+            {{ getLabel('videoUploadTab') | async }}
+            <input type="file" [attr.accept]="accept || null" (change)="onReplaceFile($event)" />
+          </label>
+        }
+        @if (error) {
+          <span class="NgxEditor__HelpText NgxEditor__HelpText--Error" role="alert">{{ error }}</span>
+        }
+      </span>
+    }
+  </span>
+}

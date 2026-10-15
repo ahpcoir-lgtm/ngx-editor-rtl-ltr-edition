@@ -153,6 +153,33 @@ corners. Every image and link URL goes through `sanitizeUrl` (`ngx-editor-rtl-lt
 `data:text/*` and SVG data URLs are dropped. Add `styles/content.css` to pages that show the HTML, for aligned and
 captioned images.
 
+## Videos
+
+Add the `video` toolbar item. Its dialog embeds YouTube (`watch`, `youtu.be`, `shorts`, `live`, start times;
+privacy-enhanced `youtube-nocookie.com` by default), Vimeo and Aparat links or pasted embed code, with a live preview,
+and uploads video files:
+
+```ts
+provideNgxEditorConfig({
+  video: {
+    allowedHosts: [...DEFAULT_VIDEO_HOSTS, 'video.example.com'], // any other https host must be listed
+    youtubeNoCookie: true,
+    // same signature as the image handler; ctx.kind === 'video'
+    uploadHandler: async (file, { onProgress, signal }) => ({ src: 'https://cdn.example.com/a.mp4' }),
+    maxSize: 200 * 1024 * 1024,
+    accept: ['video/mp4', 'video/webm'],
+  },
+});
+// or new Editor({ video: { ... } }); editor.events emits videoUploadStart/Progress, videoUploaded, videoUploadError …
+```
+
+Videos are written as `<figure data-type="video">` with a responsive 16:9 frame. Pasted `<iframe>` code is kept only for
+allowed hosts. Video upload needs its own `uploadHandler` (the image handler is not used, and there is no data URL
+fallback); without one the Upload tab explains that it is not available. Click a video to select it (a second click
+plays it): the toolbar aligns it, sets its width (25 – 100 %, or drag / arrow keys on the handle), edits the caption,
+replaces or deletes it. `normalizeVideoUrl` is exported from `ngx-editor-rtl-ltr-edition/utils`; `styles/content.css`
+renders exported videos.
+
 ## Browser Compatibility
 
 Mostly works on all Evergreen-Browsers like

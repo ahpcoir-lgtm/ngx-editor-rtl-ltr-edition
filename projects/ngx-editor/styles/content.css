@@ -196,3 +196,48 @@
   font-size: 90%;
   text-align: center;
 }
+
+/* ---- videos ---- */
+
+/* `<figure data-type="video"><div class="ngx-video__frame"><iframe | video></div><figcaption>`; the frame keeps the
+   ratio of its inline `aspect-ratio` (16 / 9 by default) at any width */
+.ngx-editor-content figure[data-type='video'] {
+  max-width: 100%;
+  margin-block: 1em;
+  margin-inline: 0;
+}
+
+.ngx-editor-content figure[data-type='video'][data-align='start'] {
+  float: inline-start;
+  margin-inline-end: 1em;
+}
+
+.ngx-editor-content figure[data-type='video'][data-align='end'] {
+  float: inline-end;
+  margin-inline-start: 1em;
+}
+
+.ngx-editor-content figure[data-type='video'][data-align='center'] {
+  margin-inline: auto;
+}
+
+.ngx-editor-content figure[data-type='video'] .ngx-video__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.ngx-editor-content figure[data-type='video'] iframe,
+.ngx-editor-content figure[data-type='video'] video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ngx-editor-content figure[data-type='video'] figcaption {
+  padding-block: 4px;
+  font-size: 90%;
+  text-align: center;
+}

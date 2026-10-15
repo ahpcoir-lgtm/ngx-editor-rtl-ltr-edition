@@ -12,6 +12,8 @@ import { resolveFonts } from './fonts/config';
 import type { NgxEditorResolvedFonts } from './fonts/types';
 import { resolveImageConfig } from './images/config';
 import type { NgxEditorResolvedImageConfig } from './images/types';
+import { resolveVideoConfig } from './video/config';
+import type { NgxEditorResolvedVideoConfig } from './video/types';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +46,11 @@ export class NgxEditorService {
     return resolveImageConfig(this.config?.image, editor?.config.image);
   }
 
+  /** the video options of an editor: its `video` option over the global config over the defaults */
+  getVideoConfig(editor?: Editor | null): NgxEditorResolvedVideoConfig {
+    return resolveVideoConfig(this.config?.video, editor?.config.video);
+  }
+
   /** the string of a locale key now (an observable override that has not emitted yet gives the English string) */
   translate(key: string): string {
     let text = '';
@@ -67,5 +74,6 @@ export const provideMyServiceOptions = (config?: NgxEditorConfig): NgxEditorServ
     dir: config?.dir,
     fonts: config?.fonts,
     image: config?.image,
+    video: config?.video,
   };
 };

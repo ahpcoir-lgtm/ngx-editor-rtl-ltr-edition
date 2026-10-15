@@ -193,6 +193,10 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
       editor.registerPlugin(plugins.imageResize(this.injector));
     }
 
+    if (editor.schema.nodes['video'] && editor.features.videoView) {
+      editor.registerPlugin(plugins.videoView(this.injector));
+    }
+
     if (editor.features.linkOnPaste) {
       editor.registerPlugin(plugins.linkify());
     }
@@ -225,6 +229,7 @@ export class NgxEditorComponent implements ControlValueAccessor, OnInit, OnChang
 
     configureEditorContext(editor, {
       image: this.ngxeService.config?.image,
+      video: this.ngxeService.config?.video,
       translate: (key) => this.ngxeService.translate(key),
     });
 

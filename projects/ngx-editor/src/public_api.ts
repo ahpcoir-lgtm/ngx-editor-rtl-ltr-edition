@@ -65,3 +65,26 @@ export type { ImageTarget } from './lib/commands/ImageCommands';
 export type { ImageAttrs } from './lib/commands/Image';
 export { computeResizeWidth } from './lib/components/image-view/image-view.component';
 export type { ImageViewAction, ResizeDrag } from './lib/components/image-view/image-view.component';
+
+// videos
+export type {
+  NgxEditorResolvedVideoConfig, NgxEditorVideoConfig, NgxEditorVideoError, NgxEditorVideoErrorCode,
+  NgxEditorVideoUploadHandler, NgxEditorVideoUploadResult,
+} from './lib/video/types';
+export {
+  DEFAULT_VIDEO_ACCEPT, getVideoUrlError, normalizeConfiguredVideoUrl, resolveVideoConfig,
+} from './lib/video/config';
+export {
+  cancelVideoUpload, getVideoUploadPlaceholders, uploadVideoFiles, videoUpload, videoUploadKey,
+} from './lib/plugins/video-upload';
+export type { VideoUploadOptions, VideoUploadTarget } from './lib/plugins/video-upload';
+export { createVideoClipboardParser, getVideoConfig, videoEmbed, videoEmbedKey } from './lib/plugins/video-embed';
+export type { VideoEmbedOptions } from './lib/plugins/video-embed';
+export {
+  deleteVideo, getVideoTarget, insertVideo, insertVideoUrl, isVideoSelected, setVideoAlign, setVideoAttrs,
+  setVideoCaption, setVideoUrl, setVideoWidth,
+} from './lib/commands/VideoCommands';
+export type { VideoInsertAttrs, VideoTarget } from './lib/commands/VideoCommands';
+export { VideoViewComponent, VIDEO_WIDTH_PRESETS, toWidthPercent } from './lib/components/video-view/video-view.component';
+export type { VideoViewAction } from './lib/components/video-view/video-view.component';
+export { default as videoView } from './lib/plugins/video-view';

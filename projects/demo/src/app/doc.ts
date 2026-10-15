@@ -469,5 +469,57 @@ export default {
         href: null,
       },
     },
+    {
+      type: 'paragraph',
+      content: [
+        {
+          type: 'text',
+          text: 'Videos: paste a YouTube, Vimeo or Aparat link (or embed code) in the video dialog, or upload a video file. Click a video to select it: the toolbar aligns it, sets its width (or drag the handle on its inline-end edge), adds a caption, replaces or deletes it. Click it again to play it.',
+        },
+      ],
+    },
+    {
+      type: 'video',
+      attrs: {
+        kind: 'embed',
+        src: 'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ',
+        provider: 'youtube',
+        width: null,
+        align: null,
+        poster: null,
+        caption: 'Big Buck Bunny on YouTube (privacy-enhanced mode)',
+        ratio: '16/9',
+      },
+    },
+    {
+      type: 'video',
+      attrs: {
+        kind: 'embed',
+        src: 'https://player.vimeo.com/video/76979871',
+        provider: 'vimeo',
+        width: '50%',
+        align: 'center',
+        poster: null,
+        caption: 'A Vimeo video, 50% wide and centered',
+        ratio: '16/9',
+      },
+    },
+    {
+      type: 'video',
+      attrs: {
+        kind: 'embed',
+        src: 'https://www.aparat.com/video/video/embed/videohash/pRQCm/vt/frame',
+        provider: 'aparat',
+        width: '75%',
+        align: null,
+        poster: null,
+        caption: 'ویدیوی آپارات',
+        ratio: '16/9',
+      },
+    },
+    {
+      type: 'paragraph',
+      content: [{ type: 'text', text: 'The end.' }],
+    },
   ],
 };

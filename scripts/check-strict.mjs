@@ -80,6 +80,21 @@ const FORK_OWNED = [
   'projects/ngx-editor/src/lib/icons/delete.ts',
   'projects/ngx-editor/src/lib/icons/upload.ts',
   'projects/ngx-editor/src/lib/editor.component.images.spec.ts',
+  // 6. video
+  'projects/ngx-editor/utils/videoUrl.ts',
+  'projects/ngx-editor/utils/videoUrl.spec.ts',
+  'projects/ngx-editor/schema/video.ts',
+  'projects/ngx-editor/schema/video.spec.ts',
+  'projects/ngx-editor/src/lib/video/**',
+  'projects/ngx-editor/src/lib/commands/Video.ts',
+  'projects/ngx-editor/src/lib/commands/VideoCommands.ts',
+  'projects/ngx-editor/src/lib/commands/VideoCommands.spec.ts',
+  'projects/ngx-editor/src/lib/plugins/video-*.ts',
+  'projects/ngx-editor/src/lib/components/video-view/**',
+  'projects/ngx-editor/src/lib/components/media-toolbar.scss',
+  'projects/ngx-editor/src/lib/modules/menu/video/**',
+  'projects/ngx-editor/src/lib/icons/video.ts',
+  'projects/ngx-editor/src/lib/editor.component.videos.spec.ts',
 ];
 
 // the library sources and their specs, each checked with its own tsconfig

@@ -15,6 +15,7 @@ import History from './History';
 import Table from './table';
 import TextDirection from './TextDirection';
 import FontFamily from './FontFamily';
+import Video from './Video';
 
 
 export const STRONG = new Mark('strong');
@@ -46,6 +47,7 @@ export const DIR_RTL = new TextDirection('rtl');
 export const DIR_AUTO = new TextDirection('auto');
 export const LINK = new Link();
 export const IMAGE = new Image();
+export const VIDEO = new Video();
 export const TABLE = new Table();
 export const TEXT_COLOR = new TextColor('text_color', 'color');
 export const TEXT_BACKGROUND_COLOR = new TextColor('text_background_color', 'backgroundColor');

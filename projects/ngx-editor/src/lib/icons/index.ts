@@ -38,6 +38,7 @@ import imageCaption from './image_caption';
 import imageReplace from './image_replace';
 import deleteIcon from './delete';
 import upload from './upload';
+import video from './video';
 
 const DEFAULT_ICON_HEIGHT = 20;
 const DEFAULT_ICON_WIDTH = 20;
@@ -82,6 +83,7 @@ export const icons: Record<string, string> = {
   image_replace: imageReplace,
   delete: deleteIcon,
   upload,
+  video,
   path: '<path></path>',
 };
 

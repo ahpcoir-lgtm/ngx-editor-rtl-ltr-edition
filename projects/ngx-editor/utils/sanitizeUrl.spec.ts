@@ -5,7 +5,7 @@ const SCRIPT_URL = `${'javascript'}:alert(1)`;
 const PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
 describe('sanitizeUrl', () => {
-  const cases: [string, unknown, 'link' | 'image', string | null][] = [
+  const cases: [string, unknown, 'link' | 'image' | 'media', string | null][] = [
     // allowed everywhere
     ['https', 'https://example.com/a.png', 'image', 'https://example.com/a.png'],
     ['http', 'http://example.com', 'link', 'http://example.com'],
@@ -33,6 +33,13 @@ describe('sanitizeUrl', () => {
     ['avif data image', 'data:image/avif;base64,AAAA', 'image', 'data:image/avif;base64,AAAA'],
     ['bmp data image', 'data:image/bmp;base64,Qk0=', 'image', 'data:image/bmp;base64,Qk0='],
     ['data image as link', PNG, 'link', null],
+    // media (video files)
+    ['blob media', 'blob:https://example.com/0c5d', 'media', 'blob:https://example.com/0c5d'],
+    ['relative media', '/videos/a.mp4', 'media', '/videos/a.mp4'],
+    ['data media', 'data:video/mp4;base64,AAAA', 'media', null],
+    ['data image as media', PNG, 'media', null],
+    ['javascript media', SCRIPT_URL, 'media', null],
+    ['mailto media', 'mailto:a@example.com', 'media', null],
     // rejected
     ['javascript', SCRIPT_URL, 'link', null],
     ['javascript image', SCRIPT_URL, 'image', null],

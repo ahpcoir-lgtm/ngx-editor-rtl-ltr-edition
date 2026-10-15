@@ -21,6 +21,12 @@ const TOOLBAR_KEYS: Record<TBItems, string[]> = {
   task_list: ['task_list'],
   link: ['insertLink', 'removeLink', 'url', 'text', 'openInNewTab', 'insert', 'enterValidUrl', 'required'],
   image: ['insertImage', 'url', 'altText', 'title', 'insert', 'enterValidUrl', 'uploadImage', 'imageFromUrl', 'dropImages'],
+  video: [
+    'insertVideo', 'videoEmbedTab', 'videoUploadTab', 'videoUrl', 'videoUrlHelp', 'videoPreview', 'videoProviderYoutube',
+    'videoProviderVimeo', 'videoProviderAparat', 'videoProviderCustom', 'videoHostNotAllowed', 'videoInvalidUrl', 'posterUrl',
+    'videoCaption', 'dropVideo', 'videoUploadUnavailable', 'videoSelectedFile', 'videoInvalidType', 'videoTooLarge', 'insert',
+    'enterValidUrl',
+  ],
   table: [
     'insertTable', 'table', 'rows', 'rowsRequired', 'rowsMin', 'cols', 'colsRequired', 'colsMin', 'insert', 'tableSize',
     'headerRow',
@@ -99,6 +105,11 @@ const EDITOR_KEYS = [
   'imageToolbar', 'imageAlignNone', 'imageAlignStart', 'imageAlignCenter', 'imageAlignEnd', 'altText', 'imageCaption',
   'removeCaption', 'imageLink', 'removeLink', 'replaceImage', 'deleteImage', 'resizeImage', 'apply', 'url', 'uploadImage',
   'enterValidUrl',
+  // video uploads (plugins/video-upload.ts) and the toolbar of a selected video (components/video-view)
+  'uploadingVideo', 'videoTooLarge', 'videoInvalidType', 'videoUploadFailed', 'videoUploadUnavailable', 'videoToolbar',
+  'videoAlignStart', 'videoAlignCenter', 'videoAlignEnd', 'videoWidth', 'resizeVideo', 'replaceVideo', 'deleteVideo',
+  'videoCaption', 'videoUrl', 'videoUploadTab', 'videoInvalidUrl', 'videoHostNotAllowed', 'videoProviderYoutube',
+  'videoProviderVimeo', 'videoProviderAparat', 'videoProviderCustom',
 ];
 
 const lookupKeys = (): string[] => Array.from(new Set([

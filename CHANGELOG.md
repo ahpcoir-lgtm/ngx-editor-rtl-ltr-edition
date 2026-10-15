@@ -34,6 +34,10 @@ All notable changes to this project will be documented in this file.
 - images: `height` and `align` (`start` | `center` | `end`) on `image`; new block node `figure` (captioned image with `src, alt, title, width, align, caption, href`); commands `setImageAlign`, `setImageAttrs`, `setImageLink`, `setImageCaption`, `imageToFigure`, `figureToImage`, `deleteImage` (also on `EditorCommands`)
 - images: upload pipeline for the insert dialog (new Upload tab with a drop zone), paste and drop of image files: `image: { uploadHandler, maxSize, accept, resize, base64WarnSize, onError, onWarning }` globally and as `Editor` option, placeholder with progress and cancel, localized error message, `editor.events` (`imageUploadStart`, `imageUploadProgress`, `imageUploaded`, `imageUploadCancelled`, `imageUploadError`, `imageUploadWarning`), `uploadImageFiles`, `resizeImageFile`, `features.imageUpload`
 - images: toolbar on the selected image or figure (alignment, alt text, caption, link, replace, delete) with localized labels; new icons `image_inline`, `image_alt`, `image_caption`, `image_replace`, `delete`, `upload`
+- videos: new block node `video` (`kind: embed | file`, `src`, `provider`, `width`, `align`, `poster`, `caption`, `ratio`), written as `<figure data-type="video">` with a responsive 16:9 frame and an `<iframe>` or `<video>`; read from that markup, from pasted embed code (`<iframe>` of an allowed host) and from `<video src>` / `<video><source src>`
+- videos: `normalizeVideoUrl` (YouTube watch/youtu.be/shorts/embed/live/m. links with start times, privacy-enhanced youtube-nocookie.com by default; Vimeo with private hashes; Aparat), `DEFAULT_VIDEO_HOSTS`, `isVideoHostAllowed`, `isVideoEmbedAllowed`, `getVideoProvider`, `extractVideoUrl` in `ngx-editor-rtl-ltr-edition/utils`; `sanitizeUrl(url, 'media')`
+- videos: config `video: { allowedHosts, youtubeNoCookie, uploadHandler, maxSize, accept, onError }` globally and as `Editor` option; pasted HTML is checked against the configured hosts (`videoEmbed` plugin, `clipboardParser`); video file upload with placeholders and progress (`uploadVideoFiles`, paste and drop, `features.videoUpload`), events `videoUploadStart`, `videoUploadProgress`, `videoUploaded`, `videoUploadCancelled`, `videoUploadError`. There is no fallback to the image upload handler and no data url fallback
+- videos: toolbar item `video` (dialog with Embed URL and Upload File tabs, live preview, poster and caption), icon `video`; node view with a click-to-select overlay, toolbar (align, width presets, caption, replace, delete) and a keyboard-accessible resize handle on the inline-end edge (`features.videoView`); commands `insertVideo`, `insertVideoUrl`, `setVideoAttrs`, `setVideoAlign`, `setVideoWidth`, `setVideoCaption`, `setVideoUrl`, `deleteVideo` (also on `EditorCommands`)
 
 #### Bug Fixes
 
@@ -45,6 +49,7 @@ All notable changes to this project will be documented in this file.
 #### Internal
 
 - in development, `Locals.get` warns once about a key that has no English string
+- `NgxEditorUploadContext.kind` is `'image' | 'video'`; the toolbar styles of the image node view moved to `components/media-toolbar.scss`, shared with the video node view
 
 #### Changes to the emitted HTML and JSON
 
@@ -65,6 +70,7 @@ All notable changes to this project will be documented in this file.
 - links and images whose url `sanitizeUrl` rejects are no longer read or written; the JSON of images has the new attributes `height` and `align`
 - the URL tab of the image dialog accepts relative urls (`/img/a.png`) and rejects unsafe ones (it used a domain pattern)
 - with a font menu, or a document that uses a font, the editor adds a `<link>` to Google Fonts (default) or a `<style>` with `@font-face` rules to the `<head>`; editors without fonts load nothing
+- videos are written as `<figure data-type="video" data-kind data-provider data-align style>` + `<div class="ngx-video__frame" style="aspect-ratio: 16 / 9;">` + `<iframe>` / `<video>` + optional `<figcaption>`. `<iframe>` and `<video>` in loaded or pasted HTML were dropped; an `<iframe>` of a default video host and any `<video>` with a safe url are now read as a `video` node (other iframes are still dropped). The schema has the new node `video`; documents without videos are written as before
 
 ## 19.1.1 (2026-10-15)
 

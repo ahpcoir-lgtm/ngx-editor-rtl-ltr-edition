@@ -37,13 +37,17 @@ const describeEvent = (event: NgxEditorEvent): string => {
       return `${event.type}: ${event.error.code}, ${event.error.message}`;
     case 'imageUploadWarning':
       return `${event.type}: ${event.warning.message}`;
+    case 'videoUploadProgress':
+      return `${event.type}: ${event.file.name} ${event.percent}%`;
+    case 'videoUploadError':
+      return `${event.type}: ${event.error.code}, ${event.error.message}`;
     default:
       return `${event.type}: ${event.file.name}`;
   }
 };
 
-// a stand-in for a real upload: reports progress for a second and resolves to an object url of the file
-const simulateUpload = (file: File, ctx: NgxEditorUploadContext, fail: boolean): Promise<NgxEditorUploadResult> => {
+// a stand-in for a real upload: reports progress for a second and resolves to `result` (an object url of the file)
+const simulateUpload = <T>(ctx: NgxEditorUploadContext, fail: boolean, result: () => T): Promise<T> => {
   return new Promise((resolve, reject) => {
     let percent = 0;
     let timer: ReturnType<typeof setTimeout>;
@@ -57,7 +61,7 @@ const simulateUpload = (file: File, ctx: NgxEditorUploadContext, fail: boolean):
       } else if (fail) {
         reject(new Error('The demo server refused the upload'));
       } else {
-        resolve({ src: URL.createObjectURL(file), alt: file.name.replace(/\.[^.]+$/, '') });
+        resolve(result());
       }
     };
 
@@ -75,6 +79,7 @@ const TOOLBAR: Toolbar = [
   ['dir_ltr', 'dir_rtl', 'dir_auto'],
   ['indent', 'outdent'],
   ['font_family'],
+  ['video'],
 ];
 
 @Component({
@@ -178,9 +183,17 @@ export class EditorComponent implements OnInit, OnDestroy {
       fonts: { loading: 'self-hosted' },
       // uploads are simulated; a real app sends the file to its server and resolves to the url
       image: {
-        uploadHandler: (file, ctx) => simulateUpload(file, ctx, this.failUploads),
+        uploadHandler: (file, ctx) => simulateUpload<NgxEditorUploadResult>(ctx, this.failUploads, () => ({
+          src: URL.createObjectURL(file),
+          alt: file.name.replace(/.[^.]+$/, ''),
+        })),
         maxSize: 5 * 1024 * 1024,
         resize: { maxWidth: 1600, maxHeight: 1600 },
+      },
+      // YouTube (privacy mode), Vimeo and Aparat links are embedded; video files are "uploaded" as object urls
+      video: {
+        uploadHandler: (file, ctx) => simulateUpload(ctx, this.failUploads, () => URL.createObjectURL(file)),
+        maxSize: 200 * 1024 * 1024,
       },
       features: {
         linkOnPaste: true,

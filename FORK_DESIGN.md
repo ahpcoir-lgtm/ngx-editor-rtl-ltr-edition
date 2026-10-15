@@ -329,13 +329,85 @@ compatibility; correct behaviour of column resizing and cell navigation in RTL t
 
 ## 6. Video
 
-- Block atom node `video`: `kind ('embed' | 'file'), src, provider, width, align, poster, caption, ratio`.
-  `<figure data-type="video" …><div class="ngx-video__frame" style="aspect-ratio: 16 / 9"><iframe …>`
-  or `<video controls preload="metadata" …>`, optional `<figcaption>`.
-- `video: { allowedHosts?, youtubeNoCookie?, uploadHandler?, maxSize?, accept? }`. Embed URLs are
-  normalised (YouTube watch/short/youtu.be/embed + start time, Vimeo, Aparat) and accepted only for
-  allowlisted hosts; parsing an `<iframe>` from a host outside the list drops it.
-- Toolbar item `video` with an Embed / Upload dialog; media toolbar shared with images.
+- `sanitizeUrl(url, 'media')` (new kind): like `image` without `data:` urls (http/https, relative, `blob:`). Used for
+  the file of a video.
+- URL normalisation (`utils/videoUrl.ts`, exported from `ngx-editor-rtl-ltr-edition/utils`): `normalizeVideoUrl(input,
+  { allowedHosts, youtubeNoCookie })` → `{ provider, src, id, start } | null`. The input goes through `sanitizeUrl` first
+  (so `javascript:` and control characters are refused), may be embed code (`extractVideoUrl` reads the `<iframe src>`),
+  may lack a scheme (`youtu.be/ID` is read as `https:`) and must not carry credentials. YouTube: `watch?v=`,
+  `youtu.be/ID`, `shorts/`, `embed/`, `live/`, `v/`, `m.youtube.com`; the 11-character id is checked; `t=` / `start=` /
+  `#t=` in seconds or `1h2m3s` → `?start=N`; the player is `www.youtube-nocookie.com` when `youtubeNoCookie` (default
+  `true`) and that host is allowed, else `www.youtube.com`. Vimeo: `vimeo.com/ID`, `vimeo.com/ID/HASH`,
+  `player.vimeo.com/video/ID?h=` → `https://player.vimeo.com/video/ID?h=HASH` (`#t=` kept). Aparat: `aparat.com/v/HASH`,
+  `aparat.com/embed/HASH` or the player url → `https://www.aparat.com/video/video/embed/videohash/HASH/vt/frame`. Known
+  providers accept `http:` and always give `https:`; any other host must be `https:` and its url is kept as it is
+  (`custom`). The host of the link and the host of the player must both be in `allowedHosts` (exact names, or
+  `*.example.com` for subdomains). Other parameters (`si`, `list`, `feature`) are dropped; normalising a normalised url
+  gives the same url.
+- Block atom `video` (`schema/video.ts`): `kind ('embed' | 'file'), src, provider, width, align, poster, caption,
+  ratio ('16/9')` → `<figure data-type="video" data-kind data-provider? data-align? style="width + align styles">`
+  `<div class="ngx-video__frame" style="aspect-ratio: 16 / 9;">` + `<iframe src title frameborder="0" allow="…"
+  allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin">` or
+  `<video controls="" preload="metadata" src poster>`, then an optional `<figcaption>`. `width` goes through
+  `normalizeCssLength` (null = full width; the toolbar writes percentages); the alignment styles are those of images
+  (`getImageAlignStyle(align, true)`). The iframe `title` is the caption, else `YouTube video` / `Vimeo video` /
+  `Aparat video` / `Video` (exported HTML has no locale; the editor's node view uses the locale's provider names).
+  `poster` is written only for files. `toDOM` writes an embed `src` only when it is `https:` and passes `sanitizeUrl`, a
+  file `src` only through `sanitizeUrl(…, 'media')` (JSON content bypasses the parser). The ratio is read from the text
+  of the `style` attribute (not every DOM implementation knows `aspect-ratio`). The editor's own markup round-trips
+  exactly.
+- Parse rules (`createVideoParseRules(options)`): `figure[data-type=video]` (priority 60; a second rule at 59 with
+  `ignore: true` drops a refused figure with its caption instead of leaving the caption as a paragraph); a bare
+  `iframe[src]` (pasted embed code) only when `normalizeVideoUrl` accepts it with the default hosts and a known provider
+  (the YouTube host of the code is kept; `width`/`height` give the ratio); `<video src>` and `<video><source src>`.
+- **Allowlist and the static schema.** The schema cannot see the config, so its rules check the default list
+  (`DEFAULT_VIDEO_HOSTS`: youtube.com, www.youtube.com, m.youtube.com, youtu.be, www.youtube-nocookie.com, vimeo.com,
+  player.vimeo.com, aparat.com, www.aparat.com). A stored figure of an extra host is accepted when it is `https:` and
+  marked `data-provider="custom"`, so documents made with an extended list load again. The configured list is enforced
+  where foreign HTML comes in, on paste: the `videoEmbed` plugin (registered by `Editor` when the schema has `video`)
+  gives the view a `clipboardParser` built from the schema's rules with the video rules replaced by ones that use the
+  editor's `allowedHosts` and `youtubeNoCookie` (embed code of an extra host is accepted; a host left out of the list —
+  also behind a forged `data-provider="custom"` — is dropped; pasted YouTube code follows `youtubeNoCookie`). The dialog,
+  the toolbar and the commands use the configured list too. Loaded content is not filtered by the config (as with fonts):
+  a host removed from the list later does not silently delete stored videos.
+- Config `video: { allowedHosts, youtubeNoCookie, uploadHandler, maxSize, accept, onError }`, globally and as `Editor`
+  option (`resolveVideoConfig`: each field instance › global › default; `allowedHosts` replaces the default list — spread
+  `DEFAULT_VIDEO_HOSTS` to add a host; `accept` default `video/mp4, video/webm, video/ogg`). `editor.videoConfig`,
+  `NgxEditorService.getVideoConfig(editor)`, `getVideoConfig(state)`.
+- **No fallback to the image handler.** An image handler may resize, check image types or post to an image endpoint, so
+  sending videos to it silently would surprise. Video upload needs `video.uploadHandler` (the image signature,
+  `ctx.kind === 'video'`; pass one function to both to share it). There is no base64 fallback for video: without a
+  handler the Upload tab shows a localized note and no picker, and pasted or dropped video files report `noHandler`.
+- Upload (`plugins/video-upload.ts`, `features.videoUpload`): the placeholder widgets and messages of the image pipeline
+  (`images/placeholder-dom.ts`, without a preview); `accept` → `maxSize` → handler → `sanitizeUrl(…, 'media')` (result
+  `string | { src, poster }`) → a `file` video replaces the placeholder (`replaceRangeWith`, which splits a paragraph);
+  `target.attrs` carries the dialog's caption and poster; `replace` sets the file of the video at `pos`. Placeholders
+  are mapped like image placeholders, and a deleted placeholder aborts its upload. Paste (only when the clipboard has no
+  HTML) and drop of `video/*` files go through it. Events `videoUploadStart`, `videoUploadProgress`, `videoUploaded`,
+  `videoUploadCancelled`, `videoUploadError` (codes `tooLarge | invalidType | uploadFailed | invalidResult | noHandler`).
+- Commands (`commands/VideoCommands.ts`): `insertVideo(attrs)` (a player url or a file; replaces the selection and
+  selects the video), `insertVideoUrl(url, attrs, config?)` (normalised with the editor's config), `setVideoAttrs`,
+  `setVideoAlign`, `setVideoWidth`, `setVideoCaption`, `setVideoUrl`, `deleteVideo`, `getVideoTarget`,
+  `isVideoSelected`; `EditorCommands.insertVideo(url, attrs)`, `setVideoAlign`, `setVideoWidth`, `setVideoCaption`,
+  `updateVideo`, `deleteVideo`. Toolbar item `video` (`<ngx-video>`; not in the built-in toolbars), icon `video`.
+- Dialog: tabs Embed URL (text input, `dir="ltr"`, live preview of the provider and the normalised player url, or the
+  localized reason: host not allowed / not a video link) and Upload File (drop zone and focusable picker, one file,
+  checked against `accept`/`maxSize` before inserting; poster url validated with `sanitizeUrl(…, 'image')`), a caption
+  for both. A selected video opens on its tab with its values and is replaced.
+- Node view (`components/video-view`, plugin `videoView`, `features.videoView`, registered by the editor component):
+  the player in a responsive frame (`aspect-ratio`). While the editor is editable and the video is not selected, a
+  transparent overlay takes the clicks, so a click selects the node; once selected (or in a read-only editor) the player
+  gets them. The trusted iframe url is a `computed`, so change detection does not reload the player; the iframe security
+  attributes are static in the template (Angular refuses a bound `allow`). Toolbar (styles shared with images in
+  `components/media-toolbar.scss`): align start/center/end (toggles, `aria-pressed`, mirrored icons), width presets
+  25/50/75/100% (100% = no width), caption, replace (a link, or a file when a handler is configured), delete. A resize
+  handle on the inline-end edge (`role="slider"`, arrow keys ±5%, the inline-end arrow grows); dragging writes a
+  percentage of the content width (`computeResizeWidth` for the direction, `toWidthPercent`). A change of
+  `view.editable` does not update node views, so the plugin view pushes it into the components (this also keeps
+  zoneless change detection correct).
+- Styles: `editor.component.scss` (plain DOM without the node view) and `styles/content.css` — frame
+  `position: relative; aspect-ratio`, player `position: absolute; inset: 0`, alignment and caption; logical properties
+  only.
 
 ## Output stylesheet
 

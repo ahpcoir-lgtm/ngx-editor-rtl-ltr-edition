@@ -1,0 +1,126 @@
+<button
+  type="button"
+  class="NgxEditor__MenuItem--Icon"
+  [class.NgxEditor__MenuItem--Active]="isActive || showPopup"
+  [innerHTML]="icon | sanitizeHtml"
+  (mousedown)="onTogglePopupMouseClick($event)"
+  (keydown.enter)="onTogglePopupKeydown()"
+  (keydown.space)="onTogglePopupKeydown()"
+  [title]="getLabel('insertVideo') | async"
+  [ariaLabel]="getLabel('insertVideo') | async"
+  aria-haspopup="dialog"
+  [ariaExpanded]="showPopup"
+></button>
+
+<!-- popup -->
+@if (showPopup) {
+  <form
+    class="NgxEditor__Popup NgxEditor__ImagePopup NgxEditor__VideoPopup"
+    ngxPopupPosition
+    role="dialog"
+    [ariaLabel]="getLabel('insertVideo') | async"
+    [formGroup]="form"
+    (ngSubmit)="insert($event)"
+  >
+    <div class="NgxEditor__Tabs" role="tablist">
+      @for (tab of tabs; track tab) {
+        <button
+          type="button"
+          role="tab"
+          class="NgxEditor__Tab"
+          [class.NgxEditor__Tab--Active]="activeTab === tab"
+          [id]="getId('video-tab-' + tab)"
+          [attr.aria-selected]="activeTab === tab"
+          [attr.aria-controls]="getId('video-panel-' + tab)"
+          [tabIndex]="activeTab === tab ? 0 : -1"
+          (click)="selectTab(tab)"
+          (keydown)="onTabKeydown($event)"
+        >
+          {{ getLabel(tab === 'embed' ? 'videoEmbedTab' : 'videoUploadTab') | async }}
+        </button>
+      }
+    </div>
+
+    @if (activeTab === 'embed') {
+      <div
+        class="NgxEditor__Popup--FormGroup"
+        role="tabpanel"
+        [id]="getId('video-panel-embed')"
+        [attr.aria-labelledby]="getId('video-tab-embed')"
+      >
+        <div class="NgxEditor__Popup--Col">
+          <label class="NgxEditor__Popup--Label" [htmlFor]="getId('video-url')">{{ getLabel('videoUrl') | async }}</label>
+          <input
+            type="text"
+            dir="ltr"
+            formControlName="url"
+            autocomplete="off"
+            [id]="getId('video-url')"
+            [attr.placeholder]="getLabel('videoUrlHelp') | async"
+            [attr.aria-invalid]="urlError ? true : null"
+            [attr.aria-describedby]="getId('video-url-status')"
+          />
+          <div [id]="getId('video-url-status')" aria-live="polite">
+            @if (embed; as video) {
+              <div class="NgxEditor__VideoPreview">
+                <span>{{ getLabel('videoPreview') | async }}: {{ getProviderLabel(video.provider) | async }}</span>
+                <code dir="ltr">{{ video.src }}</code>
+              </div>
+            } @else if (urlError) {
+              <div class="NgxEditor__HelpText NgxEditor__HelpText--Error">{{ urlError }}</div>
+            }
+          </div>
+        </div>
+      </div>
+    } @else {
+      <div
+        class="NgxEditor__Popup--FormGroup"
+        role="tabpanel"
+        [id]="getId('video-panel-upload')"
+        [attr.aria-labelledby]="getId('video-tab-upload')"
+      >
+        <div class="NgxEditor__Popup--Col">
+          @if (canUpload) {
+            <label
+              class="NgxEditor__ImageDrop"
+              [class.NgxEditor__ImageDrop--Over]="dragOver"
+              (dragover)="onDragOver($event)"
+              (dragleave)="dragOver = false"
+              (drop)="onDrop($event)"
+            >
+              <span class="NgxEditor__ImageDrop--Icon" [innerHTML]="uploadIcon | sanitizeHtml"></span>
+              <span>{{ getLabel('dropVideo') | async }}</span>
+              <input type="file" class="NgxEditor__ImageDrop--Input" [attr.accept]="accept" (change)="onFileSelected($event)" />
+            </label>
+            @if (file) {
+              <div class="NgxEditor__VideoFile">{{ getLabel('videoSelectedFile', { name: file.name }) | async }}</div>
+            }
+            @if (fileError) {
+              <div class="NgxEditor__HelpText NgxEditor__HelpText--Error" role="alert">{{ fileError }}</div>
+            }
+          } @else {
+            <p class="NgxEditor__VideoNote" role="note">{{ getLabel('videoUploadUnavailable') | async }}</p>
+          }
+        </div>
+      </div>
+      <div class="NgxEditor__Popup--FormGroup">
+        <div class="NgxEditor__Popup--Col">
+          <label class="NgxEditor__Popup--Label" [htmlFor]="getId('video-poster')">{{ getLabel('posterUrl') | async }}</label>
+          <input type="url" dir="ltr" formControlName="poster" autocomplete="off" [id]="getId('video-poster')" />
+          @if (poster.invalid) {
+            <div class="NgxEditor__HelpText NgxEditor__HelpText--Error">{{ getLabel('enterValidUrl') | async }}</div>
+          }
+        </div>
+      </div>
+    }
+
+    <div class="NgxEditor__Popup--FormGroup">
+      <div class="NgxEditor__Popup--Col">
+        <label class="NgxEditor__Popup--Label" [htmlFor]="getId('video-caption')">{{ getLabel('videoCaption') | async }}</label>
+        <input type="text" formControlName="caption" autocomplete="off" [id]="getId('video-caption')" />
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="!canInsert">{{ getLabel('insert') | async }}</button>
+  </form>
+}

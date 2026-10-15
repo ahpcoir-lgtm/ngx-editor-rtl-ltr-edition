@@ -6,6 +6,7 @@ import { sanitizeUrl } from 'ngx-editor-rtl-ltr-edition/utils';
 import { dirAttr, getAlign, getBlockStyle, getDir, getIndent, withDirection } from './block-attrs';
 import { tableCellAttributes, withTableAttributes } from './table-attrs';
 import { getImageAlign, getImageAlignStyle, getImageDomAttrs, isImageAlign, normalizeCssLength } from './image-attrs';
+import { video } from './video';
 
 const doc: NodeSpec = {
   content: 'block+',
@@ -394,6 +395,7 @@ const nodes = {
   code_block: codeBlock,
   image,
   figure,
+  video,
   ...tableNodeSpecs,
   table: withDirection(withTableAttributes(tableNodeSpecs.table)),
   list_item: listItem,

@@ -2,7 +2,7 @@ import { DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
-import { NgxEditorModule, uploadImageFiles } from 'ngx-editor-rtl-ltr-edition';
+import { NgxEditorModule, uploadImageFiles, uploadVideoFiles } from 'ngx-editor-rtl-ltr-edition';
 import { fa } from 'ngx-editor-rtl-ltr-edition/locales';
 
 import { EditorComponent } from './editor.component';
@@ -84,6 +84,36 @@ describe('EditorComponent', () => {
       } finally {
         URL.createObjectURL = createObjectURL;
         URL.revokeObjectURL = revokeObjectURL;
+      }
+    });
+  });
+
+  describe('videos', () => {
+    it('should show the video item and the YouTube, Vimeo and Aparat samples', () => {
+      const element = fixture.nativeElement as HTMLElement;
+      expect(element.querySelector('ngx-video button[title="Insert Video"]')).toBeTruthy();
+
+      const sources = Array.from(element.querySelectorAll('ngx-video-view iframe')).map((iframe) => iframe.getAttribute('src'));
+      expect(sources).toEqual([
+        'https://www.youtube-nocookie.com/embed/aqz-KE-bpKQ',
+        'https://player.vimeo.com/video/76979871',
+        'https://www.aparat.com/video/video/embed/videohash/pRQCm/vt/frame',
+      ]);
+    });
+
+    it('should upload a video file with the simulated handler', async () => {
+      const { createObjectURL } = URL;
+      URL.createObjectURL = vi.fn(() => 'blob:http://localhost/demo-video');
+
+      try {
+        const file = new File([new Uint8Array(3)], 'clip.mp4', { type: 'video/mp4' });
+        await uploadVideoFiles(component.editor.view, [file], { pos: 1 });
+        fixture.detectChanges();
+
+        expect(JSON.stringify(component.editor.view.state.doc.toJSON())).toContain('blob:http://localhost/demo-video');
+        expect(component.eventLog()[0]).toBe('videoUploaded: clip.mp4');
+      } finally {
+        URL.createObjectURL = createObjectURL;
       }
     });
   });
